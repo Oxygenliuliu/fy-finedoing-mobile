@@ -1,0 +1,251 @@
+@import "../../common/uni.css";
+@import "../../common/iconfont.css";
+	/* 修改图标样式 */
+	.icon-xiugaifuzhi{ 
+		color: #666;
+		font-size: 20px
+	}
+	.btnDelete{
+		width: 90%;
+		margin-top: 1rem;
+		letter-spacing: 0.1rem;
+		background:#FFF9F9;
+		color: #FF0000;
+		border: 1px solid #FFF9F9;
+		font-size: 0.7rem;
+	}
+	/* 默认地址 */
+	.default{
+		color: #FFF;
+		background-color: red;
+		margin-left: 1rem;
+		border: 1px solid red;
+		border-radius: 5px;
+		font-size: 0.5rem;
+		letter-spacing: 0.1rem;
+		padding: 0 0 0 0.2rem;
+	}
+	.moren{
+		width: 10%;
+		text-align: right;
+		margin-top: 1rem;
+		color: #e93b3d;
+		font-size: 14px;
+	}
+	/* 默认地址结束 */
+	.scroll-Y {
+		height: 1160upx;
+	}
+	.scroll-view-item {
+		height: 86vh;
+	}
+	uni-view{
+		display: static;
+	}
+	.defAddress{
+		display: none;
+	}
+	.active{
+		display: none;
+	}
+	.actives{
+		display: none;
+	}
+	page{
+		background-color: #FFF;
+	}
+	.btnOperation i{
+		margin-right:1rem ;
+	}
+	.uni-bgc{  
+		border-bottom: 1px solid #ddd;
+	}
+	.uni-addressRight{
+		display: flex;
+		padding: 10px 0 0 10px;
+	}
+	.uni-addressName,.uni-sddressPhone{
+		min-width: 20%;
+		max-width: 50%;
+		font-family: -apple-system,Helvetica,sans-serif;
+		color: #333;
+		font-size: 0.7rem;
+		font-weight: bold;
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+	}
+	.uni-sddressPhone{
+		margin-left: 14px;
+	}
+	.address{
+		max-width: 86vw;
+		padding: 0 10px;
+		margin-bottom: 0.5rem;
+		font-size: 14px;
+		color: #666;
+		overflow: hidden;
+		text-overflow:ellipsis;
+		white-space: nowrap;
+	}
+	/* 底部 */
+	.uni-count{
+		width: 80vw;
+		height: 6vh;
+		z-index: 999;
+		position: absolute;
+		bottom: 0.1rem;
+		left: 2rem;
+		border: 1px solid #e4393c;
+		border-radius: 14rem;
+		text-align: center;
+		line-height: 7vh;
+		font-size: 0.7rem;
+	}
+	.uni-addBtn{
+		color: #FFF;
+		font-size: 16px;
+		line-height: 6vh;
+		/* letter-spacing: 0.2rem; */
+	}
+	.uni-addBtn view{
+		line-height: 6vh;
+		align-items: center;
+	}
+	.uni-icon-plusempty{
+		font-weight: 600;
+	}
+	/* 修改地址 */
+	.uni-name{
+		border-bottom: #e3e3e3 solid 1px;
+	}
+	.textName{
+		padding: 0 0.5rem;
+		width: 16vw;
+		height: 2.5rem;
+		line-height: 2.5rem;
+		color: #999;
+		font-size: 0.7rem;
+	}
+	.biaoti{
+		color: #999;
+		margin-right: 6px;
+	}
+	.textCom{
+		max-width: 30vw;
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+		height: 2.5rem;
+		line-height: 2.5rem;
+	}
+	.textaddress{
+		width: 70vw;
+	}
+	/* 设置默认地址的按钮 */
+	.texticon{
+		color: #999;
+		height: 2.5rem;
+		line-height: 2.5rem;
+	}
+	.texticon switch{
+		transform: scale(0.7,0.7)
+	}
+	/* 设置默认地址的按钮结束 */
+	.input-content{
+		height: 2.5rem;
+		line-height: 2.5rem;
+		color: #333;
+		font-size: 0.7rem;
+	}
+	.xxzddress{
+		width: 80vw;
+		display: inline-block;
+	}
+	.uni-wrap{
+		border-bottom: #e3e3e3 solid 1px;
+	}
+	.uni-wrap button{
+		margin-bottom: 10px;
+	}
+	/* 删除地址 */
+	.deleteAdd{
+		width: 10vw;
+		margin-top: 0.2rem;
+		text-align: right;
+		position: absolute;
+		top: -38px;
+		right: 14px;
+		z-index: 999;
+		color: #E4393C;
+		font-weight: 600;
+	}
+/* 	.footer {
+		position: fixed;
+		bottom: 0upx;
+		width: 94vw;
+		padding: 0 10%;
+		height: 99upx;
+		border-top: solid 1upx #eee;
+		background-color: #fff;
+		z-index: 2;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+	.btn {
+		height: 80upx;
+		border-radius: 40upx;
+		overflow: hidden;
+		display: flex;
+		margin-right: -2%;
+	}
+	.GoBack,
+	.BtnAddress {
+		height: 80upx;
+		width: 80vw;
+		color: #fff;
+		display: flex;
+		align-items: center;
+		font-size: 28upx;
+		letter-spacing: 0.2rem;
+	}
+	.GoBack {
+		background-color: #dcdbdb;
+	} */
+	
+	
+	
+	.footer {
+		position: fixed;
+		bottom: 0upx;
+		width: 94vw;
+		padding: 0 4%;
+		height: 99upx;
+		border-top: solid 1upx #eee;
+		background-color: #fff;
+		z-index: 2;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+	.btn {
+		height: 80upx;
+		border-radius: 40upx;
+		overflow: hidden;
+		display: flex;
+		margin-right: -2%;
+	}
+	.GoBack,
+	.BtnAddress {
+		height: 80upx;
+		padding: 0 138upx;
+		color: #fff;
+		display: flex;
+		align-items: center;
+		font-size: 0.7rem;
+		letter-spacing: 0.2rem;
+	}
+	.GoBack {
+		background-color: #dcdbdb;
+	}

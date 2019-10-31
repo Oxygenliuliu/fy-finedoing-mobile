@@ -1,0 +1,14 @@
+input{
+		border: 1px solid #bbb;
+		border-radius: 25rem;
+	}
+.uni-btn-v{
+	width: 90vw;
+	position: fixed;
+	bottom: 0;
+}
+.uni-btn-v>button{
+	border-radius: 50px;
+	background: #F10000;
+	color: #FFFFFF;
+}

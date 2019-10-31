@@ -1,0 +1,277 @@
+	/* 按钮样式 */
+	.ods-btn{
+		padding: 0.5rem 0 0 7rem;
+		color: #ff0000;
+	}
+	.ods-btn button{
+		color: #ff0000;
+	}
+	.btns {
+		width: 180upx;
+		min-width: 120upx;
+		line-height: 2;
+		font-size: 0.7rem;
+		color: #ff0000;
+		padding: 0 20upx;
+		border-radius: 60upx;
+		border: 1px solid #FFFFFF;
+		background: #ffffff;
+		margin:0 5px;
+	}
+	.btns::after{
+		border: 0;
+	}
+	.pay,.confirm {
+		border: solid 0.5px #ff0000;
+		color: #ff0000;
+	}
+	
+	.active {
+		display: none;
+	}
+	
+	.ods-Status{
+		padding: 0 0 0.5rem 3.3rem;
+	}
+	/* 订单明细状态 */
+	.orderDetailStatus {
+		display: flex;
+		justify-content: center;
+		width: 100%;
+		height: 130px;
+		margin: 0;
+		padding: 0;
+        background: linear-gradient(90deg,#ff0000,#ff4747);
+	}
+	.ods-image {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+	}
+	.ods-image image {
+		width: 6vw;
+		height: 6vw;
+	}
+	.flex-item{
+		height: 25%;
+		color: #FFFFFF;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+	}
+	
+
+	/* 收货地址 */
+	.userAddress {
+		width: 100%;
+		/* height: 50px; */
+		margin: 0 0 20upx 0;
+		padding: 20upx 0;
+		background: #FFFFFF;
+		display: inline-flex;
+		/* justify-content: center; */
+		align-items: center;
+	}
+	
+	.userAddress .add-image {
+		width: 10%;
+		height: 10%;
+		/* position: relative;
+		top:40upx;
+		left: 30upx; */
+		margin: 0 0 0 20upx;
+	}
+	.userAddress .add-image image {
+		width: 50upx;
+		height: 50upx;
+	}
+	.userAddress .add-body{
+		padding:0 10upx;
+	}
+
+	/* 商品信息详情 */
+	.commodity {
+		margin: 0 0 35upx 0;
+		background-color: #FFF;
+		width: 100%;
+	}
+
+	/* 商品名样式 */
+	.sp_tite {
+		padding: 0.5rem;
+		font-weight: 400;
+		font-size: 0.8rem;
+		border-bottom: 1.2px solid #F7F7F7;
+	}
+	
+	.sp_tite text {
+		font-size: 0.7rem;
+		float: right;
+		color: #999999;
+		padding: 0.2rem;
+	}
+
+	.sp_cont {
+		display: flex;
+		padding: 0.5rem;
+		border-bottom: #E5E5E5 solid 1px;
+	}
+
+	.sp_cont .sp_cont_img{
+		width: 30%;
+		margin: 0 0 0 0.2rem;
+	}
+	
+	.sp_cont .sp_cont_img>image {
+		height: 5rem;
+		width: 5rem;
+		margin-top: 0.5rem;
+		border-radius: 10upx ;
+	}
+
+	.sp_cont .sp_cont_content{
+		width: 50%;
+		border-right: 1px solid #f7f7f7;
+	}
+	
+	.sp_cont_content uni-view {
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+	}
+	
+	.sp_cont>view {
+		margin-left: 0.3rem;
+	}
+
+	.money {
+		color: red;
+	}
+	.progress{
+		width: 18vw;
+		align-items: center;
+		justify-content: center;
+	}
+	.progress text{
+		-webkit-line-clamp: 1; 
+		-webkit-box-orient: vertical; 
+		word-break: break-all;
+		overflow: hidden; 
+		text-overflow: ellipsis; 
+		display: -webkit-box; 
+	}
+/* 	.cur_progress{
+		position: relative;
+		top: -4vw;
+		color: #999999;
+		font-weight: 600;
+	} */
+	.progressBtn{
+		border: 1px solid #f7f7f7;
+		width: 18vw;
+		font-size: 0.6rem;
+		padding: 0;
+		margin: 3px 0;
+		background: #ffffff;
+		color: #333333;
+	}
+	.progressBtn::after{
+		display: none;
+	}
+
+	/* 商品订单详情 */
+	.information {
+		background-color: #FFF;
+	}
+	
+	.orderHeaderInfo{
+		font-size: 0.7rem;
+		color: #999999;
+	}
+	
+	.orderHeaderContent{
+		font-size: 0.7rem;
+		color: #151515;
+	}
+	.information>view {
+		padding: 0.5rem;
+		border-bottom: #E5E5E5 solid 1px;
+	}
+
+	.viewInvoice {
+		float: right;
+	}
+	.uni-column{
+		color:rgb(26, 173, 25);
+	}
+
+	/* 历史修改记录 */
+	.history {
+		background-color: #FFF;
+		padding: 0.25rem;
+		margin: 0.5rem 0px;
+	}
+
+	.historyTite {
+		padding-bottom: 0.125rem;
+		border-bottom: #F7F7F7 solid 1px;
+	}
+
+	.historyInfo {
+		max-height: 4.5rem;
+		overflow: auto;
+		height: 5rem;
+		overflow: hidden;
+	}
+
+	.historyInfo div span {
+		margin-left: 1.5rem;
+	}
+
+	.oldInfo {
+		border-bottom: 1px solid #CCCCCC;
+		margin-top: 0.2rem;
+		padding-bottom: 0.3rem;
+	}
+
+	#xglsinfo_id {
+		color: #0A98D5;
+	}
+
+	/* 实付金额 */
+	.actualPayment {
+		background-color: #FFF;
+		padding: 0.6rem 0.5rem;
+		border-bottom: #EEE solid 1px;
+		overflow: hidden;
+		position: relative;
+	}
+	.actualPayment .ap_right {
+		float: right;
+	}
+	
+	.actualPayment .ap_bottom{
+		float: right;
+		font-size: 0.9rem;
+		font-weight: 700;
+	}
+	
+	.actualPayment .ap_bottom .ap_money{
+		color: #E93B3D;
+	}
+
+	.actualPayment .ap_center {
+		font-size: 0.8rem;
+	}
+
+	/* 获取订单详情失败的弹出框中的按钮样式 */
+	#orderBox {
+		width: 10rem;
+		text-align: center;
+	}
+
+	.btnOrder button {
+		left: 1rem;
+		top: 0.5rem;
+		margin-bottom: 0.5rem;
+	}

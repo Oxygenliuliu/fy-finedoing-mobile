@@ -1,0 +1,274 @@
+{
+	"pages": [
+		{
+			"path": "pages/index/index",
+			"navigationBarTitleText": "印客宝-广告行业电商平台",
+			"style": {
+				"navigationBarTitleText": "印客宝-广告行业电商平台",
+				"navigationStyle":"custom"
+			}
+		},
+		{
+			"path": "pages/order/progress",
+			"style": {
+				"navigationBarTitleText": "明细流程"
+			}
+		},
+		{
+			"path": "pages/user/edit",
+			"style": {
+				"navigationBarTitleText": "编辑地址"
+			}
+		},
+		{
+			"path": "pages/order/balance",
+			"style": {
+				"navigationBarTitleText": "余额支付"
+			}
+		},
+		{
+			"path": "pages/index/login",
+			"style": {
+				"navigationBarTitleText": "登录"
+			}
+		},
+		{
+			"path": "pages/index/search",
+			"style": {
+				"navigationBarTitleText": "搜索页",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/product/productinfo",
+			"style": {
+				"navigationBarTitleText": "产品页",
+				"navigationBarBackgroundColor":"#f1f1f1",
+				"onReachBottomDistance":50,
+				"h5":{
+					"titleNView":false
+				},
+				"app-plus": {
+					"titleNView": false ,//禁用原生导航栏
+					"bounce":"none"
+				}
+			}
+		},
+		{
+			"path": "pages/order/orderpageinfo",
+			"style": {
+				"navigationBarTitleText": "订单信息",
+				"enablePullDownRefresh": true  //开启下拉刷新
+			}
+		},
+		{
+			"path": "pages/order/csOrder",
+			"style": {
+				"navigationBarTitleText": "线下订单",
+				"enablePullDownRefresh": true  ,//开启下拉刷新
+				"onReachBottomDistance":500
+			}
+		},
+		// {
+		// 	"path": "pages/order/delivery",
+		// 	"style": {
+		// 		"navigationBarTitleText": "物流跟踪"
+		// 	}
+		// },
+		{
+			"path": "pages/order/csDetails",
+			"style": {
+				"navigationBarTitleText": "线下订单详情"
+			}
+		},
+		{
+			"path": "pages/user/addressNew",
+			"style": {
+				"navigationBarTitleText": "新增地址"
+			}
+		},
+		{
+			"path": "pages/user/useraddress",
+			"style": {
+				"navigationBarTitleText": "收货地址"
+			}
+		},
+		{
+			"path": "pages/product/product",
+			"style": {
+				"navigationBarTitleText": "商品类别"
+			}
+		},
+		{
+			"path": "pages/user/subaccount",
+			"style": {
+				"navigationBarTitleText": "子账号管理"
+			}
+		},
+		{
+			"path": "pages/user/subaccountNew",
+			"style": {
+				"navigationBarTitleText": "子账号注册"
+			}
+		},		
+		{
+			"path": "pages/shopping/shopping",
+			"style": {
+				"navigationBarTitleText": "购物车",
+				"onReachBottomDistance":100
+			}
+		},
+		{
+			"path": "pages/user/change_password",
+			"style": {
+				"navigationBarTitleText": "修改登录密码"
+			}
+		},
+		{
+			"path": "pages/user/change_payment",
+			"style": {
+				"navigationBarTitleText": "修改支付密码"
+			}
+		},
+		{
+			"path": "pages/user/personalInfo",
+			"style": {
+				"navigationBarTitleText": "个人信息"
+			}
+		},
+		{
+			"path": "pages/user/companyInfo",
+			"style": {
+				"navigationBarTitleText": "公司信息"
+			}
+		},
+		{
+			"path": "pages/user/bill",
+			"style": {
+				"navigationBarTitleText": "资金流水",
+				"enablePullDownRefresh": true  //开启下拉刷新
+			}
+		},
+		{
+			"path": "pages/user/recharge_center",
+			"style": {
+				"navigationBarTitleText": "充值中心"
+			}
+		},
+		{
+			"path": "pages/order/details",
+			"style": {
+				"navigationBarTitleText": "订单详情"
+			}
+		},
+		{
+			"path": "pages/order/payment",
+			"style": {
+				"navigationBarTitleText": ""
+			}
+		},
+		{
+			"path": "pages/user/safety",
+			"style": {
+				"navigationBarTitleText": "安全中心"
+			}
+		},
+		{
+			"path": "pages/index/register",
+			"style": {
+				"navigationBarTitleText": "注册"
+			}
+		},
+		{
+			"path": "pages/user/user",
+			"style": {
+				"navigationBarTitleText": "个人中心"
+			}
+		},
+		{
+			"path": "pages/index/retrievepwd",
+			"style": {
+				"navigationBarTitleText": "找回登陆密码"
+			}
+		},
+		{
+			"path": "pages/user/change_phone",
+			"style": {
+				"navigationBarTitleText": "更改绑定手机"
+			}
+		},
+		{
+			"path": "pages/order/receiving",
+			"style": {
+				"navigationBarTitleText": "地址"
+			}
+		},
+		{
+			"path": "pages/user/weChat",
+			"style": {
+				"navigationBarTitleText": "充值结果",
+				"navigationStyle":"custom"
+			}
+		},
+		{
+			"path": "pages/order/invoiceDetails",
+			"style": {
+				"navigationBarTitleText": "发票明细"
+			}
+		},
+		{
+			"path": "pages/order/payResults",
+			"style": {
+				"navigationBarTitleText": "支付结果",
+				"navigationStyle":"custom"
+			}
+		},
+		{
+			"path":"pages/user/certificates",
+			"style":{
+				"navigationBarTitleText":"认证资料"
+			}
+		},
+		{
+			"path":"pages/order/invoice",
+			"style":{
+				"navigationBarTitleText":"发票"
+			}
+		}
+    ],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "uni-app",
+		"navigationBarBackgroundColor": "#F8F8F8",
+		"backgroundColor": "#F8F8F8"
+	}
+	// "tabBar": {
+ //        "color": "#dbdbdb",
+ //        "selectedColor": "#e43130",
+ //        "borderStyle": "black",
+ //        "backgroundColor": "#ffffff",
+ //        "list": [{
+ //            "pagePath": "pages/index/index",
+ //            "iconPath": "static/image/home.png",
+ //            "selectedIconPath": "static/image/homes.png",
+ //            "text": "首页"
+ //        }, {
+ //            "pagePath": "pages/product/product",
+ //            "iconPath": "static/image/sort.png",
+ //            "selectedIconPath": "static/image/sorts.png",
+ //            "text": "分类"
+ //        },
+	// 	{
+	// 	    "pagePath": "pages/shopping/shopping",
+	// 	    "iconPath": "static/image/shop.png",
+	// 	    "selectedIconPath": "static/image/shops.png",
+	// 	    "text": "购物车"
+	// 	},
+	// 	{
+	// 	    "pagePath": "pages/user/user",
+	// 		"iconPath": "static/image/user.png",
+	// 		"selectedIconPath": "static/image/users.png",
+	// 	    "text": "我的"
+	// 	}]
+ //    }
+}

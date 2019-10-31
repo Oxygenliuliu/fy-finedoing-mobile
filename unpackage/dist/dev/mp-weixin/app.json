@@ -1,0 +1,69 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/index/login",
+    "pages/product/productinfo",
+    "pages/order/orderpageinfo",
+    "pages/user/addressNew",
+    "pages/user/useraddress",
+    "pages/product/product",
+    "pages/user/subaccount",
+    "pages/user/subaccountNew",
+    "pages/shopping/shopping",
+    "pages/user/change_password",
+    "pages/user/change_payment",
+    "pages/user/personalInfo",
+    "pages/user/bill",
+    "pages/user/recharge_center",
+    "pages/order/details",
+    "pages/order/payment",
+    "pages/user/safety",
+    "pages/index/register",
+    "pages/user/user",
+    "pages/index/retrievepwd",
+    "pages/user/change_phone",
+    "pages/order/invoice",
+    "pages/order/receiving"
+  ],
+  "subPackages": [],
+  "window": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "uni-app",
+    "navigationBarBackgroundColor": "#F8F8F8",
+    "backgroundColor": "#F8F8F8"
+  },
+  "usingComponents": {},
+  "tabBar": {
+    "color": "#dbdbdb",
+    "selectedColor": "#e43130",
+    "borderStyle": "black",
+    "backgroundColor": "#ffffff",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "iconPath": "static/image/home.png",
+        "selectedIconPath": "static/image/homes.png",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/product/product",
+        "iconPath": "static/image/sort.png",
+        "selectedIconPath": "static/image/sorts.png",
+        "text": "分类"
+      },
+      {
+        "pagePath": "pages/shopping/shopping",
+        "iconPath": "static/image/shop.png",
+        "selectedIconPath": "static/image/shops.png",
+        "text": "购物车"
+      },
+      {
+        "pagePath": "pages/user/user",
+        "iconPath": "static/image/user.png",
+        "selectedIconPath": "static/image/users.png",
+        "text": "我的"
+      }
+    ]
+  },
+  "sitemapLocation": "sitemap.json"
+}

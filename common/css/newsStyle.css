@@ -1,0 +1,69 @@
+@import "../../common/uni.css";
+	page{
+		background-color: #F7F7F7;
+	}
+	picker{
+		width: 60%;
+		text-align: right;
+		color: #999999;
+	}
+	.informationName{
+		font-size: 0.7rem;
+	}
+	.uni-list-cell input{
+		color: #999999;
+		width:60%;
+		text-align: right;
+		font-size: 0.7rem;
+	}
+	.name{
+		font-size:0.7rem;
+	}
+	.active{
+		display: none;
+	}
+	.unicommonHeight{
+		position: absolute;
+		bottom: 80px;
+	}
+	#navbottom {
+		padding: 0px;
+		/* background-color: #FFF; */
+		display: inline-block;
+		position: fixed;
+		width: 100%;
+		height: 55px;
+		bottom: 0px;
+		/* box-shadow: 0px -1px 1px #ccc; */
+	}
+	
+	#navbottom button {
+		width: 90%;
+		margin: 0px 5%;
+		margin-top: 0.35rem;
+		font-size: 16px;
+		line-height: 1.42;
+		background-color: #FF0000;
+		padding: 10px 12px;
+		color: #FFFFFF;
+		border-radius: 25px;
+	}
+	.uni-list-cell-navigate text{
+		margin-right: 30px;
+	}
+	/* 单击时触发的事件,弹出框的样式 */
+	.elasticFrame text{
+		font-size: 1rem;
+		letter-spacing: 5px;
+	}
+	.elasticFrame input{
+		width: 13rem;
+		height: 2rem;
+	}
+    .flex-container {
+		display: flex;
+		flex-direction: row;
+	}
+	.flex-container .flex-item {
+		margin: 1rem 1rem;
+	}
