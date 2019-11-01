@@ -5,7 +5,7 @@
         	<view class="form re">
         		<view class="username">
         			<view class="get-code" :style="{'color':getCodeBtnColor}" @click.stop="getCode()">{{getCodeText}}</view>
-        			<input v-if="telephone" :placeholder="'请输入尾号('+(telephone).substring(7, 11) +')手机号'" type="number" v-model="phoneNumber" placeholder-style="color: #cccccc;"/>
+        			<input v-if="telephone" :placeholder="'请输入尾号'+phoneTailNumber+'手机号'" type="number" v-model="phoneNumber" placeholder-style="color: #cccccc;"/>
 					<input v-else placeholder="请输入手机号" type="number" v-model="phoneNumber" placeholder-style="color: #cccccc;"/>
         		</view>
         		<view class="code">
@@ -33,6 +33,7 @@
 		},
 		data() {
 			return {
+				phoneTailNumber: '',
 				phoneNumber:"",
 				code:'',
 				passwd:"",
@@ -69,6 +70,7 @@
 						console.log(result);
 						if(result.data.status==0){
 							this.telephone=result.data.telephone;
+							this.phoneTailNumber = this.telephone.substring(7, 11)
 							this.isLogin = true;
 						}else{
 							uni.showToast({title: '获取原手机号失败！，'+result.data.message,icon:"none"});

@@ -11,6 +11,7 @@
 		<button @tap="pytClick">确认</button>
 		
 		<!-- 输入支付密码界面弹出 -->
+		<!-- #ifndef MP-WEIXIN -->
 		<uni-popup :show="pytPwd" type="bottom" position="bottom">
 			<view class="content">
 				<view class="login">
@@ -60,7 +61,8 @@
 				</view>
 			</view>
 		</uni-popup>
-	</view>
+		<!-- #endif -->
+	</view>	
 </template>
 
 <script>

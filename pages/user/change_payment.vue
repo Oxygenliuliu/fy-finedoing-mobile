@@ -45,6 +45,7 @@
 			<view class="pan_num_key" :class="[items.checked?'pan_num_checked':'pan_num_key']" v-for="(items,index) in boardlists"
 			 :key="index" @click="writepwd(items.id)"><image class="" src="../../static/image/delete.png" :style="{display:(items.id == '12'?'block':'none')}"></image>{{items.con}}</view>
 		</view>
+		<!-- #ifndef MP-WEIXIN -->
 		<uni-popup ref="popup" type="bottom" :show="showPopup" custom="true">
 			
 			<view class="layer uni-flex uni-column">
@@ -64,6 +65,7 @@
 				</view>
 			</view>
 		</uni-popup>
+		<!-- #endif -->
 	</view>
 </template>
 <script>

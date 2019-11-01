@@ -1,4 +1,7 @@
 {
-  "usingComponents": {},
-  "navigationBarTitleText": "子 账 号 注 册"
+  "navigationBarTitleText": "子账号注册",
+  "usingComponents": {
+    "copyright": "/components/customize/copyright",
+    "loginheader": "/components/customize/loginheader"
+  }
 }

@@ -4,8 +4,11 @@
 			"path": "pages/index/index",
 			"navigationBarTitleText": "印客宝-广告行业电商平台",
 			"style": {
-				"navigationBarTitleText": "印客宝-广告行业电商平台",
+				"navigationBarTitleText": "印客宝-广告行业电商平台"
+				// #ifndef MP-WEIXIN
+				,
 				"navigationStyle":"custom"
+				// #endif
 			}
 		},
 		{
@@ -69,12 +72,12 @@
 				"onReachBottomDistance":500
 			}
 		},
-		// {
-		// 	"path": "pages/order/delivery",
-		// 	"style": {
-		// 		"navigationBarTitleText": "物流跟踪"
-		// 	}
-		// },
+		 {
+		 	"path": "pages/order/delivery",
+		 	"style": {
+		 		"navigationBarTitleText": "物流跟踪"
+		 	}
+		 },
 		{
 			"path": "pages/order/csDetails",
 			"style": {

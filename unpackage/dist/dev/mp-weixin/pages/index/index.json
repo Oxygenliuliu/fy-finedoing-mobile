@@ -1,5 +1,8 @@
 {
-  "usingComponents": {},
-  "navigationBarTitleText": "",
-  "navigationStyle": "custom"
+  "navigationBarTitleText": "印客宝-广告行业电商平台",
+  "usingComponents": {
+    "i-price": "/components/i-price/i-price",
+    "copyright": "/components/customize/copyright",
+    "tar-bar": "/components/customize/tarBar"
+  }
 }

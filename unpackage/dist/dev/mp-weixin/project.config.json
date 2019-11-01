@@ -5,12 +5,25 @@
 	},
 	"setting": {
 		"urlCheck": false,
-		"es6": false
+		"es6": true,
+		"postcss": true,
+		"minified": true,
+		"newFeature": true,
+		"coverView": true,
+		"autoAudits": true,
+		"checkInvalidKey": true,
+		"checkSiteMap": true,
+		"uploadWithSourceMap": true,
+		"babelSetting": {
+			"ignore": [],
+			"disablePlugins": [],
+			"outputPath": ""
+		}
 	},
 	"compileType": "miniprogram",
-	"libVersion": "2.6.4",
+	"libVersion": "2.9.1",
 	"appid": "touristappid",
-	"projectname": "one",
+	"projectname": "印客宝-广告行业电商平台",
 	"simulatorType": "wechat",
 	"simulatorPluginLibVersion": {},
 	"condition": {

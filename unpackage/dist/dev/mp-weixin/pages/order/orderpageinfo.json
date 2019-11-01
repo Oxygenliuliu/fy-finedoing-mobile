@@ -1,4 +1,5 @@
 {
-  "usingComponents": {},
-  "navigationBarTitleText": "订 单 信 息"
+  "navigationBarTitleText": "订单信息",
+  "enablePullDownRefresh": true,
+  "usingComponents": {}
 }

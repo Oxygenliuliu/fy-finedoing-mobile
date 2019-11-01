@@ -1,4 +1,7 @@
 {
-  "usingComponents": {},
-  "navigationBarTitleText": "个 人 信 息"
+  "navigationBarTitleText": "个人信息",
+  "usingComponents": {
+    "prompt": "/components/zz-prompt/index",
+    "uni-popup": "/components/uni-popup/uni-popup"
+  }
 }

@@ -1,9 +1,1509 @@
 (global["webpackJsonp"] = global["webpackJsonp"] || []).push([["common/vendor"],{
 
-/***/ "../../mobile-app/common/city.data.js":
-/*!******************************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/common/city.data.js ***!
-  \******************************************************************************************/
+/***/ 1:
+/*!************************************************************!*\
+  !*** ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js ***!
+  \************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });exports.createApp = createApp;exports.createComponent = createComponent;exports.createPage = createPage;exports.default = void 0;var _vue = _interopRequireDefault(__webpack_require__(/*! vue */ 2));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}function _slicedToArray(arr, i) {return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest();}function _nonIterableRest() {throw new TypeError("Invalid attempt to destructure non-iterable instance");}function _iterableToArrayLimit(arr, i) {var _arr = [];var _n = true;var _d = false;var _e = undefined;try {for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {_arr.push(_s.value);if (i && _arr.length === i) break;}} catch (err) {_d = true;_e = err;} finally {try {if (!_n && _i["return"] != null) _i["return"]();} finally {if (_d) throw _e;}}return _arr;}function _arrayWithHoles(arr) {if (Array.isArray(arr)) return arr;}function _defineProperty(obj, key, value) {if (key in obj) {Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true });} else {obj[key] = value;}return obj;}function _toConsumableArray(arr) {return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread();}function _nonIterableSpread() {throw new TypeError("Invalid attempt to spread non-iterable instance");}function _iterableToArray(iter) {if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);}function _arrayWithoutHoles(arr) {if (Array.isArray(arr)) {for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) {arr2[i] = arr[i];}return arr2;}}
+
+var _toString = Object.prototype.toString;
+var hasOwnProperty = Object.prototype.hasOwnProperty;
+
+function isFn(fn) {
+  return typeof fn === 'function';
+}
+
+function isStr(str) {
+  return typeof str === 'string';
+}
+
+function isPlainObject(obj) {
+  return _toString.call(obj) === '[object Object]';
+}
+
+function hasOwn(obj, key) {
+  return hasOwnProperty.call(obj, key);
+}
+
+function noop() {}
+
+/**
+                    * Create a cached version of a pure function.
+                    */
+function cached(fn) {
+  var cache = Object.create(null);
+  return function cachedFn(str) {
+    var hit = cache[str];
+    return hit || (cache[str] = fn(str));
+  };
+}
+
+/**
+   * Camelize a hyphen-delimited string.
+   */
+var camelizeRE = /-(\w)/g;
+var camelize = cached(function (str) {
+  return str.replace(camelizeRE, function (_, c) {return c ? c.toUpperCase() : '';});
+});
+
+var HOOKS = [
+'invoke',
+'success',
+'fail',
+'complete',
+'returnValue'];
+
+
+var globalInterceptors = {};
+var scopedInterceptors = {};
+
+function mergeHook(parentVal, childVal) {
+  var res = childVal ?
+  parentVal ?
+  parentVal.concat(childVal) :
+  Array.isArray(childVal) ?
+  childVal : [childVal] :
+  parentVal;
+  return res ?
+  dedupeHooks(res) :
+  res;
+}
+
+function dedupeHooks(hooks) {
+  var res = [];
+  for (var i = 0; i < hooks.length; i++) {
+    if (res.indexOf(hooks[i]) === -1) {
+      res.push(hooks[i]);
+    }
+  }
+  return res;
+}
+
+function removeHook(hooks, hook) {
+  var index = hooks.indexOf(hook);
+  if (index !== -1) {
+    hooks.splice(index, 1);
+  }
+}
+
+function mergeInterceptorHook(interceptor, option) {
+  Object.keys(option).forEach(function (hook) {
+    if (HOOKS.indexOf(hook) !== -1 && isFn(option[hook])) {
+      interceptor[hook] = mergeHook(interceptor[hook], option[hook]);
+    }
+  });
+}
+
+function removeInterceptorHook(interceptor, option) {
+  if (!interceptor || !option) {
+    return;
+  }
+  Object.keys(option).forEach(function (hook) {
+    if (HOOKS.indexOf(hook) !== -1 && isFn(option[hook])) {
+      removeHook(interceptor[hook], option[hook]);
+    }
+  });
+}
+
+function addInterceptor(method, option) {
+  if (typeof method === 'string' && isPlainObject(option)) {
+    mergeInterceptorHook(scopedInterceptors[method] || (scopedInterceptors[method] = {}), option);
+  } else if (isPlainObject(method)) {
+    mergeInterceptorHook(globalInterceptors, method);
+  }
+}
+
+function removeInterceptor(method, option) {
+  if (typeof method === 'string') {
+    if (isPlainObject(option)) {
+      removeInterceptorHook(scopedInterceptors[method], option);
+    } else {
+      delete scopedInterceptors[method];
+    }
+  } else if (isPlainObject(method)) {
+    removeInterceptorHook(globalInterceptors, method);
+  }
+}
+
+function wrapperHook(hook) {
+  return function (data) {
+    return hook(data) || data;
+  };
+}
+
+function isPromise(obj) {
+  return !!obj && (typeof obj === 'object' || typeof obj === 'function') && typeof obj.then === 'function';
+}
+
+function queue(hooks, data) {
+  var promise = false;
+  for (var i = 0; i < hooks.length; i++) {
+    var hook = hooks[i];
+    if (promise) {
+      promise = Promise.then(wrapperHook(hook));
+    } else {
+      var res = hook(data);
+      if (isPromise(res)) {
+        promise = Promise.resolve(res);
+      }
+      if (res === false) {
+        return {
+          then: function then() {} };
+
+      }
+    }
+  }
+  return promise || {
+    then: function then(callback) {
+      return callback(data);
+    } };
+
+}
+
+function wrapperOptions(interceptor) {var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  ['success', 'fail', 'complete'].forEach(function (name) {
+    if (Array.isArray(interceptor[name])) {
+      var oldCallback = options[name];
+      options[name] = function callbackInterceptor(res) {
+        queue(interceptor[name], res).then(function (res) {
+          /* eslint-disable no-mixed-operators */
+          return isFn(oldCallback) && oldCallback(res) || res;
+        });
+      };
+    }
+  });
+  return options;
+}
+
+function wrapperReturnValue(method, returnValue) {
+  var returnValueHooks = [];
+  if (Array.isArray(globalInterceptors.returnValue)) {
+    returnValueHooks.push.apply(returnValueHooks, _toConsumableArray(globalInterceptors.returnValue));
+  }
+  var interceptor = scopedInterceptors[method];
+  if (interceptor && Array.isArray(interceptor.returnValue)) {
+    returnValueHooks.push.apply(returnValueHooks, _toConsumableArray(interceptor.returnValue));
+  }
+  returnValueHooks.forEach(function (hook) {
+    returnValue = hook(returnValue) || returnValue;
+  });
+  return returnValue;
+}
+
+function getApiInterceptorHooks(method) {
+  var interceptor = Object.create(null);
+  Object.keys(globalInterceptors).forEach(function (hook) {
+    if (hook !== 'returnValue') {
+      interceptor[hook] = globalInterceptors[hook].slice();
+    }
+  });
+  var scopedInterceptor = scopedInterceptors[method];
+  if (scopedInterceptor) {
+    Object.keys(scopedInterceptor).forEach(function (hook) {
+      if (hook !== 'returnValue') {
+        interceptor[hook] = (interceptor[hook] || []).concat(scopedInterceptor[hook]);
+      }
+    });
+  }
+  return interceptor;
+}
+
+function invokeApi(method, api, options) {for (var _len = arguments.length, params = new Array(_len > 3 ? _len - 3 : 0), _key = 3; _key < _len; _key++) {params[_key - 3] = arguments[_key];}
+  var interceptor = getApiInterceptorHooks(method);
+  if (interceptor && Object.keys(interceptor).length) {
+    if (Array.isArray(interceptor.invoke)) {
+      var res = queue(interceptor.invoke, options);
+      return res.then(function (options) {
+        return api.apply(void 0, [wrapperOptions(interceptor, options)].concat(params));
+      });
+    } else {
+      return api.apply(void 0, [wrapperOptions(interceptor, options)].concat(params));
+    }
+  }
+  return api.apply(void 0, [options].concat(params));
+}
+
+var promiseInterceptor = {
+  returnValue: function returnValue(res) {
+    if (!isPromise(res)) {
+      return res;
+    }
+    return res.then(function (res) {
+      return res[1];
+    }).catch(function (res) {
+      return res[0];
+    });
+  } };
+
+
+var SYNC_API_RE =
+/^\$|getMenuButtonBoundingClientRect|^report|interceptors|Interceptor$|getSubNVueById|requireNativePlugin|upx2px|hideKeyboard|canIUse|^create|Sync$|Manager$|base64ToArrayBuffer|arrayBufferToBase64/;
+
+var CONTEXT_API_RE = /^create|Manager$/;
+
+var CALLBACK_API_RE = /^on/;
+
+function isContextApi(name) {
+  return CONTEXT_API_RE.test(name);
+}
+function isSyncApi(name) {
+  return SYNC_API_RE.test(name);
+}
+
+function isCallbackApi(name) {
+  return CALLBACK_API_RE.test(name);
+}
+
+function handlePromise(promise) {
+  return promise.then(function (data) {
+    return [null, data];
+  }).
+  catch(function (err) {return [err];});
+}
+
+function shouldPromise(name) {
+  if (
+  isContextApi(name) ||
+  isSyncApi(name) ||
+  isCallbackApi(name))
+  {
+    return false;
+  }
+  return true;
+}
+
+function promisify(name, api) {
+  if (!shouldPromise(name)) {
+    return api;
+  }
+  return function promiseApi() {var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};for (var _len2 = arguments.length, params = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {params[_key2 - 1] = arguments[_key2];}
+    if (isFn(options.success) || isFn(options.fail) || isFn(options.complete)) {
+      return wrapperReturnValue(name, invokeApi.apply(void 0, [name, api, options].concat(params)));
+    }
+    return wrapperReturnValue(name, handlePromise(new Promise(function (resolve, reject) {
+      invokeApi.apply(void 0, [name, api, Object.assign({}, options, {
+        success: resolve,
+        fail: reject })].concat(
+      params));
+      /* eslint-disable no-extend-native */
+      if (!Promise.prototype.finally) {
+        Promise.prototype.finally = function (callback) {
+          var promise = this.constructor;
+          return this.then(
+          function (value) {return promise.resolve(callback()).then(function () {return value;});},
+          function (reason) {return promise.resolve(callback()).then(function () {
+              throw reason;
+            });});
+
+        };
+      }
+    })));
+  };
+}
+
+var EPS = 1e-4;
+var BASE_DEVICE_WIDTH = 750;
+var isIOS = false;
+var deviceWidth = 0;
+var deviceDPR = 0;
+
+function checkDeviceWidth() {var _wx$getSystemInfoSync =
+
+
+
+
+  wx.getSystemInfoSync(),platform = _wx$getSystemInfoSync.platform,pixelRatio = _wx$getSystemInfoSync.pixelRatio,windowWidth = _wx$getSystemInfoSync.windowWidth; // uni=>wx runtime 编译目标是 uni 对象，内部不允许直接使用 uni
+
+  deviceWidth = windowWidth;
+  deviceDPR = pixelRatio;
+  isIOS = platform === 'ios';
+}
+
+function upx2px(number, newDeviceWidth) {
+  if (deviceWidth === 0) {
+    checkDeviceWidth();
+  }
+
+  number = Number(number);
+  if (number === 0) {
+    return 0;
+  }
+  var result = number / BASE_DEVICE_WIDTH * (newDeviceWidth || deviceWidth);
+  if (result < 0) {
+    result = -result;
+  }
+  result = Math.floor(result + EPS);
+  if (result === 0) {
+    if (deviceDPR === 1 || !isIOS) {
+      return 1;
+    } else {
+      return 0.5;
+    }
+  }
+  return number < 0 ? -result : result;
+}
+
+var interceptors = {
+  promiseInterceptor: promiseInterceptor };
+
+
+
+
+var baseApi = /*#__PURE__*/Object.freeze({
+  upx2px: upx2px,
+  interceptors: interceptors,
+  addInterceptor: addInterceptor,
+  removeInterceptor: removeInterceptor });
+
+
+var previewImage = {
+  args: function args(fromArgs) {
+    var currentIndex = parseInt(fromArgs.current);
+    if (isNaN(currentIndex)) {
+      return;
+    }
+    var urls = fromArgs.urls;
+    if (!Array.isArray(urls)) {
+      return;
+    }
+    var len = urls.length;
+    if (!len) {
+      return;
+    }
+    if (currentIndex < 0) {
+      currentIndex = 0;
+    } else if (currentIndex >= len) {
+      currentIndex = len - 1;
+    }
+    if (currentIndex > 0) {
+      fromArgs.current = urls[currentIndex];
+      fromArgs.urls = urls.filter(
+      function (item, index) {return index < currentIndex ? item !== urls[currentIndex] : true;});
+
+    } else {
+      fromArgs.current = urls[0];
+    }
+    return {
+      indicator: false,
+      loop: false };
+
+  } };
+
+
+var protocols = {
+  previewImage: previewImage };
+
+var todos = [
+'vibrate'];
+
+var canIUses = [];
+
+var CALLBACKS = ['success', 'fail', 'cancel', 'complete'];
+
+function processCallback(methodName, method, returnValue) {
+  return function (res) {
+    return method(processReturnValue(methodName, res, returnValue));
+  };
+}
+
+function processArgs(methodName, fromArgs) {var argsOption = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};var returnValue = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};var keepFromArgs = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
+  if (isPlainObject(fromArgs)) {// 一般 api 的参数解析
+    var toArgs = keepFromArgs === true ? fromArgs : {}; // returnValue 为 false 时，说明是格式化返回值，直接在返回值对象上修改赋值
+    if (isFn(argsOption)) {
+      argsOption = argsOption(fromArgs, toArgs) || {};
+    }
+    for (var key in fromArgs) {
+      if (hasOwn(argsOption, key)) {
+        var keyOption = argsOption[key];
+        if (isFn(keyOption)) {
+          keyOption = keyOption(fromArgs[key], fromArgs, toArgs);
+        }
+        if (!keyOption) {// 不支持的参数
+          console.warn("\u5FAE\u4FE1\u5C0F\u7A0B\u5E8F ".concat(methodName, "\u6682\u4E0D\u652F\u6301").concat(key));
+        } else if (isStr(keyOption)) {// 重写参数 key
+          toArgs[keyOption] = fromArgs[key];
+        } else if (isPlainObject(keyOption)) {// {name:newName,value:value}可重新指定参数 key:value
+          toArgs[keyOption.name ? keyOption.name : key] = keyOption.value;
+        }
+      } else if (CALLBACKS.indexOf(key) !== -1) {
+        toArgs[key] = processCallback(methodName, fromArgs[key], returnValue);
+      } else {
+        if (!keepFromArgs) {
+          toArgs[key] = fromArgs[key];
+        }
+      }
+    }
+    return toArgs;
+  } else if (isFn(fromArgs)) {
+    fromArgs = processCallback(methodName, fromArgs, returnValue);
+  }
+  return fromArgs;
+}
+
+function processReturnValue(methodName, res, returnValue) {var keepReturnValue = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+  if (isFn(protocols.returnValue)) {// 处理通用 returnValue
+    res = protocols.returnValue(methodName, res);
+  }
+  return processArgs(methodName, res, returnValue, {}, keepReturnValue);
+}
+
+function wrapper(methodName, method) {
+  if (hasOwn(protocols, methodName)) {
+    var protocol = protocols[methodName];
+    if (!protocol) {// 暂不支持的 api
+      return function () {
+        console.error("\u5FAE\u4FE1\u5C0F\u7A0B\u5E8F \u6682\u4E0D\u652F\u6301".concat(methodName));
+      };
+    }
+    return function (arg1, arg2) {// 目前 api 最多两个参数
+      var options = protocol;
+      if (isFn(protocol)) {
+        options = protocol(arg1);
+      }
+
+      arg1 = processArgs(methodName, arg1, options.args, options.returnValue);
+
+      var args = [arg1];
+      if (typeof arg2 !== 'undefined') {
+        args.push(arg2);
+      }
+      var returnValue = wx[options.name || methodName].apply(wx, args);
+      if (isSyncApi(methodName)) {// 同步 api
+        return processReturnValue(methodName, returnValue, options.returnValue, isContextApi(methodName));
+      }
+      return returnValue;
+    };
+  }
+  return method;
+}
+
+var todoApis = Object.create(null);
+
+var TODOS = [
+'onTabBarMidButtonTap',
+'subscribePush',
+'unsubscribePush',
+'onPush',
+'offPush',
+'share'];
+
+
+function createTodoApi(name) {
+  return function todoApi(_ref)
+
+
+  {var fail = _ref.fail,complete = _ref.complete;
+    var res = {
+      errMsg: "".concat(name, ":fail:\u6682\u4E0D\u652F\u6301 ").concat(name, " \u65B9\u6CD5") };
+
+    isFn(fail) && fail(res);
+    isFn(complete) && complete(res);
+  };
+}
+
+TODOS.forEach(function (name) {
+  todoApis[name] = createTodoApi(name);
+});
+
+var providers = {
+  oauth: ['weixin'],
+  share: ['weixin'],
+  payment: ['wxpay'],
+  push: ['weixin'] };
+
+
+function getProvider(_ref2)
+
+
+
+
+{var service = _ref2.service,success = _ref2.success,fail = _ref2.fail,complete = _ref2.complete;
+  var res = false;
+  if (providers[service]) {
+    res = {
+      errMsg: 'getProvider:ok',
+      service: service,
+      provider: providers[service] };
+
+    isFn(success) && success(res);
+  } else {
+    res = {
+      errMsg: 'getProvider:fail:服务[' + service + ']不存在' };
+
+    isFn(fail) && fail(res);
+  }
+  isFn(complete) && complete(res);
+}
+
+var extraApi = /*#__PURE__*/Object.freeze({
+  getProvider: getProvider });
+
+
+var getEmitter = function () {
+  if (typeof getUniEmitter === 'function') {
+    /* eslint-disable no-undef */
+    return getUniEmitter;
+  }
+  var Emitter;
+  return function getUniEmitter() {
+    if (!Emitter) {
+      Emitter = new _vue.default();
+    }
+    return Emitter;
+  };
+}();
+
+function apply(ctx, method, args) {
+  return ctx[method].apply(ctx, args);
+}
+
+function $on() {
+  return apply(getEmitter(), '$on', Array.prototype.slice.call(arguments));
+}
+function $off() {
+  return apply(getEmitter(), '$off', Array.prototype.slice.call(arguments));
+}
+function $once() {
+  return apply(getEmitter(), '$once', Array.prototype.slice.call(arguments));
+}
+function $emit() {
+  return apply(getEmitter(), '$emit', Array.prototype.slice.call(arguments));
+}
+
+var eventApi = /*#__PURE__*/Object.freeze({
+  $on: $on,
+  $off: $off,
+  $once: $once,
+  $emit: $emit });
+
+
+
+
+var api = /*#__PURE__*/Object.freeze({});
+
+
+
+var MPPage = Page;
+var MPComponent = Component;
+
+var customizeRE = /:/g;
+
+var customize = cached(function (str) {
+  return camelize(str.replace(customizeRE, '-'));
+});
+
+function initTriggerEvent(mpInstance) {
+  {
+    if (!wx.canIUse('nextTick')) {
+      return;
+    }
+  }
+  var oldTriggerEvent = mpInstance.triggerEvent;
+  mpInstance.triggerEvent = function (event) {for (var _len3 = arguments.length, args = new Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {args[_key3 - 1] = arguments[_key3];}
+    return oldTriggerEvent.apply(mpInstance, [customize(event)].concat(args));
+  };
+}
+
+function initHook(name, options) {
+  var oldHook = options[name];
+  if (!oldHook) {
+    options[name] = function () {
+      initTriggerEvent(this);
+    };
+  } else {
+    options[name] = function () {
+      initTriggerEvent(this);for (var _len4 = arguments.length, args = new Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {args[_key4] = arguments[_key4];}
+      return oldHook.apply(this, args);
+    };
+  }
+}
+
+Page = function Page() {var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  initHook('onLoad', options);
+  return MPPage(options);
+};
+
+Component = function Component() {var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  initHook('created', options);
+  return MPComponent(options);
+};
+
+var PAGE_EVENT_HOOKS = [
+'onPullDownRefresh',
+'onReachBottom',
+'onShareAppMessage',
+'onPageScroll',
+'onResize',
+'onTabItemTap'];
+
+
+function initMocks(vm, mocks) {
+  var mpInstance = vm.$mp[vm.mpType];
+  mocks.forEach(function (mock) {
+    if (hasOwn(mpInstance, mock)) {
+      vm[mock] = mpInstance[mock];
+    }
+  });
+}
+
+function hasHook(hook, vueOptions) {
+  if (!vueOptions) {
+    return true;
+  }
+
+  if (_vue.default.options && Array.isArray(_vue.default.options[hook])) {
+    return true;
+  }
+
+  vueOptions = vueOptions.default || vueOptions;
+
+  if (isFn(vueOptions)) {
+    if (isFn(vueOptions.extendOptions[hook])) {
+      return true;
+    }
+    if (vueOptions.super &&
+    vueOptions.super.options &&
+    Array.isArray(vueOptions.super.options[hook])) {
+      return true;
+    }
+    return false;
+  }
+
+  if (isFn(vueOptions[hook])) {
+    return true;
+  }
+  var mixins = vueOptions.mixins;
+  if (Array.isArray(mixins)) {
+    return !!mixins.find(function (mixin) {return hasHook(hook, mixin);});
+  }
+}
+
+function initHooks(mpOptions, hooks, vueOptions) {
+  hooks.forEach(function (hook) {
+    if (hasHook(hook, vueOptions)) {
+      mpOptions[hook] = function (args) {
+        return this.$vm && this.$vm.__call_hook(hook, args);
+      };
+    }
+  });
+}
+
+function initVueComponent(Vue, vueOptions) {
+  vueOptions = vueOptions.default || vueOptions;
+  var VueComponent;
+  if (isFn(vueOptions)) {
+    VueComponent = vueOptions;
+    vueOptions = VueComponent.extendOptions;
+  } else {
+    VueComponent = Vue.extend(vueOptions);
+  }
+  return [VueComponent, vueOptions];
+}
+
+function initSlots(vm, vueSlots) {
+  if (Array.isArray(vueSlots) && vueSlots.length) {
+    var $slots = Object.create(null);
+    vueSlots.forEach(function (slotName) {
+      $slots[slotName] = true;
+    });
+    vm.$scopedSlots = vm.$slots = $slots;
+  }
+}
+
+function initVueIds(vueIds, mpInstance) {
+  vueIds = (vueIds || '').split(',');
+  var len = vueIds.length;
+
+  if (len === 1) {
+    mpInstance._$vueId = vueIds[0];
+  } else if (len === 2) {
+    mpInstance._$vueId = vueIds[0];
+    mpInstance._$vuePid = vueIds[1];
+  }
+}
+
+function initData(vueOptions, context) {
+  var data = vueOptions.data || {};
+  var methods = vueOptions.methods || {};
+
+  if (typeof data === 'function') {
+    try {
+      data = data.call(context); // 支持 Vue.prototype 上挂的数据
+    } catch (e) {
+      if (Object({"NODE_ENV":"development","VUE_APP_PLATFORM":"mp-weixin","BASE_URL":"/"}).VUE_APP_DEBUG) {
+        console.warn('根据 Vue 的 data 函数初始化小程序 data 失败，请尽量确保 data 函数中不访问 vm 对象，否则可能影响首次数据渲染速度。', data);
+      }
+    }
+  } else {
+    try {
+      // 对 data 格式化
+      data = JSON.parse(JSON.stringify(data));
+    } catch (e) {}
+  }
+
+  if (!isPlainObject(data)) {
+    data = {};
+  }
+
+  Object.keys(methods).forEach(function (methodName) {
+    if (context.__lifecycle_hooks__.indexOf(methodName) === -1 && !hasOwn(data, methodName)) {
+      data[methodName] = methods[methodName];
+    }
+  });
+
+  return data;
+}
+
+var PROP_TYPES = [String, Number, Boolean, Object, Array, null];
+
+function createObserver(name) {
+  return function observer(newVal, oldVal) {
+    if (this.$vm) {
+      this.$vm[name] = newVal; // 为了触发其他非 render watcher
+    }
+  };
+}
+
+function initBehaviors(vueOptions, initBehavior) {
+  var vueBehaviors = vueOptions['behaviors'];
+  var vueExtends = vueOptions['extends'];
+  var vueMixins = vueOptions['mixins'];
+
+  var vueProps = vueOptions['props'];
+
+  if (!vueProps) {
+    vueOptions['props'] = vueProps = [];
+  }
+
+  var behaviors = [];
+  if (Array.isArray(vueBehaviors)) {
+    vueBehaviors.forEach(function (behavior) {
+      behaviors.push(behavior.replace('uni://', "wx".concat("://")));
+      if (behavior === 'uni://form-field') {
+        if (Array.isArray(vueProps)) {
+          vueProps.push('name');
+          vueProps.push('value');
+        } else {
+          vueProps['name'] = {
+            type: String,
+            default: '' };
+
+          vueProps['value'] = {
+            type: [String, Number, Boolean, Array, Object, Date],
+            default: '' };
+
+        }
+      }
+    });
+  }
+  if (isPlainObject(vueExtends) && vueExtends.props) {
+    behaviors.push(
+    initBehavior({
+      properties: initProperties(vueExtends.props, true) }));
+
+
+  }
+  if (Array.isArray(vueMixins)) {
+    vueMixins.forEach(function (vueMixin) {
+      if (isPlainObject(vueMixin) && vueMixin.props) {
+        behaviors.push(
+        initBehavior({
+          properties: initProperties(vueMixin.props, true) }));
+
+
+      }
+    });
+  }
+  return behaviors;
+}
+
+function parsePropType(key, type, defaultValue, file) {
+  // [String]=>String
+  if (Array.isArray(type) && type.length === 1) {
+    return type[0];
+  }
+  return type;
+}
+
+function initProperties(props) {var isBehavior = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;var file = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
+  var properties = {};
+  if (!isBehavior) {
+    properties.vueId = {
+      type: String,
+      value: '' };
+
+    properties.vueSlots = { // 小程序不能直接定义 $slots 的 props，所以通过 vueSlots 转换到 $slots
+      type: null,
+      value: [],
+      observer: function observer(newVal, oldVal) {
+        var $slots = Object.create(null);
+        newVal.forEach(function (slotName) {
+          $slots[slotName] = true;
+        });
+        this.setData({
+          $slots: $slots });
+
+      } };
+
+  }
+  if (Array.isArray(props)) {// ['title']
+    props.forEach(function (key) {
+      properties[key] = {
+        type: null,
+        observer: createObserver(key) };
+
+    });
+  } else if (isPlainObject(props)) {// {title:{type:String,default:''},content:String}
+    Object.keys(props).forEach(function (key) {
+      var opts = props[key];
+      if (isPlainObject(opts)) {// title:{type:String,default:''}
+        var value = opts['default'];
+        if (isFn(value)) {
+          value = value();
+        }
+
+        opts.type = parsePropType(key, opts.type);
+
+        properties[key] = {
+          type: PROP_TYPES.indexOf(opts.type) !== -1 ? opts.type : null,
+          value: value,
+          observer: createObserver(key) };
+
+      } else {// content:String
+        var type = parsePropType(key, opts);
+        properties[key] = {
+          type: PROP_TYPES.indexOf(type) !== -1 ? type : null,
+          observer: createObserver(key) };
+
+      }
+    });
+  }
+  return properties;
+}
+
+function wrapper$1(event) {
+  // TODO 又得兼容 mpvue 的 mp 对象
+  try {
+    event.mp = JSON.parse(JSON.stringify(event));
+  } catch (e) {}
+
+  event.stopPropagation = noop;
+  event.preventDefault = noop;
+
+  event.target = event.target || {};
+
+  if (!hasOwn(event, 'detail')) {
+    event.detail = {};
+  }
+
+  if (isPlainObject(event.detail)) {
+    event.target = Object.assign({}, event.target, event.detail);
+  }
+
+  return event;
+}
+
+function getExtraValue(vm, dataPathsArray) {
+  var context = vm;
+  dataPathsArray.forEach(function (dataPathArray) {
+    var dataPath = dataPathArray[0];
+    var value = dataPathArray[2];
+    if (dataPath || typeof value !== 'undefined') {// ['','',index,'disable']
+      var propPath = dataPathArray[1];
+      var valuePath = dataPathArray[3];
+
+      var vFor = dataPath ? vm.__get_value(dataPath, context) : context;
+
+      if (Number.isInteger(vFor)) {
+        context = value;
+      } else if (!propPath) {
+        context = vFor[value];
+      } else {
+        if (Array.isArray(vFor)) {
+          context = vFor.find(function (vForItem) {
+            return vm.__get_value(propPath, vForItem) === value;
+          });
+        } else if (isPlainObject(vFor)) {
+          context = Object.keys(vFor).find(function (vForKey) {
+            return vm.__get_value(propPath, vFor[vForKey]) === value;
+          });
+        } else {
+          console.error('v-for 暂不支持循环数据：', vFor);
+        }
+      }
+
+      if (valuePath) {
+        context = vm.__get_value(valuePath, context);
+      }
+    }
+  });
+  return context;
+}
+
+function processEventExtra(vm, extra, event) {
+  var extraObj = {};
+
+  if (Array.isArray(extra) && extra.length) {
+    /**
+                                              *[
+                                              *    ['data.items', 'data.id', item.data.id],
+                                              *    ['metas', 'id', meta.id]
+                                              *],
+                                              *[
+                                              *    ['data.items', 'data.id', item.data.id],
+                                              *    ['metas', 'id', meta.id]
+                                              *],
+                                              *'test'
+                                              */
+    extra.forEach(function (dataPath, index) {
+      if (typeof dataPath === 'string') {
+        if (!dataPath) {// model,prop.sync
+          extraObj['$' + index] = vm;
+        } else {
+          if (dataPath === '$event') {// $event
+            extraObj['$' + index] = event;
+          } else if (dataPath.indexOf('$event.') === 0) {// $event.target.value
+            extraObj['$' + index] = vm.__get_value(dataPath.replace('$event.', ''), event);
+          } else {
+            extraObj['$' + index] = vm.__get_value(dataPath);
+          }
+        }
+      } else {
+        extraObj['$' + index] = getExtraValue(vm, dataPath);
+      }
+    });
+  }
+
+  return extraObj;
+}
+
+function getObjByArray(arr) {
+  var obj = {};
+  for (var i = 1; i < arr.length; i++) {
+    var element = arr[i];
+    obj[element[0]] = element[1];
+  }
+  return obj;
+}
+
+function processEventArgs(vm, event) {var args = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];var extra = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : [];var isCustom = arguments.length > 4 ? arguments[4] : undefined;var methodName = arguments.length > 5 ? arguments[5] : undefined;
+  var isCustomMPEvent = false; // wxcomponent 组件，传递原始 event 对象
+  if (isCustom) {// 自定义事件
+    isCustomMPEvent = event.currentTarget &&
+    event.currentTarget.dataset &&
+    event.currentTarget.dataset.comType === 'wx';
+    if (!args.length) {// 无参数，直接传入 event 或 detail 数组
+      if (isCustomMPEvent) {
+        return [event];
+      }
+      return event.detail.__args__ || event.detail;
+    }
+  }
+
+  var extraObj = processEventExtra(vm, extra, event);
+
+  var ret = [];
+  args.forEach(function (arg) {
+    if (arg === '$event') {
+      if (methodName === '__set_model' && !isCustom) {// input v-model value
+        ret.push(event.target.value);
+      } else {
+        if (isCustom && !isCustomMPEvent) {
+          ret.push(event.detail.__args__[0]);
+        } else {// wxcomponent 组件或内置组件
+          ret.push(event);
+        }
+      }
+    } else {
+      if (Array.isArray(arg) && arg[0] === 'o') {
+        ret.push(getObjByArray(arg));
+      } else if (typeof arg === 'string' && hasOwn(extraObj, arg)) {
+        ret.push(extraObj[arg]);
+      } else {
+        ret.push(arg);
+      }
+    }
+  });
+
+  return ret;
+}
+
+var ONCE = '~';
+var CUSTOM = '^';
+
+function isMatchEventType(eventType, optType) {
+  return eventType === optType ||
+
+  optType === 'regionchange' && (
+
+  eventType === 'begin' ||
+  eventType === 'end');
+
+
+}
+
+function handleEvent(event) {var _this = this;
+  event = wrapper$1(event);
+
+  // [['tap',[['handle',[1,2,a]],['handle1',[1,2,a]]]]]
+  var dataset = (event.currentTarget || event.target).dataset;
+  if (!dataset) {
+    return console.warn("\u4E8B\u4EF6\u4FE1\u606F\u4E0D\u5B58\u5728");
+  }
+  var eventOpts = dataset.eventOpts || dataset['event-opts']; // 支付宝 web-view 组件 dataset 非驼峰
+  if (!eventOpts) {
+    return console.warn("\u4E8B\u4EF6\u4FE1\u606F\u4E0D\u5B58\u5728");
+  }
+
+  // [['handle',[1,2,a]],['handle1',[1,2,a]]]
+  var eventType = event.type;
+
+  var ret = [];
+
+  eventOpts.forEach(function (eventOpt) {
+    var type = eventOpt[0];
+    var eventsArray = eventOpt[1];
+
+    var isCustom = type.charAt(0) === CUSTOM;
+    type = isCustom ? type.slice(1) : type;
+    var isOnce = type.charAt(0) === ONCE;
+    type = isOnce ? type.slice(1) : type;
+
+    if (eventsArray && isMatchEventType(eventType, type)) {
+      eventsArray.forEach(function (eventArray) {
+        var methodName = eventArray[0];
+        if (methodName) {
+          var handlerCtx = _this.$vm;
+          if (
+          handlerCtx.$options.generic &&
+          handlerCtx.$parent &&
+          handlerCtx.$parent.$parent)
+          {// mp-weixin,mp-toutiao 抽象节点模拟 scoped slots
+            handlerCtx = handlerCtx.$parent.$parent;
+          }
+          var handler = handlerCtx[methodName];
+          if (!isFn(handler)) {
+            throw new Error(" _vm.".concat(methodName, " is not a function"));
+          }
+          if (isOnce) {
+            if (handler.once) {
+              return;
+            }
+            handler.once = true;
+          }
+          ret.push(handler.apply(handlerCtx, processEventArgs(
+          _this.$vm,
+          event,
+          eventArray[1],
+          eventArray[2],
+          isCustom,
+          methodName)));
+
+        }
+      });
+    }
+  });
+
+  if (
+  eventType === 'input' &&
+  ret.length === 1 &&
+  typeof ret[0] !== 'undefined')
+  {
+    return ret[0];
+  }
+}
+
+var hooks = [
+'onShow',
+'onHide',
+'onError',
+'onPageNotFound'];
+
+
+function parseBaseApp(vm, _ref3)
+
+
+{var mocks = _ref3.mocks,initRefs = _ref3.initRefs;
+  if (vm.$options.store) {
+    _vue.default.prototype.$store = vm.$options.store;
+  }
+
+  _vue.default.prototype.mpHost = "mp-weixin";
+
+  _vue.default.mixin({
+    beforeCreate: function beforeCreate() {
+      if (!this.$options.mpType) {
+        return;
+      }
+
+      this.mpType = this.$options.mpType;
+
+      this.$mp = _defineProperty({
+        data: {} },
+      this.mpType, this.$options.mpInstance);
+
+
+      this.$scope = this.$options.mpInstance;
+
+      delete this.$options.mpType;
+      delete this.$options.mpInstance;
+
+      if (this.mpType !== 'app') {
+        initRefs(this);
+        initMocks(this, mocks);
+      }
+    } });
+
+
+  var appOptions = {
+    onLaunch: function onLaunch(args) {
+      if (this.$vm) {// 已经初始化过了，主要是为了百度，百度 onShow 在 onLaunch 之前
+        return;
+      }
+      {
+        if (!wx.canIUse('nextTick')) {// 事实 上2.2.3 即可，简单使用 2.3.0 的 nextTick 判断
+          console.error('当前微信基础库版本过低，请将 微信开发者工具-详情-项目设置-调试基础库版本 更换为`2.3.0`以上');
+        }
+      }
+
+      this.$vm = vm;
+
+      this.$vm.$mp = {
+        app: this };
+
+
+      this.$vm.$scope = this;
+      // vm 上也挂载 globalData
+      this.$vm.globalData = this.globalData;
+
+      this.$vm._isMounted = true;
+      this.$vm.__call_hook('mounted', args);
+
+      this.$vm.__call_hook('onLaunch', args);
+    } };
+
+
+  // 兼容旧版本 globalData
+  appOptions.globalData = vm.$options.globalData || {};
+
+  initHooks(appOptions, hooks);
+
+  return appOptions;
+}
+
+var mocks = ['__route__', '__wxExparserNodeId__', '__wxWebviewId__'];
+
+function findVmByVueId(vm, vuePid) {
+  var $children = vm.$children;
+  // 优先查找直属
+  var parentVm = $children.find(function (childVm) {return childVm.$scope._$vueId === vuePid;});
+  if (parentVm) {
+    return parentVm;
+  }
+  // 反向递归查找
+  for (var i = $children.length - 1; i >= 0; i--) {
+    parentVm = findVmByVueId($children[i], vuePid);
+    if (parentVm) {
+      return parentVm;
+    }
+  }
+}
+
+function initBehavior(options) {
+  return Behavior(options);
+}
+
+function isPage() {
+  return !!this.route;
+}
+
+function initRelation(detail) {
+  this.triggerEvent('__l', detail);
+}
+
+function initRefs(vm) {
+  var mpInstance = vm.$scope;
+  Object.defineProperty(vm, '$refs', {
+    get: function get() {
+      var $refs = {};
+      var components = mpInstance.selectAllComponents('.vue-ref');
+      components.forEach(function (component) {
+        var ref = component.dataset.ref;
+        $refs[ref] = component.$vm || component;
+      });
+      var forComponents = mpInstance.selectAllComponents('.vue-ref-in-for');
+      forComponents.forEach(function (component) {
+        var ref = component.dataset.ref;
+        if (!$refs[ref]) {
+          $refs[ref] = [];
+        }
+        $refs[ref].push(component.$vm || component);
+      });
+      return $refs;
+    } });
+
+}
+
+function handleLink(event) {var _ref4 =
+
+
+
+  event.detail || event.value,vuePid = _ref4.vuePid,vueOptions = _ref4.vueOptions; // detail 是微信,value 是百度(dipatch)
+
+  var parentVm;
+
+  if (vuePid) {
+    parentVm = findVmByVueId(this.$vm, vuePid);
+  }
+
+  if (!parentVm) {
+    parentVm = this.$vm;
+  }
+
+  vueOptions.parent = parentVm;
+}
+
+function parseApp(vm) {
+  return parseBaseApp(vm, {
+    mocks: mocks,
+    initRefs: initRefs });
+
+}
+
+function createApp(vm) {
+  App(parseApp(vm));
+  return vm;
+}
+
+function parseBaseComponent(vueComponentOptions)
+
+
+{var _ref5 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},isPage = _ref5.isPage,initRelation = _ref5.initRelation;var _initVueComponent =
+  initVueComponent(_vue.default, vueComponentOptions),_initVueComponent2 = _slicedToArray(_initVueComponent, 2),VueComponent = _initVueComponent2[0],vueOptions = _initVueComponent2[1];
+
+  var componentOptions = {
+    options: {
+      multipleSlots: true,
+      addGlobalClass: true },
+
+    data: initData(vueOptions, _vue.default.prototype),
+    behaviors: initBehaviors(vueOptions, initBehavior),
+    properties: initProperties(vueOptions.props, false, vueOptions.__file),
+    lifetimes: {
+      attached: function attached() {
+        var properties = this.properties;
+
+        var options = {
+          mpType: isPage.call(this) ? 'page' : 'component',
+          mpInstance: this,
+          propsData: properties };
+
+
+        initVueIds(properties.vueId, this);
+
+        // 处理父子关系
+        initRelation.call(this, {
+          vuePid: this._$vuePid,
+          vueOptions: options });
+
+
+        // 初始化 vue 实例
+        this.$vm = new VueComponent(options);
+
+        // 处理$slots,$scopedSlots（暂不支持动态变化$slots）
+        initSlots(this.$vm, properties.vueSlots);
+
+        // 触发首次 setData
+        this.$vm.$mount();
+      },
+      ready: function ready() {
+        // 当组件 props 默认值为 true，初始化时传入 false 会导致 created,ready 触发, 但 attached 不触发
+        // https://developers.weixin.qq.com/community/develop/doc/00066ae2844cc0f8eb883e2a557800
+        if (this.$vm) {
+          this.$vm._isMounted = true;
+          this.$vm.__call_hook('mounted');
+          this.$vm.__call_hook('onReady');
+        }
+      },
+      detached: function detached() {
+        this.$vm.$destroy();
+      } },
+
+    pageLifetimes: {
+      show: function show(args) {
+        this.$vm && this.$vm.__call_hook('onPageShow', args);
+      },
+      hide: function hide() {
+        this.$vm && this.$vm.__call_hook('onPageHide');
+      },
+      resize: function resize(size) {
+        this.$vm && this.$vm.__call_hook('onPageResize', size);
+      } },
+
+    methods: {
+      __l: handleLink,
+      __e: handleEvent } };
+
+
+
+  if (Array.isArray(vueOptions.wxsCallMethods)) {
+    vueOptions.wxsCallMethods.forEach(function (callMethod) {
+      componentOptions.methods[callMethod] = function (args) {
+        return this.$vm[callMethod](args);
+      };
+    });
+  }
+
+  if (isPage) {
+    return componentOptions;
+  }
+  return [componentOptions, VueComponent];
+}
+
+function parseComponent(vueComponentOptions) {
+  return parseBaseComponent(vueComponentOptions, {
+    isPage: isPage,
+    initRelation: initRelation });
+
+}
+
+var hooks$1 = [
+'onShow',
+'onHide',
+'onUnload'];
+
+
+hooks$1.push.apply(hooks$1, PAGE_EVENT_HOOKS);
+
+function parseBasePage(vuePageOptions, _ref6)
+
+
+{var isPage = _ref6.isPage,initRelation = _ref6.initRelation;
+  var pageOptions = parseComponent(vuePageOptions);
+
+  initHooks(pageOptions.methods, hooks$1, vuePageOptions);
+
+  pageOptions.methods.onLoad = function (args) {
+    this.$vm.$mp.query = args; // 兼容 mpvue
+    this.$vm.__call_hook('onLoad', args);
+  };
+
+  return pageOptions;
+}
+
+function parsePage(vuePageOptions) {
+  return parseBasePage(vuePageOptions, {
+    isPage: isPage,
+    initRelation: initRelation });
+
+}
+
+function createPage(vuePageOptions) {
+  {
+    return Component(parsePage(vuePageOptions));
+  }
+}
+
+function createComponent(vueOptions) {
+  {
+    return Component(parseComponent(vueOptions));
+  }
+}
+
+todos.forEach(function (todoApi) {
+  protocols[todoApi] = false;
+});
+
+canIUses.forEach(function (canIUseApi) {
+  var apiName = protocols[canIUseApi] && protocols[canIUseApi].name ? protocols[canIUseApi].name :
+  canIUseApi;
+  if (!wx.canIUse(apiName)) {
+    protocols[canIUseApi] = false;
+  }
+});
+
+var uni = {};
+
+if (typeof Proxy !== 'undefined' && "mp-weixin" !== 'app-plus') {
+  uni = new Proxy({}, {
+    get: function get(target, name) {
+      if (target[name]) {
+        return target[name];
+      }
+      if (baseApi[name]) {
+        return baseApi[name];
+      }
+      if (api[name]) {
+        return promisify(name, api[name]);
+      }
+      {
+        if (extraApi[name]) {
+          return promisify(name, extraApi[name]);
+        }
+        if (todoApis[name]) {
+          return promisify(name, todoApis[name]);
+        }
+      }
+      if (eventApi[name]) {
+        return eventApi[name];
+      }
+      if (!hasOwn(wx, name) && !hasOwn(protocols, name)) {
+        return;
+      }
+      return promisify(name, wrapper(name, wx[name]));
+    },
+    set: function set(target, name, value) {
+      target[name] = value;
+      return true;
+    } });
+
+} else {
+  Object.keys(baseApi).forEach(function (name) {
+    uni[name] = baseApi[name];
+  });
+
+  {
+    Object.keys(todoApis).forEach(function (name) {
+      uni[name] = promisify(name, todoApis[name]);
+    });
+    Object.keys(extraApi).forEach(function (name) {
+      uni[name] = promisify(name, todoApis[name]);
+    });
+  }
+
+  Object.keys(eventApi).forEach(function (name) {
+    uni[name] = eventApi[name];
+  });
+
+  Object.keys(api).forEach(function (name) {
+    uni[name] = promisify(name, api[name]);
+  });
+
+  Object.keys(wx).forEach(function (name) {
+    if (hasOwn(wx, name) || hasOwn(protocols, name)) {
+      uni[name] = promisify(name, wrapper(name, wx[name]));
+    }
+  });
+}
+
+wx.createApp = createApp;
+wx.createPage = createPage;
+wx.createComponent = createComponent;
+
+var uni$1 = uni;var _default =
+
+uni$1;exports.default = _default;
+
+/***/ }),
+
+/***/ 119:
+/*!*************************************************************************!*\
+  !*** C:/Users/Administrator/Desktop/mobile-app-git/common/city.data.js ***!
+  \*************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -12,10 +1512,7876 @@ Object.defineProperty(exports, "__esModule", { value: true });exports.default = 
 
 /***/ }),
 
-/***/ "../../mobile-app/components/mpvue-citypicker/city-data/area.js":
-/*!********************************************************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/mpvue-citypicker/city-data/area.js ***!
-  \********************************************************************************************************************/
+/***/ 136:
+/*!***********************************************************************!*\
+  !*** C:/Users/Administrator/Desktop/mobile-app-git/static/img404.png ***!
+  \***********************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJYAAACWCAYAAAA8AXHiAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsQAAA7EAZUrDhsAABaPSURBVHhe7ZzddRw5DoUnn310LJOC4nAaTsGx+HXi8eJe4IIgi9XdsprdLZl3DgwQ/Kkq4hOrrPXZf35vbS3QBmtriTZYW0u0wdpaog3W1hJtsLaWaIO1tUQbrK0l2mBtLdEGa2uJNlhbS7TB2lqiDdbWEm2wtpZog7W1RBusrSXaYG0t0QZra4k2WFtLtMHaWqIN1tYSbbC2lmiDtbVEG6ytJdpgbS3RBmtriTZYW0u0wdpaog3W1hJtsLaWaIP1Af3671dEW6M2WH8gAEWo/ivxVqcN1jtUgWLb/qMAGOIAbWuDdZMEU4JkSoDGPOIh9zdqg3VBgqc7hcrpVPXj548ONvlu7l+kDdZEhGEKkGWsT7DA/4AFVG08oyb2/V3aYBVVYKoIjdmPn+75H9qIDapLwkpcD6b4L9AGa3oyhQCOuQoTgQrALirGAjwCaCnO0YkW/qvqrwWLJY2CUxmr6DNdByHhg5XTjIDFKzPVQfa19PeBpcLWAp9IkCi+JPQSqDzN2vizmVw/Yo76QoD9PWAJEP7pYjwpJgsedjhlJurHXR4LcVSsn/dl90HM5D+5vjxYLBGLVXSASSBZ9J8DgleZ5MD0Ehg/MB6n1A0wcBTm4bU4rE/TGnF/yH1WfV2wEp5bCu6/h7rldJIaDLcJY8ePfq0xg6xqbH8GfUmw5uVGwdxHK4tIoKJ9T3Xrl7V5rfKrC+YQn4An1fjV9fVfhVGcg6mwZhLbEd9D/DUD1/RVdT3lMxfg5TgzvmLLuIPO8i+iTwsWfzHJzR02ePh+UmG8mDiZopiPKEy5Bq4nWKoaTu2+ZDNd6nslfTKwbENtU/k99O832q+fbzx9btEzC3LLtS9Bo752Cvbj5V9FnwQs20C8ugTU9ze3fw0q8zScYPmz/3UkeLrvNLSRR84zL6fXB0sbaCeTw2SnlMD67pD1cH0R4bkFkBl/uPAnc8dXahX6bj3FV+lFwYrNJFAGi1lCBcD0GiRcbv5K/CBYF4r1KBEK+89PJKLkeVj8heNMnMt57/vVyQq9HFjcDGyo/VQSLPx0Gjhv8Qr8Fa8/h8uB+h2n2YdOrShInpBPKkrCMb3++T1xju2bfldGsAjmc/QaYGETaQ4TPIDSSUWo8oTyOHMEC5to4xOuP9jQeg/mCRcMuReV/y8FDhR/AAMq3PdN/wJjoZ4Glj+yiumbQR+FJSwDVP4a1GnlUHEexmIzAyzA9x4oulFxP35PAvX1ACNA1Qwk/c9L+WFv/ll6Dlh44DCCwbgBxRMLG0OQBJVyra9r25g3AwqGOfDI/4nsruLe4hqE1eNnq4Lkvp1Of/GJ5QU7mhUPYKGIKB4MebatoCxqFJZ9Pk5tfw3E2PCCjHOx1ntVrg+vV/AcMCsi3J9c5x0iNLBTqI6QPUuPAQsP2FkDIU8kGQqJfrPZeLcADLkcpzHI2xi8MgMGrvleYU0AwzXjO87uT/f7gznrB1Lmda9s31Pdd9TwcY48+wyoMibbZs/SUrD4YNwAL7gMP/X66fcTwD3MoUKRKlhhWiPm0BCrjTWwlvLKES5f75bN5ohy3V84+TjPChqnoN//tzIO9w2ovbC83geFa6bZuvntlADVfMvVcc/SErD4QPZw9RRJCOInHlZB0UnQCqX57rv8ZE3NR47fWVjT7O0n+jxPiJHXvFynWTyBXwfnj3ldh7IxCVespx8cvy/lbQzaXOd94jVlACXWwXqCKP8dWPo6rsXP0h3BGgquB+ODatPDsPFRAP7kR+E5DuNnIDEXeRU+1sLfHP33XA7UN/OAS95Bw3WKje2wrhj4H7TjHvye7fqALe49f3+Gebh/i9szlTU57zYRDFgHFEByr3b1xz7ss7efpbueWHwQGh7MQVCOYGCjlFcMj76cW83zmqOxOY+FteKF6aSiR0FZaM+xyBYr1/paP08Zi7Mg9H4vDj5OVEvFtdlWHOvo9OQ1FHPtOI1n0ncUrxMWcX2tjb9OaECd5U+u9wCt/XjHg83MHl6gCJ40nUZpdWy0LW5wmbGgKG4AFIX0gnieRUbx6QMufuCjv433Ne06uA/eCx7EC9buwUxr0/wetH69FoFDO67LHyIJQOE/W08g+Me5wRE+gSljRj/+TdBzNtf8s7QWrCJ/xPKgsQEVMBYvcr5R3sfCxTjGKiihsJMgvF5JeEVxzTCdHHmqmBEsxpGzcTgRYBKvj3vmPeF+rc1703342rjmASjEXfsf97x37ENAABjM5t9MGmO5bHt/N573hnFH/yw9DKyLilOBxUMxbbMSChYCsXsHp/ZHbHPdo40i+GmkwtIXkJjDmoTKv8u+KYd1I897Elzlerwvm9MgtbmYD3gUIx855R0+mxuF1+sLbYKTuZZ3UHDN0gdf4+zTWu6fpQ+DxZsnGPeTr4kNa0XMYppnjL4wQhR93u/goIj6eNfHvUCQaU2fH+vj2uGpuBdfv92LrxewhAkq5bIdHvdBaG1NFr+AIXi8b+55D/A1V+b5mBY/S3cBqz3Eugfh+gApiqoiw6PA/JuheZw6/hEfbebiNYSCWlunEXI8pax9kIrC68a1C1y5jnmsQ1BxDcSlXY33+D+LBYcBoFNGJ1E9dY7eDH6W41zLRdtPP7vnJ+mOYLV4qXiNBpi+pxADkm/fDSIU3nIJGTY45vH+eI+++W82HuBhHOa0guhZ3NcTy4GKk8+uMZ5ONQdLoPI7C9f2e2lgtHYPmfd3seYMca4VgGHOs3QHsOwPPdhgy4S1o9D6niIcP78RMhhyb2YA4xblfdscACP4/FphKD7BMkjitCJAI1DR5usX/n8OlNoJA4vfIGi+QaYfhmlM38cVQPln6G4nVvtdTCmS+iaynlawPxDXjfXxuvNTxuWFae0/Uq7vMdcEVPBXgKoQ+UlVvJnA6b+xPJd9jL2vB7HF9BdjW+vGH6x768Ngdb+LMeuKMVgnboCfLtiA98vX83XvvHm8X7snrV3bvF+9Dg2SApOswRQnVbwGZyeWTpv+xGr53L8ATnEHXok7i9wztODEklln+D7vhZKxSNhsKxRzt4hzI74mXsOLcro+xsQ4fp/9W16hOQ++ruP3njBd8G/4tjK4EBNIm69vrAZZBce991ne/Bwe7+tytR3xM3QXsNLjYdCAZxw59vkYbuBYaG6QG3OlgDopCOofCGuiwF5Qre/X0Pq8bpxChCFOGo7DU+QcbzP33dcVPOkDoINHP06uePYEYOIJUc2dxWf9YYL2GbrTiWUBfLS9YK3PfRgeFkWkoaBmKZ87N4FgsYoNIYc1It95md9Ztjk3/TAXhuLzFRf3yPkugYpTaApU9GUePkCFCYAKGD/gI66n0AHC6EvwZpZjW7ve/6P0cbDwR3mQPJlKHkqPzQqosHH825W1s6iYg9kX2rSS8+s238WTcW4AygtVx2QMr3vlPZYTCifPEHeQ1fzQ373Silf+8MqL+JCv7dF3OcBpj/Ng3edVCJhYEG97jAdTP+IwPDAL1gBj0aJ4eYLIYi1CgD6MPxsT99Dm+DVzHNu69nAtm5NjFWMdjLV7O5xCAqXGZ6cW89a216fvgT0vfMSd73LRvhTPrK4f9mjd8ePdfLS9gNbociyXb1oBqrYBVwXMQcJaaPNq+IPrumlMeFqML+u6D+P6zXycz+P69H4N9HfgDPFZ3+lpxWvh/mIfzOfH+xBj3AjHwYa1psBF7tH6MFh5SuHmFVva20MeFoVshgL37Q4wFRsQoc11AgQYpBh9sQaNvw644n/CHLAE0+IOFHr/B4UEJHJdv06lQz6+xQAZ7o3r4xlGj/v29gjYRW92ALDOj/ajdYdvLBRUQOFBLJkPFbHy8Cy8zIp7qW3FF2ANpogjh77MC6YorHz9xaX+ZxWZThWHDNeLPPv9xJqZ4Jm1E6SSh/fnaOD4d1O8tiYwdG0+d2t3MGnsdA1b3/yjdcdXoccCiW0BFWP8YR2G3gTUzAdcARhPFWwUPK8X4wAhighAONaNAHK+F7i3fxp8tP5Ugnm75d8KbBWa6rtcAEaLQqvgR3jMcL9de+ZP5spO+h6p+3y8Dx4w5cMoRic8gZE5LOe5Ps7Ty8yBan2ew/VwpfAYk+NsjAADfCg0IXR7E5i0AEk5zDmFLuICEPN6BaqN64yQ1PhKbnqq1dxkTlrkHqm7fmPx5uFZWAHlMfMwwVILHt4/blvO262fORSbgOFXFHGCFcMYvSbzw7xbwyzmw7cTCOtWX6Ao5u0esg6g4jPG77H0N0KzGSTdd1Ua7nmSH3PTuWZD/pH6OFgm3rhgQiIfpsT4Dz6KfdkqCOFRGLY91wBzgAiW/BALMuUBFOY6AA5Sd2INfQlSHWNWARrbjO0Uyxyuy+ePfaix+kp88QN+zE+t/4GH8RR/kO4HVrn5/FBXHJ5tbFwCI1O75i1OmM59B1iBqIMpDHOy0IIkYXGI8gSL/Bwezam5Ph59gwD34XH+xp37Erlr8Kg95ovph7nbd+UepLuABfmD6CGatyhi9GNTw6LQ2U475vQP99DHn/wAyYFyIwiRT5DgNc/6EgqOtRg+gDp69RcffQ0az6ud8fA3QhruA/tgQHSvwjNQhnbOv2ACaoSp2qN0N7D8NRg3j4dgDm1/SEigHE3gjO2St+JO+0regUHbc4CqhyIM7eoDKP5r0xibUFh/A0n9R6t90xj3yP0IC3AO31uz+Ky/swsw0bc6PEL3A8vkDxIPwNgMiGUeAEzsLF/BqkANr0gUv/UFPAACHkUtOULE/CQWfHWOwOjGABjvuwoUzNbhXkxBsfvOGN5+GMb8Fcu9HqCrQNX+R2gBWP0D6fXIfhY/AJjCJEDOch77q9GsAobi5Vj0BRhpKPKsfeIFCMYSjgGWtHK6hXWA4bWI+4m9QXH7f83glt9WAxyHdmfY0z53/BxRPVr/I3RXsKDugdhuD3X1ZOr6BcnYrnmPEzTEBgLiBAgFVkxDwSexxuV49Kk/fLQdHJyIGuN2BlgWv0LQxfYsise+M7sypsLk7b4uq3V3sOz2pw9ELyASoArJLHehH8VXWyeX5TTG4aiGIp+1LYYHDOF7cEqs/toX3tvDiWV2BtTVvwGOVvrHU6h6NytF+JZze4TuCxYeRtIDMYa3/xION/8bm9npSSZrwJzn3KPwjAmM2+G1iKKP8S2eIMJ7PJ5QsBEqzOX9YQ8MjOn3041AjaD0IDUb89bq8o/Qfb+xHCMKcT6YHpQAYFO12dGmRe5iXNvho3B8HSoGCGleXBa7y9e+iOnRHubQA5RjrgJ2gCoMz06gZLeeTN242EOzs9cc932Sz7lRk0dowavQZA8ir4fkAxGIE6uQnb4qj+18HdYcCm82nlTetmLDo+j0JZdwNU+Y1OYcQePt43dWjJPhNY3nn8IytMc+WkAzyZ+/6lreY8zXOijMeq17FUp8WDxUFH547R1hG+EZc4pLDtCwDQiO1gFGUGQovHIA4QafwNR2nFrMueWJhfvjHgx2CTCzI0iwup/mE5pJH/OKUYjmH6ElJ5Y9QkSSP6hA6GDSaxH5w6lV4Oni2u7zAEUg9ScWCj/EAmaMNUa59N5/fmJFLtuTvxFeAaqZoGiAjLBVkHyP+7j6R2vpq7A+DjdQEAyn1u3WQzTC1aA4sQLP8RTzfIOoeEBifQkMx0Uc/TPAMK6CkHYCUwdK5rzthj2tOe5sF7MP4SDvf5yWfbyn8oGs9wBE2Hg6lVPMrbYRj233LDiKGb7FUeSSpwmeLh9gdD7GDL69/iKXvp1aLPrZadUZig8w+nYa9jZierZjz7XHZa9bzuJQN3ax1pxYVH2g8ABgeN1d/qCvAI1W+wZoCmSyHioAUdqAgL70dXChjXy0A5rMm+nE6k4u6+/gmFgDaZ4nPOljH8+goTdpXO68SXMepHVg5YOUhzMBhO5bqlo5uXrgBNHoW4yPZBYSxZ740TzvxW8GICIOMKrv/oZo/vhqHLzlKyznZvsSsUDKEwx7Jp972faUkfZ6tudYh0HJPUALT6zyKPWBsWmCQiAFaNPT6wzCATIW94r5P0uOdgIEHzCwT3GMreCkjzEl116LYRYfXn3WbieU7Yb5djJFjnsUe5V/hmIfjycWZ6Wy/4laCtaofHhsYgfJYAmT4KnWAwVDcfOEsny2azy1AENxhQu+g+7Ed0D1+QRqtA44bEjzCY/+PEAEtbhmK5CQR/an1nigHgpWffDulKqn0vSEMjjO8uYJQUBUbQSqta3oJd8MkJgXIDUu3r+jSp5whZdZu4MpIILPfYiCH0+Y0ucuPX8oI7wIzKW+B+ixYI0CHB0wDkra6cf7kCcUDRydWjSMVTya4GAsH30Vnq6/+jKm5iMWUChyBeoAS8kIMs9ojgnzDyq56G+ZWfQ4PRwsbrBHvvEGRgVs+p1FG2DKNgprZjGL+b19b41AXWu7CZCIZ6Apl3C5+XeW9+HeKEBVSzuCIpCUl4Z2rqDx+KPG0pV1HqXnnFjdwzpcNJ1e5RTr/wZpBWPbC0cDSAEXQRFoY1ysAeUgeBtwRL4A0uUzhpdFX7mn7nUl5TP3fa0VnuPaCEb5w/in+uj89+u5r0IIRagn17vMC4rCzk6q9B1gBkPGZgKl5tIEToXIx2Jt3gNAR+FpAUqA0E5n5aMheLp2X/5YgX9WJYiaO4w5zniOngTW+PgOVr4OdUrlaWVFzDjaiisIyIdXO/vM6thuXmfxYa9Tq5xeumb+MAgceCu0wxN5wZJj3OnZI0vVmK0ca6oxVNrdvG6cr9Gv+1g9/8SSUBDBUuzSN1cDyNpRfPwzFUIQ7XOAYP3fDvX/hSqYEmCCAmxUMPeMkFc/ffQPUia/pTBWqvFEl3tfU08Di5ulTQ6dnljltPpd/qbIf+uUYCAXgNDHqxFw5JgWd8BNTqURJt5xgclBsiZjZos3gzQPqvGJ6gf8tY95KnJt1cvrP1IvcGKVzUCxWFQvbjutSsFLTieWgBqtg2cA7PCtBBMwcS8U2mEeI1l9GycfUX2yTh1A4ZvGTG2fxaEZfE/S67wKJRTGilx/BTE7uQgbTiVCpdeftxOgA0zNfL0AI2FA7J7FV77m6KOoxXfAKQ9FXNdp0nx311RnvrpeDyxT/+prMdvh87QCKBGn12uwWJ56KDSLDc+rJRRo1/6Ei22PuznoU76uc6s4fqIxX9uX+l5ILwkWRIhOAMuPdcQEJ9qCSJ4wBRgdBPBEgf4ASmlTZa48xFadD+Ucdz6eIRW9qb7trXHMdU1WKdd8hl4XLBQRABlQ+a1FuI4ApZVxWWBtegcAvOWH3KGNPxOU5hnl+mVMzpXamFTXP+ja3EHnI67PXa2XBYsSVOW0grVXHmCav+K4tfBR9AqI913OH9rWatBYLq+hfhP7S/ugse/S2CYfddvYV9Frg2USTACsfVchZxvdFTW2X8WtRc6+y214RtnGHydAaW1I65Uco5zXjXaVvq+olweLQsFhACyK3VQLD6l99EdQTAlFiylcL8LobetAZc0yK/ITDfluzjWdrfnC+hxgbX06bbC2lmiDtbVEG6ytJdpgbS3RBmtriTZYW0u0wdpaog3W1hJtsLaWaIO1tUQbrK0l2mBtLdEGa2uJNlhbS7TB2lqiDdbWEm2wtpZog7W1RBusrSXaYG0t0QZra4k2WFtLtMHaWqIN1tYSbbC2lmiDtbVEG6ytJdpgbS3RBmtriTZYW0u0wdpaog3W1hJtsLaWaIO1tUC/f/8fsCaDiNazJ08AAAAASUVORK5CYII="
+
+/***/ }),
+
+/***/ 14:
+/*!********************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/runtime/componentNormalizer.js ***!
+  \********************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return normalizeComponent; });
+/* globals __VUE_SSR_CONTEXT__ */
+
+// IMPORTANT: Do NOT use ES2015 features in this file (except for modules).
+// This module is a runtime utility for cleaner component module output and will
+// be included in the final webpack user bundle.
+
+function normalizeComponent (
+  scriptExports,
+  render,
+  staticRenderFns,
+  functionalTemplate,
+  injectStyles,
+  scopeId,
+  moduleIdentifier, /* server only */
+  shadowMode /* vue-cli only */
+) {
+  // Vue.extend constructor export interop
+  var options = typeof scriptExports === 'function'
+    ? scriptExports.options
+    : scriptExports
+
+  // render functions
+  if (render) {
+    options.render = render
+    options.staticRenderFns = staticRenderFns
+    options._compiled = true
+  }
+
+  // functional template
+  if (functionalTemplate) {
+    options.functional = true
+  }
+
+  // scopedId
+  if (scopeId) {
+    options._scopeId = 'data-v-' + scopeId
+  }
+
+  var hook
+  if (moduleIdentifier) { // server build
+    hook = function (context) {
+      // 2.3 injection
+      context =
+        context || // cached call
+        (this.$vnode && this.$vnode.ssrContext) || // stateful
+        (this.parent && this.parent.$vnode && this.parent.$vnode.ssrContext) // functional
+      // 2.2 with runInNewContext: true
+      if (!context && typeof __VUE_SSR_CONTEXT__ !== 'undefined') {
+        context = __VUE_SSR_CONTEXT__
+      }
+      // inject component styles
+      if (injectStyles) {
+        injectStyles.call(this, context)
+      }
+      // register component module identifier for async chunk inferrence
+      if (context && context._registeredComponents) {
+        context._registeredComponents.add(moduleIdentifier)
+      }
+    }
+    // used by ssr in case component is cached and beforeCreate
+    // never gets called
+    options._ssrRegister = hook
+  } else if (injectStyles) {
+    hook = shadowMode
+      ? function () { injectStyles.call(this, this.$root.$options.shadowRoot) }
+      : injectStyles
+  }
+
+  if (hook) {
+    if (options.functional) {
+      // for template-only hot-reload because in that case the render fn doesn't
+      // go through the normalizer
+      options._injectStyles = hook
+      // register for functioal component in vue file
+      var originalRender = options.render
+      options.render = function renderWithStyleInjection (h, context) {
+        hook.call(context)
+        return originalRender(h, context)
+      }
+    } else {
+      // inject component registration as beforeCreate hook
+      var existing = options.beforeCreate
+      options.beforeCreate = existing
+        ? [].concat(existing, hook)
+        : [hook]
+    }
+  }
+
+  return {
+    exports: scriptExports,
+    options: options
+  }
+}
+
+
+/***/ }),
+
+/***/ 2:
+/*!******************************************************************************************!*\
+  !*** ./node_modules/@dcloudio/vue-cli-plugin-uni/packages/mp-vue/dist/mp.runtime.esm.js ***!
+  \******************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* WEBPACK VAR INJECTION */(function(global) {/*!
+ * Vue.js v2.6.10
+ * (c) 2014-2019 Evan You
+ * Released under the MIT License.
+ */
+/*  */
+
+var emptyObject = Object.freeze({});
+
+// These helpers produce better VM code in JS engines due to their
+// explicitness and function inlining.
+function isUndef (v) {
+  return v === undefined || v === null
+}
+
+function isDef (v) {
+  return v !== undefined && v !== null
+}
+
+function isTrue (v) {
+  return v === true
+}
+
+function isFalse (v) {
+  return v === false
+}
+
+/**
+ * Check if value is primitive.
+ */
+function isPrimitive (value) {
+  return (
+    typeof value === 'string' ||
+    typeof value === 'number' ||
+    // $flow-disable-line
+    typeof value === 'symbol' ||
+    typeof value === 'boolean'
+  )
+}
+
+/**
+ * Quick object check - this is primarily used to tell
+ * Objects from primitive values when we know the value
+ * is a JSON-compliant type.
+ */
+function isObject (obj) {
+  return obj !== null && typeof obj === 'object'
+}
+
+/**
+ * Get the raw type string of a value, e.g., [object Object].
+ */
+var _toString = Object.prototype.toString;
+
+function toRawType (value) {
+  return _toString.call(value).slice(8, -1)
+}
+
+/**
+ * Strict object type check. Only returns true
+ * for plain JavaScript objects.
+ */
+function isPlainObject (obj) {
+  return _toString.call(obj) === '[object Object]'
+}
+
+function isRegExp (v) {
+  return _toString.call(v) === '[object RegExp]'
+}
+
+/**
+ * Check if val is a valid array index.
+ */
+function isValidArrayIndex (val) {
+  var n = parseFloat(String(val));
+  return n >= 0 && Math.floor(n) === n && isFinite(val)
+}
+
+function isPromise (val) {
+  return (
+    isDef(val) &&
+    typeof val.then === 'function' &&
+    typeof val.catch === 'function'
+  )
+}
+
+/**
+ * Convert a value to a string that is actually rendered.
+ */
+function toString (val) {
+  return val == null
+    ? ''
+    : Array.isArray(val) || (isPlainObject(val) && val.toString === _toString)
+      ? JSON.stringify(val, null, 2)
+      : String(val)
+}
+
+/**
+ * Convert an input value to a number for persistence.
+ * If the conversion fails, return original string.
+ */
+function toNumber (val) {
+  var n = parseFloat(val);
+  return isNaN(n) ? val : n
+}
+
+/**
+ * Make a map and return a function for checking if a key
+ * is in that map.
+ */
+function makeMap (
+  str,
+  expectsLowerCase
+) {
+  var map = Object.create(null);
+  var list = str.split(',');
+  for (var i = 0; i < list.length; i++) {
+    map[list[i]] = true;
+  }
+  return expectsLowerCase
+    ? function (val) { return map[val.toLowerCase()]; }
+    : function (val) { return map[val]; }
+}
+
+/**
+ * Check if a tag is a built-in tag.
+ */
+var isBuiltInTag = makeMap('slot,component', true);
+
+/**
+ * Check if an attribute is a reserved attribute.
+ */
+var isReservedAttribute = makeMap('key,ref,slot,slot-scope,is');
+
+/**
+ * Remove an item from an array.
+ */
+function remove (arr, item) {
+  if (arr.length) {
+    var index = arr.indexOf(item);
+    if (index > -1) {
+      return arr.splice(index, 1)
+    }
+  }
+}
+
+/**
+ * Check whether an object has the property.
+ */
+var hasOwnProperty = Object.prototype.hasOwnProperty;
+function hasOwn (obj, key) {
+  return hasOwnProperty.call(obj, key)
+}
+
+/**
+ * Create a cached version of a pure function.
+ */
+function cached (fn) {
+  var cache = Object.create(null);
+  return (function cachedFn (str) {
+    var hit = cache[str];
+    return hit || (cache[str] = fn(str))
+  })
+}
+
+/**
+ * Camelize a hyphen-delimited string.
+ */
+var camelizeRE = /-(\w)/g;
+var camelize = cached(function (str) {
+  return str.replace(camelizeRE, function (_, c) { return c ? c.toUpperCase() : ''; })
+});
+
+/**
+ * Capitalize a string.
+ */
+var capitalize = cached(function (str) {
+  return str.charAt(0).toUpperCase() + str.slice(1)
+});
+
+/**
+ * Hyphenate a camelCase string.
+ */
+var hyphenateRE = /\B([A-Z])/g;
+var hyphenate = cached(function (str) {
+  return str.replace(hyphenateRE, '-$1').toLowerCase()
+});
+
+/**
+ * Simple bind polyfill for environments that do not support it,
+ * e.g., PhantomJS 1.x. Technically, we don't need this anymore
+ * since native bind is now performant enough in most browsers.
+ * But removing it would mean breaking code that was able to run in
+ * PhantomJS 1.x, so this must be kept for backward compatibility.
+ */
+
+/* istanbul ignore next */
+function polyfillBind (fn, ctx) {
+  function boundFn (a) {
+    var l = arguments.length;
+    return l
+      ? l > 1
+        ? fn.apply(ctx, arguments)
+        : fn.call(ctx, a)
+      : fn.call(ctx)
+  }
+
+  boundFn._length = fn.length;
+  return boundFn
+}
+
+function nativeBind (fn, ctx) {
+  return fn.bind(ctx)
+}
+
+var bind = Function.prototype.bind
+  ? nativeBind
+  : polyfillBind;
+
+/**
+ * Convert an Array-like object to a real Array.
+ */
+function toArray (list, start) {
+  start = start || 0;
+  var i = list.length - start;
+  var ret = new Array(i);
+  while (i--) {
+    ret[i] = list[i + start];
+  }
+  return ret
+}
+
+/**
+ * Mix properties into target object.
+ */
+function extend (to, _from) {
+  for (var key in _from) {
+    to[key] = _from[key];
+  }
+  return to
+}
+
+/**
+ * Merge an Array of Objects into a single Object.
+ */
+function toObject (arr) {
+  var res = {};
+  for (var i = 0; i < arr.length; i++) {
+    if (arr[i]) {
+      extend(res, arr[i]);
+    }
+  }
+  return res
+}
+
+/* eslint-disable no-unused-vars */
+
+/**
+ * Perform no operation.
+ * Stubbing args to make Flow happy without leaving useless transpiled code
+ * with ...rest (https://flow.org/blog/2017/05/07/Strict-Function-Call-Arity/).
+ */
+function noop (a, b, c) {}
+
+/**
+ * Always return false.
+ */
+var no = function (a, b, c) { return false; };
+
+/* eslint-enable no-unused-vars */
+
+/**
+ * Return the same value.
+ */
+var identity = function (_) { return _; };
+
+/**
+ * Check if two values are loosely equal - that is,
+ * if they are plain objects, do they have the same shape?
+ */
+function looseEqual (a, b) {
+  if (a === b) { return true }
+  var isObjectA = isObject(a);
+  var isObjectB = isObject(b);
+  if (isObjectA && isObjectB) {
+    try {
+      var isArrayA = Array.isArray(a);
+      var isArrayB = Array.isArray(b);
+      if (isArrayA && isArrayB) {
+        return a.length === b.length && a.every(function (e, i) {
+          return looseEqual(e, b[i])
+        })
+      } else if (a instanceof Date && b instanceof Date) {
+        return a.getTime() === b.getTime()
+      } else if (!isArrayA && !isArrayB) {
+        var keysA = Object.keys(a);
+        var keysB = Object.keys(b);
+        return keysA.length === keysB.length && keysA.every(function (key) {
+          return looseEqual(a[key], b[key])
+        })
+      } else {
+        /* istanbul ignore next */
+        return false
+      }
+    } catch (e) {
+      /* istanbul ignore next */
+      return false
+    }
+  } else if (!isObjectA && !isObjectB) {
+    return String(a) === String(b)
+  } else {
+    return false
+  }
+}
+
+/**
+ * Return the first index at which a loosely equal value can be
+ * found in the array (if value is a plain object, the array must
+ * contain an object of the same shape), or -1 if it is not present.
+ */
+function looseIndexOf (arr, val) {
+  for (var i = 0; i < arr.length; i++) {
+    if (looseEqual(arr[i], val)) { return i }
+  }
+  return -1
+}
+
+/**
+ * Ensure a function is called only once.
+ */
+function once (fn) {
+  var called = false;
+  return function () {
+    if (!called) {
+      called = true;
+      fn.apply(this, arguments);
+    }
+  }
+}
+
+var ASSET_TYPES = [
+  'component',
+  'directive',
+  'filter'
+];
+
+var LIFECYCLE_HOOKS = [
+  'beforeCreate',
+  'created',
+  'beforeMount',
+  'mounted',
+  'beforeUpdate',
+  'updated',
+  'beforeDestroy',
+  'destroyed',
+  'activated',
+  'deactivated',
+  'errorCaptured',
+  'serverPrefetch'
+];
+
+/*  */
+
+
+
+var config = ({
+  /**
+   * Option merge strategies (used in core/util/options)
+   */
+  // $flow-disable-line
+  optionMergeStrategies: Object.create(null),
+
+  /**
+   * Whether to suppress warnings.
+   */
+  silent: false,
+
+  /**
+   * Show production mode tip message on boot?
+   */
+  productionTip: "development" !== 'production',
+
+  /**
+   * Whether to enable devtools
+   */
+  devtools: "development" !== 'production',
+
+  /**
+   * Whether to record perf
+   */
+  performance: false,
+
+  /**
+   * Error handler for watcher errors
+   */
+  errorHandler: null,
+
+  /**
+   * Warn handler for watcher warns
+   */
+  warnHandler: null,
+
+  /**
+   * Ignore certain custom elements
+   */
+  ignoredElements: [],
+
+  /**
+   * Custom user key aliases for v-on
+   */
+  // $flow-disable-line
+  keyCodes: Object.create(null),
+
+  /**
+   * Check if a tag is reserved so that it cannot be registered as a
+   * component. This is platform-dependent and may be overwritten.
+   */
+  isReservedTag: no,
+
+  /**
+   * Check if an attribute is reserved so that it cannot be used as a component
+   * prop. This is platform-dependent and may be overwritten.
+   */
+  isReservedAttr: no,
+
+  /**
+   * Check if a tag is an unknown element.
+   * Platform-dependent.
+   */
+  isUnknownElement: no,
+
+  /**
+   * Get the namespace of an element
+   */
+  getTagNamespace: noop,
+
+  /**
+   * Parse the real tag name for the specific platform.
+   */
+  parsePlatformTagName: identity,
+
+  /**
+   * Check if an attribute must be bound using property, e.g. value
+   * Platform-dependent.
+   */
+  mustUseProp: no,
+
+  /**
+   * Perform updates asynchronously. Intended to be used by Vue Test Utils
+   * This will significantly reduce performance if set to false.
+   */
+  async: true,
+
+  /**
+   * Exposed for legacy reasons
+   */
+  _lifecycleHooks: LIFECYCLE_HOOKS
+});
+
+/*  */
+
+/**
+ * unicode letters used for parsing html tags, component names and property paths.
+ * using https://www.w3.org/TR/html53/semantics-scripting.html#potentialcustomelementname
+ * skipping \u10000-\uEFFFF due to it freezing up PhantomJS
+ */
+var unicodeRegExp = /a-zA-Z\u00B7\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u037D\u037F-\u1FFF\u200C-\u200D\u203F-\u2040\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD/;
+
+/**
+ * Check if a string starts with $ or _
+ */
+function isReserved (str) {
+  var c = (str + '').charCodeAt(0);
+  return c === 0x24 || c === 0x5F
+}
+
+/**
+ * Define a property.
+ */
+function def (obj, key, val, enumerable) {
+  Object.defineProperty(obj, key, {
+    value: val,
+    enumerable: !!enumerable,
+    writable: true,
+    configurable: true
+  });
+}
+
+/**
+ * Parse simple path.
+ */
+var bailRE = new RegExp(("[^" + (unicodeRegExp.source) + ".$_\\d]"));
+function parsePath (path) {
+  if (bailRE.test(path)) {
+    return
+  }
+  var segments = path.split('.');
+  return function (obj) {
+    for (var i = 0; i < segments.length; i++) {
+      if (!obj) { return }
+      obj = obj[segments[i]];
+    }
+    return obj
+  }
+}
+
+/*  */
+
+// can we use __proto__?
+var hasProto = '__proto__' in {};
+
+// Browser environment sniffing
+var inBrowser = typeof window !== 'undefined';
+var inWeex = typeof WXEnvironment !== 'undefined' && !!WXEnvironment.platform;
+var weexPlatform = inWeex && WXEnvironment.platform.toLowerCase();
+var UA = inBrowser && window.navigator.userAgent.toLowerCase();
+var isIE = UA && /msie|trident/.test(UA);
+var isIE9 = UA && UA.indexOf('msie 9.0') > 0;
+var isEdge = UA && UA.indexOf('edge/') > 0;
+var isAndroid = (UA && UA.indexOf('android') > 0) || (weexPlatform === 'android');
+var isIOS = (UA && /iphone|ipad|ipod|ios/.test(UA)) || (weexPlatform === 'ios');
+var isChrome = UA && /chrome\/\d+/.test(UA) && !isEdge;
+var isPhantomJS = UA && /phantomjs/.test(UA);
+var isFF = UA && UA.match(/firefox\/(\d+)/);
+
+// Firefox has a "watch" function on Object.prototype...
+var nativeWatch = ({}).watch;
+if (inBrowser) {
+  try {
+    var opts = {};
+    Object.defineProperty(opts, 'passive', ({
+      get: function get () {
+      }
+    })); // https://github.com/facebook/flow/issues/285
+    window.addEventListener('test-passive', null, opts);
+  } catch (e) {}
+}
+
+// this needs to be lazy-evaled because vue may be required before
+// vue-server-renderer can set VUE_ENV
+var _isServer;
+var isServerRendering = function () {
+  if (_isServer === undefined) {
+    /* istanbul ignore if */
+    if (!inBrowser && !inWeex && typeof global !== 'undefined') {
+      // detect presence of vue-server-renderer and avoid
+      // Webpack shimming the process
+      _isServer = global['process'] && global['process'].env.VUE_ENV === 'server';
+    } else {
+      _isServer = false;
+    }
+  }
+  return _isServer
+};
+
+// detect devtools
+var devtools = inBrowser && window.__VUE_DEVTOOLS_GLOBAL_HOOK__;
+
+/* istanbul ignore next */
+function isNative (Ctor) {
+  return typeof Ctor === 'function' && /native code/.test(Ctor.toString())
+}
+
+var hasSymbol =
+  typeof Symbol !== 'undefined' && isNative(Symbol) &&
+  typeof Reflect !== 'undefined' && isNative(Reflect.ownKeys);
+
+var _Set;
+/* istanbul ignore if */ // $flow-disable-line
+if (typeof Set !== 'undefined' && isNative(Set)) {
+  // use native Set when available.
+  _Set = Set;
+} else {
+  // a non-standard Set polyfill that only works with primitive keys.
+  _Set = /*@__PURE__*/(function () {
+    function Set () {
+      this.set = Object.create(null);
+    }
+    Set.prototype.has = function has (key) {
+      return this.set[key] === true
+    };
+    Set.prototype.add = function add (key) {
+      this.set[key] = true;
+    };
+    Set.prototype.clear = function clear () {
+      this.set = Object.create(null);
+    };
+
+    return Set;
+  }());
+}
+
+/*  */
+
+var warn = noop;
+var tip = noop;
+var generateComponentTrace = (noop); // work around flow check
+var formatComponentName = (noop);
+
+if (true) {
+  var hasConsole = typeof console !== 'undefined';
+  var classifyRE = /(?:^|[-_])(\w)/g;
+  var classify = function (str) { return str
+    .replace(classifyRE, function (c) { return c.toUpperCase(); })
+    .replace(/[-_]/g, ''); };
+
+  warn = function (msg, vm) {
+    var trace = vm ? generateComponentTrace(vm) : '';
+
+    if (config.warnHandler) {
+      config.warnHandler.call(null, msg, vm, trace);
+    } else if (hasConsole && (!config.silent)) {
+      console.error(("[Vue warn]: " + msg + trace));
+    }
+  };
+
+  tip = function (msg, vm) {
+    if (hasConsole && (!config.silent)) {
+      console.warn("[Vue tip]: " + msg + (
+        vm ? generateComponentTrace(vm) : ''
+      ));
+    }
+  };
+
+  formatComponentName = function (vm, includeFile) {
+    {
+      if(vm.$scope && vm.$scope.is){
+        return vm.$scope.is
+      }
+    }
+    if (vm.$root === vm) {
+      return '<Root>'
+    }
+    var options = typeof vm === 'function' && vm.cid != null
+      ? vm.options
+      : vm._isVue
+        ? vm.$options || vm.constructor.options
+        : vm;
+    var name = options.name || options._componentTag;
+    var file = options.__file;
+    if (!name && file) {
+      var match = file.match(/([^/\\]+)\.vue$/);
+      name = match && match[1];
+    }
+
+    return (
+      (name ? ("<" + (classify(name)) + ">") : "<Anonymous>") +
+      (file && includeFile !== false ? (" at " + file) : '')
+    )
+  };
+
+  var repeat = function (str, n) {
+    var res = '';
+    while (n) {
+      if (n % 2 === 1) { res += str; }
+      if (n > 1) { str += str; }
+      n >>= 1;
+    }
+    return res
+  };
+
+  generateComponentTrace = function (vm) {
+    if (vm._isVue && vm.$parent) {
+      var tree = [];
+      var currentRecursiveSequence = 0;
+      while (vm) {
+        if (tree.length > 0) {
+          var last = tree[tree.length - 1];
+          if (last.constructor === vm.constructor) {
+            currentRecursiveSequence++;
+            vm = vm.$parent;
+            continue
+          } else if (currentRecursiveSequence > 0) {
+            tree[tree.length - 1] = [last, currentRecursiveSequence];
+            currentRecursiveSequence = 0;
+          }
+        }
+        tree.push(vm);
+        vm = vm.$parent;
+      }
+      return '\n\nfound in\n\n' + tree
+        .map(function (vm, i) { return ("" + (i === 0 ? '---> ' : repeat(' ', 5 + i * 2)) + (Array.isArray(vm)
+            ? ((formatComponentName(vm[0])) + "... (" + (vm[1]) + " recursive calls)")
+            : formatComponentName(vm))); })
+        .join('\n')
+    } else {
+      return ("\n\n(found in " + (formatComponentName(vm)) + ")")
+    }
+  };
+}
+
+/*  */
+
+var uid = 0;
+
+/**
+ * A dep is an observable that can have multiple
+ * directives subscribing to it.
+ */
+var Dep = function Dep () {
+  this.id = uid++;
+  this.subs = [];
+};
+
+Dep.prototype.addSub = function addSub (sub) {
+  this.subs.push(sub);
+};
+
+Dep.prototype.removeSub = function removeSub (sub) {
+  remove(this.subs, sub);
+};
+
+Dep.prototype.depend = function depend () {
+  if (Dep.SharedObject.target) {
+    Dep.SharedObject.target.addDep(this);
+  }
+};
+
+Dep.prototype.notify = function notify () {
+  // stabilize the subscriber list first
+  var subs = this.subs.slice();
+  if ( true && !config.async) {
+    // subs aren't sorted in scheduler if not running async
+    // we need to sort them now to make sure they fire in correct
+    // order
+    subs.sort(function (a, b) { return a.id - b.id; });
+  }
+  for (var i = 0, l = subs.length; i < l; i++) {
+    subs[i].update();
+  }
+};
+
+// The current target watcher being evaluated.
+// This is globally unique because only one watcher
+// can be evaluated at a time.
+// fixed by xxxxxx (nvue shared vuex)
+/* eslint-disable no-undef */
+Dep.SharedObject = typeof SharedObject !== 'undefined' ? SharedObject : {};
+Dep.SharedObject.target = null;
+Dep.SharedObject.targetStack = [];
+
+function pushTarget (target) {
+  Dep.SharedObject.targetStack.push(target);
+  Dep.SharedObject.target = target;
+}
+
+function popTarget () {
+  Dep.SharedObject.targetStack.pop();
+  Dep.SharedObject.target = Dep.SharedObject.targetStack[Dep.SharedObject.targetStack.length - 1];
+}
+
+/*  */
+
+var VNode = function VNode (
+  tag,
+  data,
+  children,
+  text,
+  elm,
+  context,
+  componentOptions,
+  asyncFactory
+) {
+  this.tag = tag;
+  this.data = data;
+  this.children = children;
+  this.text = text;
+  this.elm = elm;
+  this.ns = undefined;
+  this.context = context;
+  this.fnContext = undefined;
+  this.fnOptions = undefined;
+  this.fnScopeId = undefined;
+  this.key = data && data.key;
+  this.componentOptions = componentOptions;
+  this.componentInstance = undefined;
+  this.parent = undefined;
+  this.raw = false;
+  this.isStatic = false;
+  this.isRootInsert = true;
+  this.isComment = false;
+  this.isCloned = false;
+  this.isOnce = false;
+  this.asyncFactory = asyncFactory;
+  this.asyncMeta = undefined;
+  this.isAsyncPlaceholder = false;
+};
+
+var prototypeAccessors = { child: { configurable: true } };
+
+// DEPRECATED: alias for componentInstance for backwards compat.
+/* istanbul ignore next */
+prototypeAccessors.child.get = function () {
+  return this.componentInstance
+};
+
+Object.defineProperties( VNode.prototype, prototypeAccessors );
+
+var createEmptyVNode = function (text) {
+  if ( text === void 0 ) text = '';
+
+  var node = new VNode();
+  node.text = text;
+  node.isComment = true;
+  return node
+};
+
+function createTextVNode (val) {
+  return new VNode(undefined, undefined, undefined, String(val))
+}
+
+// optimized shallow clone
+// used for static nodes and slot nodes because they may be reused across
+// multiple renders, cloning them avoids errors when DOM manipulations rely
+// on their elm reference.
+function cloneVNode (vnode) {
+  var cloned = new VNode(
+    vnode.tag,
+    vnode.data,
+    // #7975
+    // clone children array to avoid mutating original in case of cloning
+    // a child.
+    vnode.children && vnode.children.slice(),
+    vnode.text,
+    vnode.elm,
+    vnode.context,
+    vnode.componentOptions,
+    vnode.asyncFactory
+  );
+  cloned.ns = vnode.ns;
+  cloned.isStatic = vnode.isStatic;
+  cloned.key = vnode.key;
+  cloned.isComment = vnode.isComment;
+  cloned.fnContext = vnode.fnContext;
+  cloned.fnOptions = vnode.fnOptions;
+  cloned.fnScopeId = vnode.fnScopeId;
+  cloned.asyncMeta = vnode.asyncMeta;
+  cloned.isCloned = true;
+  return cloned
+}
+
+/*
+ * not type checking this file because flow doesn't play well with
+ * dynamically accessing methods on Array prototype
+ */
+
+var arrayProto = Array.prototype;
+var arrayMethods = Object.create(arrayProto);
+
+var methodsToPatch = [
+  'push',
+  'pop',
+  'shift',
+  'unshift',
+  'splice',
+  'sort',
+  'reverse'
+];
+
+/**
+ * Intercept mutating methods and emit events
+ */
+methodsToPatch.forEach(function (method) {
+  // cache original method
+  var original = arrayProto[method];
+  def(arrayMethods, method, function mutator () {
+    var args = [], len = arguments.length;
+    while ( len-- ) args[ len ] = arguments[ len ];
+
+    var result = original.apply(this, args);
+    var ob = this.__ob__;
+    var inserted;
+    switch (method) {
+      case 'push':
+      case 'unshift':
+        inserted = args;
+        break
+      case 'splice':
+        inserted = args.slice(2);
+        break
+    }
+    if (inserted) { ob.observeArray(inserted); }
+    // notify change
+    ob.dep.notify();
+    return result
+  });
+});
+
+/*  */
+
+var arrayKeys = Object.getOwnPropertyNames(arrayMethods);
+
+/**
+ * In some cases we may want to disable observation inside a component's
+ * update computation.
+ */
+var shouldObserve = true;
+
+function toggleObserving (value) {
+  shouldObserve = value;
+}
+
+/**
+ * Observer class that is attached to each observed
+ * object. Once attached, the observer converts the target
+ * object's property keys into getter/setters that
+ * collect dependencies and dispatch updates.
+ */
+var Observer = function Observer (value) {
+  this.value = value;
+  this.dep = new Dep();
+  this.vmCount = 0;
+  def(value, '__ob__', this);
+  if (Array.isArray(value)) {
+    if (hasProto) {
+      {// fixed by xxxxxx 微信小程序使用 plugins 之后，数组方法被直接挂载到了数组对象上，需要执行 copyAugment 逻辑
+        if(value.push !== value.__proto__.push){
+          copyAugment(value, arrayMethods, arrayKeys);
+        } else {
+          protoAugment(value, arrayMethods);
+        }
+      }
+    } else {
+      copyAugment(value, arrayMethods, arrayKeys);
+    }
+    this.observeArray(value);
+  } else {
+    this.walk(value);
+  }
+};
+
+/**
+ * Walk through all properties and convert them into
+ * getter/setters. This method should only be called when
+ * value type is Object.
+ */
+Observer.prototype.walk = function walk (obj) {
+  var keys = Object.keys(obj);
+  for (var i = 0; i < keys.length; i++) {
+    defineReactive$$1(obj, keys[i]);
+  }
+};
+
+/**
+ * Observe a list of Array items.
+ */
+Observer.prototype.observeArray = function observeArray (items) {
+  for (var i = 0, l = items.length; i < l; i++) {
+    observe(items[i]);
+  }
+};
+
+// helpers
+
+/**
+ * Augment a target Object or Array by intercepting
+ * the prototype chain using __proto__
+ */
+function protoAugment (target, src) {
+  /* eslint-disable no-proto */
+  target.__proto__ = src;
+  /* eslint-enable no-proto */
+}
+
+/**
+ * Augment a target Object or Array by defining
+ * hidden properties.
+ */
+/* istanbul ignore next */
+function copyAugment (target, src, keys) {
+  for (var i = 0, l = keys.length; i < l; i++) {
+    var key = keys[i];
+    def(target, key, src[key]);
+  }
+}
+
+/**
+ * Attempt to create an observer instance for a value,
+ * returns the new observer if successfully observed,
+ * or the existing observer if the value already has one.
+ */
+function observe (value, asRootData) {
+  if (!isObject(value) || value instanceof VNode) {
+    return
+  }
+  var ob;
+  if (hasOwn(value, '__ob__') && value.__ob__ instanceof Observer) {
+    ob = value.__ob__;
+  } else if (
+    shouldObserve &&
+    !isServerRendering() &&
+    (Array.isArray(value) || isPlainObject(value)) &&
+    Object.isExtensible(value) &&
+    !value._isVue
+  ) {
+    ob = new Observer(value);
+  }
+  if (asRootData && ob) {
+    ob.vmCount++;
+  }
+  return ob
+}
+
+/**
+ * Define a reactive property on an Object.
+ */
+function defineReactive$$1 (
+  obj,
+  key,
+  val,
+  customSetter,
+  shallow
+) {
+  var dep = new Dep();
+
+  var property = Object.getOwnPropertyDescriptor(obj, key);
+  if (property && property.configurable === false) {
+    return
+  }
+
+  // cater for pre-defined getter/setters
+  var getter = property && property.get;
+  var setter = property && property.set;
+  if ((!getter || setter) && arguments.length === 2) {
+    val = obj[key];
+  }
+
+  var childOb = !shallow && observe(val);
+  Object.defineProperty(obj, key, {
+    enumerable: true,
+    configurable: true,
+    get: function reactiveGetter () {
+      var value = getter ? getter.call(obj) : val;
+      if (Dep.SharedObject.target) { // fixed by xxxxxx
+        dep.depend();
+        if (childOb) {
+          childOb.dep.depend();
+          if (Array.isArray(value)) {
+            dependArray(value);
+          }
+        }
+      }
+      return value
+    },
+    set: function reactiveSetter (newVal) {
+      var value = getter ? getter.call(obj) : val;
+      /* eslint-disable no-self-compare */
+      if (newVal === value || (newVal !== newVal && value !== value)) {
+        return
+      }
+      /* eslint-enable no-self-compare */
+      if ( true && customSetter) {
+        customSetter();
+      }
+      // #7981: for accessor properties without setter
+      if (getter && !setter) { return }
+      if (setter) {
+        setter.call(obj, newVal);
+      } else {
+        val = newVal;
+      }
+      childOb = !shallow && observe(newVal);
+      dep.notify();
+    }
+  });
+}
+
+/**
+ * Set a property on an object. Adds the new property and
+ * triggers change notification if the property doesn't
+ * already exist.
+ */
+function set (target, key, val) {
+  if ( true &&
+    (isUndef(target) || isPrimitive(target))
+  ) {
+    warn(("Cannot set reactive property on undefined, null, or primitive value: " + ((target))));
+  }
+  if (Array.isArray(target) && isValidArrayIndex(key)) {
+    target.length = Math.max(target.length, key);
+    target.splice(key, 1, val);
+    return val
+  }
+  if (key in target && !(key in Object.prototype)) {
+    target[key] = val;
+    return val
+  }
+  var ob = (target).__ob__;
+  if (target._isVue || (ob && ob.vmCount)) {
+     true && warn(
+      'Avoid adding reactive properties to a Vue instance or its root $data ' +
+      'at runtime - declare it upfront in the data option.'
+    );
+    return val
+  }
+  if (!ob) {
+    target[key] = val;
+    return val
+  }
+  defineReactive$$1(ob.value, key, val);
+  ob.dep.notify();
+  return val
+}
+
+/**
+ * Delete a property and trigger change if necessary.
+ */
+function del (target, key) {
+  if ( true &&
+    (isUndef(target) || isPrimitive(target))
+  ) {
+    warn(("Cannot delete reactive property on undefined, null, or primitive value: " + ((target))));
+  }
+  if (Array.isArray(target) && isValidArrayIndex(key)) {
+    target.splice(key, 1);
+    return
+  }
+  var ob = (target).__ob__;
+  if (target._isVue || (ob && ob.vmCount)) {
+     true && warn(
+      'Avoid deleting properties on a Vue instance or its root $data ' +
+      '- just set it to null.'
+    );
+    return
+  }
+  if (!hasOwn(target, key)) {
+    return
+  }
+  delete target[key];
+  if (!ob) {
+    return
+  }
+  ob.dep.notify();
+}
+
+/**
+ * Collect dependencies on array elements when the array is touched, since
+ * we cannot intercept array element access like property getters.
+ */
+function dependArray (value) {
+  for (var e = (void 0), i = 0, l = value.length; i < l; i++) {
+    e = value[i];
+    e && e.__ob__ && e.__ob__.dep.depend();
+    if (Array.isArray(e)) {
+      dependArray(e);
+    }
+  }
+}
+
+/*  */
+
+/**
+ * Option overwriting strategies are functions that handle
+ * how to merge a parent option value and a child option
+ * value into the final value.
+ */
+var strats = config.optionMergeStrategies;
+
+/**
+ * Options with restrictions
+ */
+if (true) {
+  strats.el = strats.propsData = function (parent, child, vm, key) {
+    if (!vm) {
+      warn(
+        "option \"" + key + "\" can only be used during instance " +
+        'creation with the `new` keyword.'
+      );
+    }
+    return defaultStrat(parent, child)
+  };
+}
+
+/**
+ * Helper that recursively merges two data objects together.
+ */
+function mergeData (to, from) {
+  if (!from) { return to }
+  var key, toVal, fromVal;
+
+  var keys = hasSymbol
+    ? Reflect.ownKeys(from)
+    : Object.keys(from);
+
+  for (var i = 0; i < keys.length; i++) {
+    key = keys[i];
+    // in case the object is already observed...
+    if (key === '__ob__') { continue }
+    toVal = to[key];
+    fromVal = from[key];
+    if (!hasOwn(to, key)) {
+      set(to, key, fromVal);
+    } else if (
+      toVal !== fromVal &&
+      isPlainObject(toVal) &&
+      isPlainObject(fromVal)
+    ) {
+      mergeData(toVal, fromVal);
+    }
+  }
+  return to
+}
+
+/**
+ * Data
+ */
+function mergeDataOrFn (
+  parentVal,
+  childVal,
+  vm
+) {
+  if (!vm) {
+    // in a Vue.extend merge, both should be functions
+    if (!childVal) {
+      return parentVal
+    }
+    if (!parentVal) {
+      return childVal
+    }
+    // when parentVal & childVal are both present,
+    // we need to return a function that returns the
+    // merged result of both functions... no need to
+    // check if parentVal is a function here because
+    // it has to be a function to pass previous merges.
+    return function mergedDataFn () {
+      return mergeData(
+        typeof childVal === 'function' ? childVal.call(this, this) : childVal,
+        typeof parentVal === 'function' ? parentVal.call(this, this) : parentVal
+      )
+    }
+  } else {
+    return function mergedInstanceDataFn () {
+      // instance merge
+      var instanceData = typeof childVal === 'function'
+        ? childVal.call(vm, vm)
+        : childVal;
+      var defaultData = typeof parentVal === 'function'
+        ? parentVal.call(vm, vm)
+        : parentVal;
+      if (instanceData) {
+        return mergeData(instanceData, defaultData)
+      } else {
+        return defaultData
+      }
+    }
+  }
+}
+
+strats.data = function (
+  parentVal,
+  childVal,
+  vm
+) {
+  if (!vm) {
+    if (childVal && typeof childVal !== 'function') {
+       true && warn(
+        'The "data" option should be a function ' +
+        'that returns a per-instance value in component ' +
+        'definitions.',
+        vm
+      );
+
+      return parentVal
+    }
+    return mergeDataOrFn(parentVal, childVal)
+  }
+
+  return mergeDataOrFn(parentVal, childVal, vm)
+};
+
+/**
+ * Hooks and props are merged as arrays.
+ */
+function mergeHook (
+  parentVal,
+  childVal
+) {
+  var res = childVal
+    ? parentVal
+      ? parentVal.concat(childVal)
+      : Array.isArray(childVal)
+        ? childVal
+        : [childVal]
+    : parentVal;
+  return res
+    ? dedupeHooks(res)
+    : res
+}
+
+function dedupeHooks (hooks) {
+  var res = [];
+  for (var i = 0; i < hooks.length; i++) {
+    if (res.indexOf(hooks[i]) === -1) {
+      res.push(hooks[i]);
+    }
+  }
+  return res
+}
+
+LIFECYCLE_HOOKS.forEach(function (hook) {
+  strats[hook] = mergeHook;
+});
+
+/**
+ * Assets
+ *
+ * When a vm is present (instance creation), we need to do
+ * a three-way merge between constructor options, instance
+ * options and parent options.
+ */
+function mergeAssets (
+  parentVal,
+  childVal,
+  vm,
+  key
+) {
+  var res = Object.create(parentVal || null);
+  if (childVal) {
+     true && assertObjectType(key, childVal, vm);
+    return extend(res, childVal)
+  } else {
+    return res
+  }
+}
+
+ASSET_TYPES.forEach(function (type) {
+  strats[type + 's'] = mergeAssets;
+});
+
+/**
+ * Watchers.
+ *
+ * Watchers hashes should not overwrite one
+ * another, so we merge them as arrays.
+ */
+strats.watch = function (
+  parentVal,
+  childVal,
+  vm,
+  key
+) {
+  // work around Firefox's Object.prototype.watch...
+  if (parentVal === nativeWatch) { parentVal = undefined; }
+  if (childVal === nativeWatch) { childVal = undefined; }
+  /* istanbul ignore if */
+  if (!childVal) { return Object.create(parentVal || null) }
+  if (true) {
+    assertObjectType(key, childVal, vm);
+  }
+  if (!parentVal) { return childVal }
+  var ret = {};
+  extend(ret, parentVal);
+  for (var key$1 in childVal) {
+    var parent = ret[key$1];
+    var child = childVal[key$1];
+    if (parent && !Array.isArray(parent)) {
+      parent = [parent];
+    }
+    ret[key$1] = parent
+      ? parent.concat(child)
+      : Array.isArray(child) ? child : [child];
+  }
+  return ret
+};
+
+/**
+ * Other object hashes.
+ */
+strats.props =
+strats.methods =
+strats.inject =
+strats.computed = function (
+  parentVal,
+  childVal,
+  vm,
+  key
+) {
+  if (childVal && "development" !== 'production') {
+    assertObjectType(key, childVal, vm);
+  }
+  if (!parentVal) { return childVal }
+  var ret = Object.create(null);
+  extend(ret, parentVal);
+  if (childVal) { extend(ret, childVal); }
+  return ret
+};
+strats.provide = mergeDataOrFn;
+
+/**
+ * Default strategy.
+ */
+var defaultStrat = function (parentVal, childVal) {
+  return childVal === undefined
+    ? parentVal
+    : childVal
+};
+
+/**
+ * Validate component names
+ */
+function checkComponents (options) {
+  for (var key in options.components) {
+    validateComponentName(key);
+  }
+}
+
+function validateComponentName (name) {
+  if (!new RegExp(("^[a-zA-Z][\\-\\.0-9_" + (unicodeRegExp.source) + "]*$")).test(name)) {
+    warn(
+      'Invalid component name: "' + name + '". Component names ' +
+      'should conform to valid custom element name in html5 specification.'
+    );
+  }
+  if (isBuiltInTag(name) || config.isReservedTag(name)) {
+    warn(
+      'Do not use built-in or reserved HTML elements as component ' +
+      'id: ' + name
+    );
+  }
+}
+
+/**
+ * Ensure all props option syntax are normalized into the
+ * Object-based format.
+ */
+function normalizeProps (options, vm) {
+  var props = options.props;
+  if (!props) { return }
+  var res = {};
+  var i, val, name;
+  if (Array.isArray(props)) {
+    i = props.length;
+    while (i--) {
+      val = props[i];
+      if (typeof val === 'string') {
+        name = camelize(val);
+        res[name] = { type: null };
+      } else if (true) {
+        warn('props must be strings when using array syntax.');
+      }
+    }
+  } else if (isPlainObject(props)) {
+    for (var key in props) {
+      val = props[key];
+      name = camelize(key);
+      res[name] = isPlainObject(val)
+        ? val
+        : { type: val };
+    }
+  } else if (true) {
+    warn(
+      "Invalid value for option \"props\": expected an Array or an Object, " +
+      "but got " + (toRawType(props)) + ".",
+      vm
+    );
+  }
+  options.props = res;
+}
+
+/**
+ * Normalize all injections into Object-based format
+ */
+function normalizeInject (options, vm) {
+  var inject = options.inject;
+  if (!inject) { return }
+  var normalized = options.inject = {};
+  if (Array.isArray(inject)) {
+    for (var i = 0; i < inject.length; i++) {
+      normalized[inject[i]] = { from: inject[i] };
+    }
+  } else if (isPlainObject(inject)) {
+    for (var key in inject) {
+      var val = inject[key];
+      normalized[key] = isPlainObject(val)
+        ? extend({ from: key }, val)
+        : { from: val };
+    }
+  } else if (true) {
+    warn(
+      "Invalid value for option \"inject\": expected an Array or an Object, " +
+      "but got " + (toRawType(inject)) + ".",
+      vm
+    );
+  }
+}
+
+/**
+ * Normalize raw function directives into object format.
+ */
+function normalizeDirectives (options) {
+  var dirs = options.directives;
+  if (dirs) {
+    for (var key in dirs) {
+      var def$$1 = dirs[key];
+      if (typeof def$$1 === 'function') {
+        dirs[key] = { bind: def$$1, update: def$$1 };
+      }
+    }
+  }
+}
+
+function assertObjectType (name, value, vm) {
+  if (!isPlainObject(value)) {
+    warn(
+      "Invalid value for option \"" + name + "\": expected an Object, " +
+      "but got " + (toRawType(value)) + ".",
+      vm
+    );
+  }
+}
+
+/**
+ * Merge two option objects into a new one.
+ * Core utility used in both instantiation and inheritance.
+ */
+function mergeOptions (
+  parent,
+  child,
+  vm
+) {
+  if (true) {
+    checkComponents(child);
+  }
+
+  if (typeof child === 'function') {
+    child = child.options;
+  }
+
+  normalizeProps(child, vm);
+  normalizeInject(child, vm);
+  normalizeDirectives(child);
+
+  // Apply extends and mixins on the child options,
+  // but only if it is a raw options object that isn't
+  // the result of another mergeOptions call.
+  // Only merged options has the _base property.
+  if (!child._base) {
+    if (child.extends) {
+      parent = mergeOptions(parent, child.extends, vm);
+    }
+    if (child.mixins) {
+      for (var i = 0, l = child.mixins.length; i < l; i++) {
+        parent = mergeOptions(parent, child.mixins[i], vm);
+      }
+    }
+  }
+
+  var options = {};
+  var key;
+  for (key in parent) {
+    mergeField(key);
+  }
+  for (key in child) {
+    if (!hasOwn(parent, key)) {
+      mergeField(key);
+    }
+  }
+  function mergeField (key) {
+    var strat = strats[key] || defaultStrat;
+    options[key] = strat(parent[key], child[key], vm, key);
+  }
+  return options
+}
+
+/**
+ * Resolve an asset.
+ * This function is used because child instances need access
+ * to assets defined in its ancestor chain.
+ */
+function resolveAsset (
+  options,
+  type,
+  id,
+  warnMissing
+) {
+  /* istanbul ignore if */
+  if (typeof id !== 'string') {
+    return
+  }
+  var assets = options[type];
+  // check local registration variations first
+  if (hasOwn(assets, id)) { return assets[id] }
+  var camelizedId = camelize(id);
+  if (hasOwn(assets, camelizedId)) { return assets[camelizedId] }
+  var PascalCaseId = capitalize(camelizedId);
+  if (hasOwn(assets, PascalCaseId)) { return assets[PascalCaseId] }
+  // fallback to prototype chain
+  var res = assets[id] || assets[camelizedId] || assets[PascalCaseId];
+  if ( true && warnMissing && !res) {
+    warn(
+      'Failed to resolve ' + type.slice(0, -1) + ': ' + id,
+      options
+    );
+  }
+  return res
+}
+
+/*  */
+
+
+
+function validateProp (
+  key,
+  propOptions,
+  propsData,
+  vm
+) {
+  var prop = propOptions[key];
+  var absent = !hasOwn(propsData, key);
+  var value = propsData[key];
+  // boolean casting
+  var booleanIndex = getTypeIndex(Boolean, prop.type);
+  if (booleanIndex > -1) {
+    if (absent && !hasOwn(prop, 'default')) {
+      value = false;
+    } else if (value === '' || value === hyphenate(key)) {
+      // only cast empty string / same name to boolean if
+      // boolean has higher priority
+      var stringIndex = getTypeIndex(String, prop.type);
+      if (stringIndex < 0 || booleanIndex < stringIndex) {
+        value = true;
+      }
+    }
+  }
+  // check default value
+  if (value === undefined) {
+    value = getPropDefaultValue(vm, prop, key);
+    // since the default value is a fresh copy,
+    // make sure to observe it.
+    var prevShouldObserve = shouldObserve;
+    toggleObserving(true);
+    observe(value);
+    toggleObserving(prevShouldObserve);
+  }
+  if (
+    true
+  ) {
+    assertProp(prop, key, value, vm, absent);
+  }
+  return value
+}
+
+/**
+ * Get the default value of a prop.
+ */
+function getPropDefaultValue (vm, prop, key) {
+  // no default, return undefined
+  if (!hasOwn(prop, 'default')) {
+    return undefined
+  }
+  var def = prop.default;
+  // warn against non-factory defaults for Object & Array
+  if ( true && isObject(def)) {
+    warn(
+      'Invalid default value for prop "' + key + '": ' +
+      'Props with type Object/Array must use a factory function ' +
+      'to return the default value.',
+      vm
+    );
+  }
+  // the raw prop value was also undefined from previous render,
+  // return previous default value to avoid unnecessary watcher trigger
+  if (vm && vm.$options.propsData &&
+    vm.$options.propsData[key] === undefined &&
+    vm._props[key] !== undefined
+  ) {
+    return vm._props[key]
+  }
+  // call factory function for non-Function types
+  // a value is Function if its prototype is function even across different execution context
+  return typeof def === 'function' && getType(prop.type) !== 'Function'
+    ? def.call(vm)
+    : def
+}
+
+/**
+ * Assert whether a prop is valid.
+ */
+function assertProp (
+  prop,
+  name,
+  value,
+  vm,
+  absent
+) {
+  if (prop.required && absent) {
+    warn(
+      'Missing required prop: "' + name + '"',
+      vm
+    );
+    return
+  }
+  if (value == null && !prop.required) {
+    return
+  }
+  var type = prop.type;
+  var valid = !type || type === true;
+  var expectedTypes = [];
+  if (type) {
+    if (!Array.isArray(type)) {
+      type = [type];
+    }
+    for (var i = 0; i < type.length && !valid; i++) {
+      var assertedType = assertType(value, type[i]);
+      expectedTypes.push(assertedType.expectedType || '');
+      valid = assertedType.valid;
+    }
+  }
+
+  if (!valid) {
+    warn(
+      getInvalidTypeMessage(name, value, expectedTypes),
+      vm
+    );
+    return
+  }
+  var validator = prop.validator;
+  if (validator) {
+    if (!validator(value)) {
+      warn(
+        'Invalid prop: custom validator check failed for prop "' + name + '".',
+        vm
+      );
+    }
+  }
+}
+
+var simpleCheckRE = /^(String|Number|Boolean|Function|Symbol)$/;
+
+function assertType (value, type) {
+  var valid;
+  var expectedType = getType(type);
+  if (simpleCheckRE.test(expectedType)) {
+    var t = typeof value;
+    valid = t === expectedType.toLowerCase();
+    // for primitive wrapper objects
+    if (!valid && t === 'object') {
+      valid = value instanceof type;
+    }
+  } else if (expectedType === 'Object') {
+    valid = isPlainObject(value);
+  } else if (expectedType === 'Array') {
+    valid = Array.isArray(value);
+  } else {
+    valid = value instanceof type;
+  }
+  return {
+    valid: valid,
+    expectedType: expectedType
+  }
+}
+
+/**
+ * Use function string name to check built-in types,
+ * because a simple equality check will fail when running
+ * across different vms / iframes.
+ */
+function getType (fn) {
+  var match = fn && fn.toString().match(/^\s*function (\w+)/);
+  return match ? match[1] : ''
+}
+
+function isSameType (a, b) {
+  return getType(a) === getType(b)
+}
+
+function getTypeIndex (type, expectedTypes) {
+  if (!Array.isArray(expectedTypes)) {
+    return isSameType(expectedTypes, type) ? 0 : -1
+  }
+  for (var i = 0, len = expectedTypes.length; i < len; i++) {
+    if (isSameType(expectedTypes[i], type)) {
+      return i
+    }
+  }
+  return -1
+}
+
+function getInvalidTypeMessage (name, value, expectedTypes) {
+  var message = "Invalid prop: type check failed for prop \"" + name + "\"." +
+    " Expected " + (expectedTypes.map(capitalize).join(', '));
+  var expectedType = expectedTypes[0];
+  var receivedType = toRawType(value);
+  var expectedValue = styleValue(value, expectedType);
+  var receivedValue = styleValue(value, receivedType);
+  // check if we need to specify expected value
+  if (expectedTypes.length === 1 &&
+      isExplicable(expectedType) &&
+      !isBoolean(expectedType, receivedType)) {
+    message += " with value " + expectedValue;
+  }
+  message += ", got " + receivedType + " ";
+  // check if we need to specify received value
+  if (isExplicable(receivedType)) {
+    message += "with value " + receivedValue + ".";
+  }
+  return message
+}
+
+function styleValue (value, type) {
+  if (type === 'String') {
+    return ("\"" + value + "\"")
+  } else if (type === 'Number') {
+    return ("" + (Number(value)))
+  } else {
+    return ("" + value)
+  }
+}
+
+function isExplicable (value) {
+  var explicitTypes = ['string', 'number', 'boolean'];
+  return explicitTypes.some(function (elem) { return value.toLowerCase() === elem; })
+}
+
+function isBoolean () {
+  var args = [], len = arguments.length;
+  while ( len-- ) args[ len ] = arguments[ len ];
+
+  return args.some(function (elem) { return elem.toLowerCase() === 'boolean'; })
+}
+
+/*  */
+
+function handleError (err, vm, info) {
+  // Deactivate deps tracking while processing error handler to avoid possible infinite rendering.
+  // See: https://github.com/vuejs/vuex/issues/1505
+  pushTarget();
+  try {
+    if (vm) {
+      var cur = vm;
+      while ((cur = cur.$parent)) {
+        var hooks = cur.$options.errorCaptured;
+        if (hooks) {
+          for (var i = 0; i < hooks.length; i++) {
+            try {
+              var capture = hooks[i].call(cur, err, vm, info) === false;
+              if (capture) { return }
+            } catch (e) {
+              globalHandleError(e, cur, 'errorCaptured hook');
+            }
+          }
+        }
+      }
+    }
+    globalHandleError(err, vm, info);
+  } finally {
+    popTarget();
+  }
+}
+
+function invokeWithErrorHandling (
+  handler,
+  context,
+  args,
+  vm,
+  info
+) {
+  var res;
+  try {
+    res = args ? handler.apply(context, args) : handler.call(context);
+    if (res && !res._isVue && isPromise(res) && !res._handled) {
+      res.catch(function (e) { return handleError(e, vm, info + " (Promise/async)"); });
+      // issue #9511
+      // avoid catch triggering multiple times when nested calls
+      res._handled = true;
+    }
+  } catch (e) {
+    handleError(e, vm, info);
+  }
+  return res
+}
+
+function globalHandleError (err, vm, info) {
+  if (config.errorHandler) {
+    try {
+      return config.errorHandler.call(null, err, vm, info)
+    } catch (e) {
+      // if the user intentionally throws the original error in the handler,
+      // do not log it twice
+      if (e !== err) {
+        logError(e, null, 'config.errorHandler');
+      }
+    }
+  }
+  logError(err, vm, info);
+}
+
+function logError (err, vm, info) {
+  if (true) {
+    warn(("Error in " + info + ": \"" + (err.toString()) + "\""), vm);
+  }
+  /* istanbul ignore else */
+  if ((inBrowser || inWeex) && typeof console !== 'undefined') {
+    console.error(err);
+  } else {
+    throw err
+  }
+}
+
+/*  */
+
+var callbacks = [];
+var pending = false;
+
+function flushCallbacks () {
+  pending = false;
+  var copies = callbacks.slice(0);
+  callbacks.length = 0;
+  for (var i = 0; i < copies.length; i++) {
+    copies[i]();
+  }
+}
+
+// Here we have async deferring wrappers using microtasks.
+// In 2.5 we used (macro) tasks (in combination with microtasks).
+// However, it has subtle problems when state is changed right before repaint
+// (e.g. #6813, out-in transitions).
+// Also, using (macro) tasks in event handler would cause some weird behaviors
+// that cannot be circumvented (e.g. #7109, #7153, #7546, #7834, #8109).
+// So we now use microtasks everywhere, again.
+// A major drawback of this tradeoff is that there are some scenarios
+// where microtasks have too high a priority and fire in between supposedly
+// sequential events (e.g. #4521, #6690, which have workarounds)
+// or even between bubbling of the same event (#6566).
+var timerFunc;
+
+// The nextTick behavior leverages the microtask queue, which can be accessed
+// via either native Promise.then or MutationObserver.
+// MutationObserver has wider support, however it is seriously bugged in
+// UIWebView in iOS >= 9.3.3 when triggered in touch event handlers. It
+// completely stops working after triggering a few times... so, if native
+// Promise is available, we will use it:
+/* istanbul ignore next, $flow-disable-line */
+if (typeof Promise !== 'undefined' && isNative(Promise)) {
+  var p = Promise.resolve();
+  timerFunc = function () {
+    p.then(flushCallbacks);
+    // In problematic UIWebViews, Promise.then doesn't completely break, but
+    // it can get stuck in a weird state where callbacks are pushed into the
+    // microtask queue but the queue isn't being flushed, until the browser
+    // needs to do some other work, e.g. handle a timer. Therefore we can
+    // "force" the microtask queue to be flushed by adding an empty timer.
+    if (isIOS) { setTimeout(noop); }
+  };
+} else if (!isIE && typeof MutationObserver !== 'undefined' && (
+  isNative(MutationObserver) ||
+  // PhantomJS and iOS 7.x
+  MutationObserver.toString() === '[object MutationObserverConstructor]'
+)) {
+  // Use MutationObserver where native Promise is not available,
+  // e.g. PhantomJS, iOS7, Android 4.4
+  // (#6466 MutationObserver is unreliable in IE11)
+  var counter = 1;
+  var observer = new MutationObserver(flushCallbacks);
+  var textNode = document.createTextNode(String(counter));
+  observer.observe(textNode, {
+    characterData: true
+  });
+  timerFunc = function () {
+    counter = (counter + 1) % 2;
+    textNode.data = String(counter);
+  };
+} else if (typeof setImmediate !== 'undefined' && isNative(setImmediate)) {
+  // Fallback to setImmediate.
+  // Techinically it leverages the (macro) task queue,
+  // but it is still a better choice than setTimeout.
+  timerFunc = function () {
+    setImmediate(flushCallbacks);
+  };
+} else {
+  // Fallback to setTimeout.
+  timerFunc = function () {
+    setTimeout(flushCallbacks, 0);
+  };
+}
+
+function nextTick (cb, ctx) {
+  var _resolve;
+  callbacks.push(function () {
+    if (cb) {
+      try {
+        cb.call(ctx);
+      } catch (e) {
+        handleError(e, ctx, 'nextTick');
+      }
+    } else if (_resolve) {
+      _resolve(ctx);
+    }
+  });
+  if (!pending) {
+    pending = true;
+    timerFunc();
+  }
+  // $flow-disable-line
+  if (!cb && typeof Promise !== 'undefined') {
+    return new Promise(function (resolve) {
+      _resolve = resolve;
+    })
+  }
+}
+
+/*  */
+
+/* not type checking this file because flow doesn't play well with Proxy */
+
+var initProxy;
+
+if (true) {
+  var allowedGlobals = makeMap(
+    'Infinity,undefined,NaN,isFinite,isNaN,' +
+    'parseFloat,parseInt,decodeURI,decodeURIComponent,encodeURI,encodeURIComponent,' +
+    'Math,Number,Date,Array,Object,Boolean,String,RegExp,Map,Set,JSON,Intl,' +
+    'require' // for Webpack/Browserify
+  );
+
+  var warnNonPresent = function (target, key) {
+    warn(
+      "Property or method \"" + key + "\" is not defined on the instance but " +
+      'referenced during render. Make sure that this property is reactive, ' +
+      'either in the data option, or for class-based components, by ' +
+      'initializing the property. ' +
+      'See: https://vuejs.org/v2/guide/reactivity.html#Declaring-Reactive-Properties.',
+      target
+    );
+  };
+
+  var warnReservedPrefix = function (target, key) {
+    warn(
+      "Property \"" + key + "\" must be accessed with \"$data." + key + "\" because " +
+      'properties starting with "$" or "_" are not proxied in the Vue instance to ' +
+      'prevent conflicts with Vue internals' +
+      'See: https://vuejs.org/v2/api/#data',
+      target
+    );
+  };
+
+  var hasProxy =
+    typeof Proxy !== 'undefined' && isNative(Proxy);
+
+  if (hasProxy) {
+    var isBuiltInModifier = makeMap('stop,prevent,self,ctrl,shift,alt,meta,exact');
+    config.keyCodes = new Proxy(config.keyCodes, {
+      set: function set (target, key, value) {
+        if (isBuiltInModifier(key)) {
+          warn(("Avoid overwriting built-in modifier in config.keyCodes: ." + key));
+          return false
+        } else {
+          target[key] = value;
+          return true
+        }
+      }
+    });
+  }
+
+  var hasHandler = {
+    has: function has (target, key) {
+      var has = key in target;
+      var isAllowed = allowedGlobals(key) ||
+        (typeof key === 'string' && key.charAt(0) === '_' && !(key in target.$data));
+      if (!has && !isAllowed) {
+        if (key in target.$data) { warnReservedPrefix(target, key); }
+        else { warnNonPresent(target, key); }
+      }
+      return has || !isAllowed
+    }
+  };
+
+  var getHandler = {
+    get: function get (target, key) {
+      if (typeof key === 'string' && !(key in target)) {
+        if (key in target.$data) { warnReservedPrefix(target, key); }
+        else { warnNonPresent(target, key); }
+      }
+      return target[key]
+    }
+  };
+
+  initProxy = function initProxy (vm) {
+    if (hasProxy) {
+      // determine which proxy handler to use
+      var options = vm.$options;
+      var handlers = options.render && options.render._withStripped
+        ? getHandler
+        : hasHandler;
+      vm._renderProxy = new Proxy(vm, handlers);
+    } else {
+      vm._renderProxy = vm;
+    }
+  };
+}
+
+/*  */
+
+var seenObjects = new _Set();
+
+/**
+ * Recursively traverse an object to evoke all converted
+ * getters, so that every nested property inside the object
+ * is collected as a "deep" dependency.
+ */
+function traverse (val) {
+  _traverse(val, seenObjects);
+  seenObjects.clear();
+}
+
+function _traverse (val, seen) {
+  var i, keys;
+  var isA = Array.isArray(val);
+  if ((!isA && !isObject(val)) || Object.isFrozen(val) || val instanceof VNode) {
+    return
+  }
+  if (val.__ob__) {
+    var depId = val.__ob__.dep.id;
+    if (seen.has(depId)) {
+      return
+    }
+    seen.add(depId);
+  }
+  if (isA) {
+    i = val.length;
+    while (i--) { _traverse(val[i], seen); }
+  } else {
+    keys = Object.keys(val);
+    i = keys.length;
+    while (i--) { _traverse(val[keys[i]], seen); }
+  }
+}
+
+var mark;
+var measure;
+
+if (true) {
+  var perf = inBrowser && window.performance;
+  /* istanbul ignore if */
+  if (
+    perf &&
+    perf.mark &&
+    perf.measure &&
+    perf.clearMarks &&
+    perf.clearMeasures
+  ) {
+    mark = function (tag) { return perf.mark(tag); };
+    measure = function (name, startTag, endTag) {
+      perf.measure(name, startTag, endTag);
+      perf.clearMarks(startTag);
+      perf.clearMarks(endTag);
+      // perf.clearMeasures(name)
+    };
+  }
+}
+
+/*  */
+
+var normalizeEvent = cached(function (name) {
+  var passive = name.charAt(0) === '&';
+  name = passive ? name.slice(1) : name;
+  var once$$1 = name.charAt(0) === '~'; // Prefixed last, checked first
+  name = once$$1 ? name.slice(1) : name;
+  var capture = name.charAt(0) === '!';
+  name = capture ? name.slice(1) : name;
+  return {
+    name: name,
+    once: once$$1,
+    capture: capture,
+    passive: passive
+  }
+});
+
+function createFnInvoker (fns, vm) {
+  function invoker () {
+    var arguments$1 = arguments;
+
+    var fns = invoker.fns;
+    if (Array.isArray(fns)) {
+      var cloned = fns.slice();
+      for (var i = 0; i < cloned.length; i++) {
+        invokeWithErrorHandling(cloned[i], null, arguments$1, vm, "v-on handler");
+      }
+    } else {
+      // return handler return value for single handlers
+      return invokeWithErrorHandling(fns, null, arguments, vm, "v-on handler")
+    }
+  }
+  invoker.fns = fns;
+  return invoker
+}
+
+function updateListeners (
+  on,
+  oldOn,
+  add,
+  remove$$1,
+  createOnceHandler,
+  vm
+) {
+  var name, def$$1, cur, old, event;
+  for (name in on) {
+    def$$1 = cur = on[name];
+    old = oldOn[name];
+    event = normalizeEvent(name);
+    if (isUndef(cur)) {
+       true && warn(
+        "Invalid handler for event \"" + (event.name) + "\": got " + String(cur),
+        vm
+      );
+    } else if (isUndef(old)) {
+      if (isUndef(cur.fns)) {
+        cur = on[name] = createFnInvoker(cur, vm);
+      }
+      if (isTrue(event.once)) {
+        cur = on[name] = createOnceHandler(event.name, cur, event.capture);
+      }
+      add(event.name, cur, event.capture, event.passive, event.params);
+    } else if (cur !== old) {
+      old.fns = cur;
+      on[name] = old;
+    }
+  }
+  for (name in oldOn) {
+    if (isUndef(on[name])) {
+      event = normalizeEvent(name);
+      remove$$1(event.name, oldOn[name], event.capture);
+    }
+  }
+}
+
+/*  */
+
+/*  */
+
+function extractPropsFromVNodeData (
+  data,
+  Ctor,
+  tag
+) {
+  // we are only extracting raw values here.
+  // validation and default values are handled in the child
+  // component itself.
+  var propOptions = Ctor.options.props;
+  if (isUndef(propOptions)) {
+    return
+  }
+  var res = {};
+  var attrs = data.attrs;
+  var props = data.props;
+  if (isDef(attrs) || isDef(props)) {
+    for (var key in propOptions) {
+      var altKey = hyphenate(key);
+      if (true) {
+        var keyInLowerCase = key.toLowerCase();
+        if (
+          key !== keyInLowerCase &&
+          attrs && hasOwn(attrs, keyInLowerCase)
+        ) {
+          tip(
+            "Prop \"" + keyInLowerCase + "\" is passed to component " +
+            (formatComponentName(tag || Ctor)) + ", but the declared prop name is" +
+            " \"" + key + "\". " +
+            "Note that HTML attributes are case-insensitive and camelCased " +
+            "props need to use their kebab-case equivalents when using in-DOM " +
+            "templates. You should probably use \"" + altKey + "\" instead of \"" + key + "\"."
+          );
+        }
+      }
+      checkProp(res, props, key, altKey, true) ||
+      checkProp(res, attrs, key, altKey, false);
+    }
+  }
+  return res
+}
+
+function checkProp (
+  res,
+  hash,
+  key,
+  altKey,
+  preserve
+) {
+  if (isDef(hash)) {
+    if (hasOwn(hash, key)) {
+      res[key] = hash[key];
+      if (!preserve) {
+        delete hash[key];
+      }
+      return true
+    } else if (hasOwn(hash, altKey)) {
+      res[key] = hash[altKey];
+      if (!preserve) {
+        delete hash[altKey];
+      }
+      return true
+    }
+  }
+  return false
+}
+
+/*  */
+
+// The template compiler attempts to minimize the need for normalization by
+// statically analyzing the template at compile time.
+//
+// For plain HTML markup, normalization can be completely skipped because the
+// generated render function is guaranteed to return Array<VNode>. There are
+// two cases where extra normalization is needed:
+
+// 1. When the children contains components - because a functional component
+// may return an Array instead of a single root. In this case, just a simple
+// normalization is needed - if any child is an Array, we flatten the whole
+// thing with Array.prototype.concat. It is guaranteed to be only 1-level deep
+// because functional components already normalize their own children.
+function simpleNormalizeChildren (children) {
+  for (var i = 0; i < children.length; i++) {
+    if (Array.isArray(children[i])) {
+      return Array.prototype.concat.apply([], children)
+    }
+  }
+  return children
+}
+
+// 2. When the children contains constructs that always generated nested Arrays,
+// e.g. <template>, <slot>, v-for, or when the children is provided by user
+// with hand-written render functions / JSX. In such cases a full normalization
+// is needed to cater to all possible types of children values.
+function normalizeChildren (children) {
+  return isPrimitive(children)
+    ? [createTextVNode(children)]
+    : Array.isArray(children)
+      ? normalizeArrayChildren(children)
+      : undefined
+}
+
+function isTextNode (node) {
+  return isDef(node) && isDef(node.text) && isFalse(node.isComment)
+}
+
+function normalizeArrayChildren (children, nestedIndex) {
+  var res = [];
+  var i, c, lastIndex, last;
+  for (i = 0; i < children.length; i++) {
+    c = children[i];
+    if (isUndef(c) || typeof c === 'boolean') { continue }
+    lastIndex = res.length - 1;
+    last = res[lastIndex];
+    //  nested
+    if (Array.isArray(c)) {
+      if (c.length > 0) {
+        c = normalizeArrayChildren(c, ((nestedIndex || '') + "_" + i));
+        // merge adjacent text nodes
+        if (isTextNode(c[0]) && isTextNode(last)) {
+          res[lastIndex] = createTextVNode(last.text + (c[0]).text);
+          c.shift();
+        }
+        res.push.apply(res, c);
+      }
+    } else if (isPrimitive(c)) {
+      if (isTextNode(last)) {
+        // merge adjacent text nodes
+        // this is necessary for SSR hydration because text nodes are
+        // essentially merged when rendered to HTML strings
+        res[lastIndex] = createTextVNode(last.text + c);
+      } else if (c !== '') {
+        // convert primitive to vnode
+        res.push(createTextVNode(c));
+      }
+    } else {
+      if (isTextNode(c) && isTextNode(last)) {
+        // merge adjacent text nodes
+        res[lastIndex] = createTextVNode(last.text + c.text);
+      } else {
+        // default key for nested array children (likely generated by v-for)
+        if (isTrue(children._isVList) &&
+          isDef(c.tag) &&
+          isUndef(c.key) &&
+          isDef(nestedIndex)) {
+          c.key = "__vlist" + nestedIndex + "_" + i + "__";
+        }
+        res.push(c);
+      }
+    }
+  }
+  return res
+}
+
+/*  */
+
+function initProvide (vm) {
+  var provide = vm.$options.provide;
+  if (provide) {
+    vm._provided = typeof provide === 'function'
+      ? provide.call(vm)
+      : provide;
+  }
+}
+
+function initInjections (vm) {
+  var result = resolveInject(vm.$options.inject, vm);
+  if (result) {
+    toggleObserving(false);
+    Object.keys(result).forEach(function (key) {
+      /* istanbul ignore else */
+      if (true) {
+        defineReactive$$1(vm, key, result[key], function () {
+          warn(
+            "Avoid mutating an injected value directly since the changes will be " +
+            "overwritten whenever the provided component re-renders. " +
+            "injection being mutated: \"" + key + "\"",
+            vm
+          );
+        });
+      } else {}
+    });
+    toggleObserving(true);
+  }
+}
+
+function resolveInject (inject, vm) {
+  if (inject) {
+    // inject is :any because flow is not smart enough to figure out cached
+    var result = Object.create(null);
+    var keys = hasSymbol
+      ? Reflect.ownKeys(inject)
+      : Object.keys(inject);
+
+    for (var i = 0; i < keys.length; i++) {
+      var key = keys[i];
+      // #6574 in case the inject object is observed...
+      if (key === '__ob__') { continue }
+      var provideKey = inject[key].from;
+      var source = vm;
+      while (source) {
+        if (source._provided && hasOwn(source._provided, provideKey)) {
+          result[key] = source._provided[provideKey];
+          break
+        }
+        source = source.$parent;
+      }
+      if (!source) {
+        if ('default' in inject[key]) {
+          var provideDefault = inject[key].default;
+          result[key] = typeof provideDefault === 'function'
+            ? provideDefault.call(vm)
+            : provideDefault;
+        } else if (true) {
+          warn(("Injection \"" + key + "\" not found"), vm);
+        }
+      }
+    }
+    return result
+  }
+}
+
+/*  */
+
+
+
+/**
+ * Runtime helper for resolving raw children VNodes into a slot object.
+ */
+function resolveSlots (
+  children,
+  context
+) {
+  if (!children || !children.length) {
+    return {}
+  }
+  var slots = {};
+  for (var i = 0, l = children.length; i < l; i++) {
+    var child = children[i];
+    var data = child.data;
+    // remove slot attribute if the node is resolved as a Vue slot node
+    if (data && data.attrs && data.attrs.slot) {
+      delete data.attrs.slot;
+    }
+    // named slots should only be respected if the vnode was rendered in the
+    // same context.
+    if ((child.context === context || child.fnContext === context) &&
+      data && data.slot != null
+    ) {
+      var name = data.slot;
+      var slot = (slots[name] || (slots[name] = []));
+      if (child.tag === 'template') {
+        slot.push.apply(slot, child.children || []);
+      } else {
+        slot.push(child);
+      }
+    } else {
+      // fixed by xxxxxx 临时 hack 掉 uni-app 中的异步 name slot page
+      if(child.asyncMeta && child.asyncMeta.data && child.asyncMeta.data.slot === 'page'){
+        (slots['page'] || (slots['page'] = [])).push(child);
+      }else{
+        (slots.default || (slots.default = [])).push(child);
+      }
+    }
+  }
+  // ignore slots that contains only whitespace
+  for (var name$1 in slots) {
+    if (slots[name$1].every(isWhitespace)) {
+      delete slots[name$1];
+    }
+  }
+  return slots
+}
+
+function isWhitespace (node) {
+  return (node.isComment && !node.asyncFactory) || node.text === ' '
+}
+
+/*  */
+
+function normalizeScopedSlots (
+  slots,
+  normalSlots,
+  prevSlots
+) {
+  var res;
+  var hasNormalSlots = Object.keys(normalSlots).length > 0;
+  var isStable = slots ? !!slots.$stable : !hasNormalSlots;
+  var key = slots && slots.$key;
+  if (!slots) {
+    res = {};
+  } else if (slots._normalized) {
+    // fast path 1: child component re-render only, parent did not change
+    return slots._normalized
+  } else if (
+    isStable &&
+    prevSlots &&
+    prevSlots !== emptyObject &&
+    key === prevSlots.$key &&
+    !hasNormalSlots &&
+    !prevSlots.$hasNormal
+  ) {
+    // fast path 2: stable scoped slots w/ no normal slots to proxy,
+    // only need to normalize once
+    return prevSlots
+  } else {
+    res = {};
+    for (var key$1 in slots) {
+      if (slots[key$1] && key$1[0] !== '$') {
+        res[key$1] = normalizeScopedSlot(normalSlots, key$1, slots[key$1]);
+      }
+    }
+  }
+  // expose normal slots on scopedSlots
+  for (var key$2 in normalSlots) {
+    if (!(key$2 in res)) {
+      res[key$2] = proxyNormalSlot(normalSlots, key$2);
+    }
+  }
+  // avoriaz seems to mock a non-extensible $scopedSlots object
+  // and when that is passed down this would cause an error
+  if (slots && Object.isExtensible(slots)) {
+    (slots)._normalized = res;
+  }
+  def(res, '$stable', isStable);
+  def(res, '$key', key);
+  def(res, '$hasNormal', hasNormalSlots);
+  return res
+}
+
+function normalizeScopedSlot(normalSlots, key, fn) {
+  var normalized = function () {
+    var res = arguments.length ? fn.apply(null, arguments) : fn({});
+    res = res && typeof res === 'object' && !Array.isArray(res)
+      ? [res] // single vnode
+      : normalizeChildren(res);
+    return res && (
+      res.length === 0 ||
+      (res.length === 1 && res[0].isComment) // #9658
+    ) ? undefined
+      : res
+  };
+  // this is a slot using the new v-slot syntax without scope. although it is
+  // compiled as a scoped slot, render fn users would expect it to be present
+  // on this.$slots because the usage is semantically a normal slot.
+  if (fn.proxy) {
+    Object.defineProperty(normalSlots, key, {
+      get: normalized,
+      enumerable: true,
+      configurable: true
+    });
+  }
+  return normalized
+}
+
+function proxyNormalSlot(slots, key) {
+  return function () { return slots[key]; }
+}
+
+/*  */
+
+/**
+ * Runtime helper for rendering v-for lists.
+ */
+function renderList (
+  val,
+  render
+) {
+  var ret, i, l, keys, key;
+  if (Array.isArray(val) || typeof val === 'string') {
+    ret = new Array(val.length);
+    for (i = 0, l = val.length; i < l; i++) {
+      ret[i] = render(val[i], i);
+    }
+  } else if (typeof val === 'number') {
+    ret = new Array(val);
+    for (i = 0; i < val; i++) {
+      ret[i] = render(i + 1, i);
+    }
+  } else if (isObject(val)) {
+    if (hasSymbol && val[Symbol.iterator]) {
+      ret = [];
+      var iterator = val[Symbol.iterator]();
+      var result = iterator.next();
+      while (!result.done) {
+        ret.push(render(result.value, ret.length));
+        result = iterator.next();
+      }
+    } else {
+      keys = Object.keys(val);
+      ret = new Array(keys.length);
+      for (i = 0, l = keys.length; i < l; i++) {
+        key = keys[i];
+        ret[i] = render(val[key], key, i);
+      }
+    }
+  }
+  if (!isDef(ret)) {
+    ret = [];
+  }
+  (ret)._isVList = true;
+  return ret
+}
+
+/*  */
+
+/**
+ * Runtime helper for rendering <slot>
+ */
+function renderSlot (
+  name,
+  fallback,
+  props,
+  bindObject
+) {
+  var scopedSlotFn = this.$scopedSlots[name];
+  var nodes;
+  if (scopedSlotFn) { // scoped slot
+    props = props || {};
+    if (bindObject) {
+      if ( true && !isObject(bindObject)) {
+        warn(
+          'slot v-bind without argument expects an Object',
+          this
+        );
+      }
+      props = extend(extend({}, bindObject), props);
+    }
+    nodes = scopedSlotFn(props) || fallback;
+  } else {
+    nodes = this.$slots[name] || fallback;
+  }
+
+  var target = props && props.slot;
+  if (target) {
+    return this.$createElement('template', { slot: target }, nodes)
+  } else {
+    return nodes
+  }
+}
+
+/*  */
+
+/**
+ * Runtime helper for resolving filters
+ */
+function resolveFilter (id) {
+  return resolveAsset(this.$options, 'filters', id, true) || identity
+}
+
+/*  */
+
+function isKeyNotMatch (expect, actual) {
+  if (Array.isArray(expect)) {
+    return expect.indexOf(actual) === -1
+  } else {
+    return expect !== actual
+  }
+}
+
+/**
+ * Runtime helper for checking keyCodes from config.
+ * exposed as Vue.prototype._k
+ * passing in eventKeyName as last argument separately for backwards compat
+ */
+function checkKeyCodes (
+  eventKeyCode,
+  key,
+  builtInKeyCode,
+  eventKeyName,
+  builtInKeyName
+) {
+  var mappedKeyCode = config.keyCodes[key] || builtInKeyCode;
+  if (builtInKeyName && eventKeyName && !config.keyCodes[key]) {
+    return isKeyNotMatch(builtInKeyName, eventKeyName)
+  } else if (mappedKeyCode) {
+    return isKeyNotMatch(mappedKeyCode, eventKeyCode)
+  } else if (eventKeyName) {
+    return hyphenate(eventKeyName) !== key
+  }
+}
+
+/*  */
+
+/**
+ * Runtime helper for merging v-bind="object" into a VNode's data.
+ */
+function bindObjectProps (
+  data,
+  tag,
+  value,
+  asProp,
+  isSync
+) {
+  if (value) {
+    if (!isObject(value)) {
+       true && warn(
+        'v-bind without argument expects an Object or Array value',
+        this
+      );
+    } else {
+      if (Array.isArray(value)) {
+        value = toObject(value);
+      }
+      var hash;
+      var loop = function ( key ) {
+        if (
+          key === 'class' ||
+          key === 'style' ||
+          isReservedAttribute(key)
+        ) {
+          hash = data;
+        } else {
+          var type = data.attrs && data.attrs.type;
+          hash = asProp || config.mustUseProp(tag, type, key)
+            ? data.domProps || (data.domProps = {})
+            : data.attrs || (data.attrs = {});
+        }
+        var camelizedKey = camelize(key);
+        var hyphenatedKey = hyphenate(key);
+        if (!(camelizedKey in hash) && !(hyphenatedKey in hash)) {
+          hash[key] = value[key];
+
+          if (isSync) {
+            var on = data.on || (data.on = {});
+            on[("update:" + key)] = function ($event) {
+              value[key] = $event;
+            };
+          }
+        }
+      };
+
+      for (var key in value) loop( key );
+    }
+  }
+  return data
+}
+
+/*  */
+
+/**
+ * Runtime helper for rendering static trees.
+ */
+function renderStatic (
+  index,
+  isInFor
+) {
+  var cached = this._staticTrees || (this._staticTrees = []);
+  var tree = cached[index];
+  // if has already-rendered static tree and not inside v-for,
+  // we can reuse the same tree.
+  if (tree && !isInFor) {
+    return tree
+  }
+  // otherwise, render a fresh tree.
+  tree = cached[index] = this.$options.staticRenderFns[index].call(
+    this._renderProxy,
+    null,
+    this // for render fns generated for functional component templates
+  );
+  markStatic(tree, ("__static__" + index), false);
+  return tree
+}
+
+/**
+ * Runtime helper for v-once.
+ * Effectively it means marking the node as static with a unique key.
+ */
+function markOnce (
+  tree,
+  index,
+  key
+) {
+  markStatic(tree, ("__once__" + index + (key ? ("_" + key) : "")), true);
+  return tree
+}
+
+function markStatic (
+  tree,
+  key,
+  isOnce
+) {
+  if (Array.isArray(tree)) {
+    for (var i = 0; i < tree.length; i++) {
+      if (tree[i] && typeof tree[i] !== 'string') {
+        markStaticNode(tree[i], (key + "_" + i), isOnce);
+      }
+    }
+  } else {
+    markStaticNode(tree, key, isOnce);
+  }
+}
+
+function markStaticNode (node, key, isOnce) {
+  node.isStatic = true;
+  node.key = key;
+  node.isOnce = isOnce;
+}
+
+/*  */
+
+function bindObjectListeners (data, value) {
+  if (value) {
+    if (!isPlainObject(value)) {
+       true && warn(
+        'v-on without argument expects an Object value',
+        this
+      );
+    } else {
+      var on = data.on = data.on ? extend({}, data.on) : {};
+      for (var key in value) {
+        var existing = on[key];
+        var ours = value[key];
+        on[key] = existing ? [].concat(existing, ours) : ours;
+      }
+    }
+  }
+  return data
+}
+
+/*  */
+
+function resolveScopedSlots (
+  fns, // see flow/vnode
+  res,
+  // the following are added in 2.6
+  hasDynamicKeys,
+  contentHashKey
+) {
+  res = res || { $stable: !hasDynamicKeys };
+  for (var i = 0; i < fns.length; i++) {
+    var slot = fns[i];
+    if (Array.isArray(slot)) {
+      resolveScopedSlots(slot, res, hasDynamicKeys);
+    } else if (slot) {
+      // marker for reverse proxying v-slot without scope on this.$slots
+      if (slot.proxy) {
+        slot.fn.proxy = true;
+      }
+      res[slot.key] = slot.fn;
+    }
+  }
+  if (contentHashKey) {
+    (res).$key = contentHashKey;
+  }
+  return res
+}
+
+/*  */
+
+function bindDynamicKeys (baseObj, values) {
+  for (var i = 0; i < values.length; i += 2) {
+    var key = values[i];
+    if (typeof key === 'string' && key) {
+      baseObj[values[i]] = values[i + 1];
+    } else if ( true && key !== '' && key !== null) {
+      // null is a speical value for explicitly removing a binding
+      warn(
+        ("Invalid value for dynamic directive argument (expected string or null): " + key),
+        this
+      );
+    }
+  }
+  return baseObj
+}
+
+// helper to dynamically append modifier runtime markers to event names.
+// ensure only append when value is already string, otherwise it will be cast
+// to string and cause the type check to miss.
+function prependModifier (value, symbol) {
+  return typeof value === 'string' ? symbol + value : value
+}
+
+/*  */
+
+function installRenderHelpers (target) {
+  target._o = markOnce;
+  target._n = toNumber;
+  target._s = toString;
+  target._l = renderList;
+  target._t = renderSlot;
+  target._q = looseEqual;
+  target._i = looseIndexOf;
+  target._m = renderStatic;
+  target._f = resolveFilter;
+  target._k = checkKeyCodes;
+  target._b = bindObjectProps;
+  target._v = createTextVNode;
+  target._e = createEmptyVNode;
+  target._u = resolveScopedSlots;
+  target._g = bindObjectListeners;
+  target._d = bindDynamicKeys;
+  target._p = prependModifier;
+}
+
+/*  */
+
+function FunctionalRenderContext (
+  data,
+  props,
+  children,
+  parent,
+  Ctor
+) {
+  var this$1 = this;
+
+  var options = Ctor.options;
+  // ensure the createElement function in functional components
+  // gets a unique context - this is necessary for correct named slot check
+  var contextVm;
+  if (hasOwn(parent, '_uid')) {
+    contextVm = Object.create(parent);
+    // $flow-disable-line
+    contextVm._original = parent;
+  } else {
+    // the context vm passed in is a functional context as well.
+    // in this case we want to make sure we are able to get a hold to the
+    // real context instance.
+    contextVm = parent;
+    // $flow-disable-line
+    parent = parent._original;
+  }
+  var isCompiled = isTrue(options._compiled);
+  var needNormalization = !isCompiled;
+
+  this.data = data;
+  this.props = props;
+  this.children = children;
+  this.parent = parent;
+  this.listeners = data.on || emptyObject;
+  this.injections = resolveInject(options.inject, parent);
+  this.slots = function () {
+    if (!this$1.$slots) {
+      normalizeScopedSlots(
+        data.scopedSlots,
+        this$1.$slots = resolveSlots(children, parent)
+      );
+    }
+    return this$1.$slots
+  };
+
+  Object.defineProperty(this, 'scopedSlots', ({
+    enumerable: true,
+    get: function get () {
+      return normalizeScopedSlots(data.scopedSlots, this.slots())
+    }
+  }));
+
+  // support for compiled functional template
+  if (isCompiled) {
+    // exposing $options for renderStatic()
+    this.$options = options;
+    // pre-resolve slots for renderSlot()
+    this.$slots = this.slots();
+    this.$scopedSlots = normalizeScopedSlots(data.scopedSlots, this.$slots);
+  }
+
+  if (options._scopeId) {
+    this._c = function (a, b, c, d) {
+      var vnode = createElement(contextVm, a, b, c, d, needNormalization);
+      if (vnode && !Array.isArray(vnode)) {
+        vnode.fnScopeId = options._scopeId;
+        vnode.fnContext = parent;
+      }
+      return vnode
+    };
+  } else {
+    this._c = function (a, b, c, d) { return createElement(contextVm, a, b, c, d, needNormalization); };
+  }
+}
+
+installRenderHelpers(FunctionalRenderContext.prototype);
+
+function createFunctionalComponent (
+  Ctor,
+  propsData,
+  data,
+  contextVm,
+  children
+) {
+  var options = Ctor.options;
+  var props = {};
+  var propOptions = options.props;
+  if (isDef(propOptions)) {
+    for (var key in propOptions) {
+      props[key] = validateProp(key, propOptions, propsData || emptyObject);
+    }
+  } else {
+    if (isDef(data.attrs)) { mergeProps(props, data.attrs); }
+    if (isDef(data.props)) { mergeProps(props, data.props); }
+  }
+
+  var renderContext = new FunctionalRenderContext(
+    data,
+    props,
+    children,
+    contextVm,
+    Ctor
+  );
+
+  var vnode = options.render.call(null, renderContext._c, renderContext);
+
+  if (vnode instanceof VNode) {
+    return cloneAndMarkFunctionalResult(vnode, data, renderContext.parent, options, renderContext)
+  } else if (Array.isArray(vnode)) {
+    var vnodes = normalizeChildren(vnode) || [];
+    var res = new Array(vnodes.length);
+    for (var i = 0; i < vnodes.length; i++) {
+      res[i] = cloneAndMarkFunctionalResult(vnodes[i], data, renderContext.parent, options, renderContext);
+    }
+    return res
+  }
+}
+
+function cloneAndMarkFunctionalResult (vnode, data, contextVm, options, renderContext) {
+  // #7817 clone node before setting fnContext, otherwise if the node is reused
+  // (e.g. it was from a cached normal slot) the fnContext causes named slots
+  // that should not be matched to match.
+  var clone = cloneVNode(vnode);
+  clone.fnContext = contextVm;
+  clone.fnOptions = options;
+  if (true) {
+    (clone.devtoolsMeta = clone.devtoolsMeta || {}).renderContext = renderContext;
+  }
+  if (data.slot) {
+    (clone.data || (clone.data = {})).slot = data.slot;
+  }
+  return clone
+}
+
+function mergeProps (to, from) {
+  for (var key in from) {
+    to[camelize(key)] = from[key];
+  }
+}
+
+/*  */
+
+/*  */
+
+/*  */
+
+/*  */
+
+// inline hooks to be invoked on component VNodes during patch
+var componentVNodeHooks = {
+  init: function init (vnode, hydrating) {
+    if (
+      vnode.componentInstance &&
+      !vnode.componentInstance._isDestroyed &&
+      vnode.data.keepAlive
+    ) {
+      // kept-alive components, treat as a patch
+      var mountedNode = vnode; // work around flow
+      componentVNodeHooks.prepatch(mountedNode, mountedNode);
+    } else {
+      var child = vnode.componentInstance = createComponentInstanceForVnode(
+        vnode,
+        activeInstance
+      );
+      child.$mount(hydrating ? vnode.elm : undefined, hydrating);
+    }
+  },
+
+  prepatch: function prepatch (oldVnode, vnode) {
+    var options = vnode.componentOptions;
+    var child = vnode.componentInstance = oldVnode.componentInstance;
+    updateChildComponent(
+      child,
+      options.propsData, // updated props
+      options.listeners, // updated listeners
+      vnode, // new parent vnode
+      options.children // new children
+    );
+  },
+
+  insert: function insert (vnode) {
+    var context = vnode.context;
+    var componentInstance = vnode.componentInstance;
+    if (!componentInstance._isMounted) {
+      componentInstance._isMounted = true;
+      callHook(componentInstance, 'mounted');
+    }
+    if (vnode.data.keepAlive) {
+      if (context._isMounted) {
+        // vue-router#1212
+        // During updates, a kept-alive component's child components may
+        // change, so directly walking the tree here may call activated hooks
+        // on incorrect children. Instead we push them into a queue which will
+        // be processed after the whole patch process ended.
+        queueActivatedComponent(componentInstance);
+      } else {
+        activateChildComponent(componentInstance, true /* direct */);
+      }
+    }
+  },
+
+  destroy: function destroy (vnode) {
+    var componentInstance = vnode.componentInstance;
+    if (!componentInstance._isDestroyed) {
+      if (!vnode.data.keepAlive) {
+        componentInstance.$destroy();
+      } else {
+        deactivateChildComponent(componentInstance, true /* direct */);
+      }
+    }
+  }
+};
+
+var hooksToMerge = Object.keys(componentVNodeHooks);
+
+function createComponent (
+  Ctor,
+  data,
+  context,
+  children,
+  tag
+) {
+  if (isUndef(Ctor)) {
+    return
+  }
+
+  var baseCtor = context.$options._base;
+
+  // plain options object: turn it into a constructor
+  if (isObject(Ctor)) {
+    Ctor = baseCtor.extend(Ctor);
+  }
+
+  // if at this stage it's not a constructor or an async component factory,
+  // reject.
+  if (typeof Ctor !== 'function') {
+    if (true) {
+      warn(("Invalid Component definition: " + (String(Ctor))), context);
+    }
+    return
+  }
+
+  // async component
+  var asyncFactory;
+  if (isUndef(Ctor.cid)) {
+    asyncFactory = Ctor;
+    Ctor = resolveAsyncComponent(asyncFactory, baseCtor);
+    if (Ctor === undefined) {
+      // return a placeholder node for async component, which is rendered
+      // as a comment node but preserves all the raw information for the node.
+      // the information will be used for async server-rendering and hydration.
+      return createAsyncPlaceholder(
+        asyncFactory,
+        data,
+        context,
+        children,
+        tag
+      )
+    }
+  }
+
+  data = data || {};
+
+  // resolve constructor options in case global mixins are applied after
+  // component constructor creation
+  resolveConstructorOptions(Ctor);
+
+  // transform component v-model data into props & events
+  if (isDef(data.model)) {
+    transformModel(Ctor.options, data);
+  }
+
+  // extract props
+  var propsData = extractPropsFromVNodeData(data, Ctor, tag);
+
+  // functional component
+  if (isTrue(Ctor.options.functional)) {
+    return createFunctionalComponent(Ctor, propsData, data, context, children)
+  }
+
+  // extract listeners, since these needs to be treated as
+  // child component listeners instead of DOM listeners
+  var listeners = data.on;
+  // replace with listeners with .native modifier
+  // so it gets processed during parent component patch.
+  data.on = data.nativeOn;
+
+  if (isTrue(Ctor.options.abstract)) {
+    // abstract components do not keep anything
+    // other than props & listeners & slot
+
+    // work around flow
+    var slot = data.slot;
+    data = {};
+    if (slot) {
+      data.slot = slot;
+    }
+  }
+
+  // install component management hooks onto the placeholder node
+  installComponentHooks(data);
+
+  // return a placeholder vnode
+  var name = Ctor.options.name || tag;
+  var vnode = new VNode(
+    ("vue-component-" + (Ctor.cid) + (name ? ("-" + name) : '')),
+    data, undefined, undefined, undefined, context,
+    { Ctor: Ctor, propsData: propsData, listeners: listeners, tag: tag, children: children },
+    asyncFactory
+  );
+
+  return vnode
+}
+
+function createComponentInstanceForVnode (
+  vnode, // we know it's MountedComponentVNode but flow doesn't
+  parent // activeInstance in lifecycle state
+) {
+  var options = {
+    _isComponent: true,
+    _parentVnode: vnode,
+    parent: parent
+  };
+  // check inline-template render functions
+  var inlineTemplate = vnode.data.inlineTemplate;
+  if (isDef(inlineTemplate)) {
+    options.render = inlineTemplate.render;
+    options.staticRenderFns = inlineTemplate.staticRenderFns;
+  }
+  return new vnode.componentOptions.Ctor(options)
+}
+
+function installComponentHooks (data) {
+  var hooks = data.hook || (data.hook = {});
+  for (var i = 0; i < hooksToMerge.length; i++) {
+    var key = hooksToMerge[i];
+    var existing = hooks[key];
+    var toMerge = componentVNodeHooks[key];
+    if (existing !== toMerge && !(existing && existing._merged)) {
+      hooks[key] = existing ? mergeHook$1(toMerge, existing) : toMerge;
+    }
+  }
+}
+
+function mergeHook$1 (f1, f2) {
+  var merged = function (a, b) {
+    // flow complains about extra args which is why we use any
+    f1(a, b);
+    f2(a, b);
+  };
+  merged._merged = true;
+  return merged
+}
+
+// transform component v-model info (value and callback) into
+// prop and event handler respectively.
+function transformModel (options, data) {
+  var prop = (options.model && options.model.prop) || 'value';
+  var event = (options.model && options.model.event) || 'input'
+  ;(data.attrs || (data.attrs = {}))[prop] = data.model.value;
+  var on = data.on || (data.on = {});
+  var existing = on[event];
+  var callback = data.model.callback;
+  if (isDef(existing)) {
+    if (
+      Array.isArray(existing)
+        ? existing.indexOf(callback) === -1
+        : existing !== callback
+    ) {
+      on[event] = [callback].concat(existing);
+    }
+  } else {
+    on[event] = callback;
+  }
+}
+
+/*  */
+
+var SIMPLE_NORMALIZE = 1;
+var ALWAYS_NORMALIZE = 2;
+
+// wrapper function for providing a more flexible interface
+// without getting yelled at by flow
+function createElement (
+  context,
+  tag,
+  data,
+  children,
+  normalizationType,
+  alwaysNormalize
+) {
+  if (Array.isArray(data) || isPrimitive(data)) {
+    normalizationType = children;
+    children = data;
+    data = undefined;
+  }
+  if (isTrue(alwaysNormalize)) {
+    normalizationType = ALWAYS_NORMALIZE;
+  }
+  return _createElement(context, tag, data, children, normalizationType)
+}
+
+function _createElement (
+  context,
+  tag,
+  data,
+  children,
+  normalizationType
+) {
+  if (isDef(data) && isDef((data).__ob__)) {
+     true && warn(
+      "Avoid using observed data object as vnode data: " + (JSON.stringify(data)) + "\n" +
+      'Always create fresh vnode data objects in each render!',
+      context
+    );
+    return createEmptyVNode()
+  }
+  // object syntax in v-bind
+  if (isDef(data) && isDef(data.is)) {
+    tag = data.is;
+  }
+  if (!tag) {
+    // in case of component :is set to falsy value
+    return createEmptyVNode()
+  }
+  // warn against non-primitive key
+  if ( true &&
+    isDef(data) && isDef(data.key) && !isPrimitive(data.key)
+  ) {
+    {
+      warn(
+        'Avoid using non-primitive value as key, ' +
+        'use string/number value instead.',
+        context
+      );
+    }
+  }
+  // support single function children as default scoped slot
+  if (Array.isArray(children) &&
+    typeof children[0] === 'function'
+  ) {
+    data = data || {};
+    data.scopedSlots = { default: children[0] };
+    children.length = 0;
+  }
+  if (normalizationType === ALWAYS_NORMALIZE) {
+    children = normalizeChildren(children);
+  } else if (normalizationType === SIMPLE_NORMALIZE) {
+    children = simpleNormalizeChildren(children);
+  }
+  var vnode, ns;
+  if (typeof tag === 'string') {
+    var Ctor;
+    ns = (context.$vnode && context.$vnode.ns) || config.getTagNamespace(tag);
+    if (config.isReservedTag(tag)) {
+      // platform built-in elements
+      vnode = new VNode(
+        config.parsePlatformTagName(tag), data, children,
+        undefined, undefined, context
+      );
+    } else if ((!data || !data.pre) && isDef(Ctor = resolveAsset(context.$options, 'components', tag))) {
+      // component
+      vnode = createComponent(Ctor, data, context, children, tag);
+    } else {
+      // unknown or unlisted namespaced elements
+      // check at runtime because it may get assigned a namespace when its
+      // parent normalizes children
+      vnode = new VNode(
+        tag, data, children,
+        undefined, undefined, context
+      );
+    }
+  } else {
+    // direct component options / constructor
+    vnode = createComponent(tag, data, context, children);
+  }
+  if (Array.isArray(vnode)) {
+    return vnode
+  } else if (isDef(vnode)) {
+    if (isDef(ns)) { applyNS(vnode, ns); }
+    if (isDef(data)) { registerDeepBindings(data); }
+    return vnode
+  } else {
+    return createEmptyVNode()
+  }
+}
+
+function applyNS (vnode, ns, force) {
+  vnode.ns = ns;
+  if (vnode.tag === 'foreignObject') {
+    // use default namespace inside foreignObject
+    ns = undefined;
+    force = true;
+  }
+  if (isDef(vnode.children)) {
+    for (var i = 0, l = vnode.children.length; i < l; i++) {
+      var child = vnode.children[i];
+      if (isDef(child.tag) && (
+        isUndef(child.ns) || (isTrue(force) && child.tag !== 'svg'))) {
+        applyNS(child, ns, force);
+      }
+    }
+  }
+}
+
+// ref #5318
+// necessary to ensure parent re-render when deep bindings like :style and
+// :class are used on slot nodes
+function registerDeepBindings (data) {
+  if (isObject(data.style)) {
+    traverse(data.style);
+  }
+  if (isObject(data.class)) {
+    traverse(data.class);
+  }
+}
+
+/*  */
+
+function initRender (vm) {
+  vm._vnode = null; // the root of the child tree
+  vm._staticTrees = null; // v-once cached trees
+  var options = vm.$options;
+  var parentVnode = vm.$vnode = options._parentVnode; // the placeholder node in parent tree
+  var renderContext = parentVnode && parentVnode.context;
+  vm.$slots = resolveSlots(options._renderChildren, renderContext);
+  vm.$scopedSlots = emptyObject;
+  // bind the createElement fn to this instance
+  // so that we get proper render context inside it.
+  // args order: tag, data, children, normalizationType, alwaysNormalize
+  // internal version is used by render functions compiled from templates
+  vm._c = function (a, b, c, d) { return createElement(vm, a, b, c, d, false); };
+  // normalization is always applied for the public version, used in
+  // user-written render functions.
+  vm.$createElement = function (a, b, c, d) { return createElement(vm, a, b, c, d, true); };
+
+  // $attrs & $listeners are exposed for easier HOC creation.
+  // they need to be reactive so that HOCs using them are always updated
+  var parentData = parentVnode && parentVnode.data;
+
+  /* istanbul ignore else */
+  if (true) {
+    defineReactive$$1(vm, '$attrs', parentData && parentData.attrs || emptyObject, function () {
+      !isUpdatingChildComponent && warn("$attrs is readonly.", vm);
+    }, true);
+    defineReactive$$1(vm, '$listeners', options._parentListeners || emptyObject, function () {
+      !isUpdatingChildComponent && warn("$listeners is readonly.", vm);
+    }, true);
+  } else {}
+}
+
+var currentRenderingInstance = null;
+
+function renderMixin (Vue) {
+  // install runtime convenience helpers
+  installRenderHelpers(Vue.prototype);
+
+  Vue.prototype.$nextTick = function (fn) {
+    return nextTick(fn, this)
+  };
+
+  Vue.prototype._render = function () {
+    var vm = this;
+    var ref = vm.$options;
+    var render = ref.render;
+    var _parentVnode = ref._parentVnode;
+
+    if (_parentVnode) {
+      vm.$scopedSlots = normalizeScopedSlots(
+        _parentVnode.data.scopedSlots,
+        vm.$slots,
+        vm.$scopedSlots
+      );
+    }
+
+    // set parent vnode. this allows render functions to have access
+    // to the data on the placeholder node.
+    vm.$vnode = _parentVnode;
+    // render self
+    var vnode;
+    try {
+      // There's no need to maintain a stack becaues all render fns are called
+      // separately from one another. Nested component's render fns are called
+      // when parent component is patched.
+      currentRenderingInstance = vm;
+      vnode = render.call(vm._renderProxy, vm.$createElement);
+    } catch (e) {
+      handleError(e, vm, "render");
+      // return error render result,
+      // or previous vnode to prevent render error causing blank component
+      /* istanbul ignore else */
+      if ( true && vm.$options.renderError) {
+        try {
+          vnode = vm.$options.renderError.call(vm._renderProxy, vm.$createElement, e);
+        } catch (e) {
+          handleError(e, vm, "renderError");
+          vnode = vm._vnode;
+        }
+      } else {
+        vnode = vm._vnode;
+      }
+    } finally {
+      currentRenderingInstance = null;
+    }
+    // if the returned array contains only a single node, allow it
+    if (Array.isArray(vnode) && vnode.length === 1) {
+      vnode = vnode[0];
+    }
+    // return empty vnode in case the render function errored out
+    if (!(vnode instanceof VNode)) {
+      if ( true && Array.isArray(vnode)) {
+        warn(
+          'Multiple root nodes returned from render function. Render function ' +
+          'should return a single root node.',
+          vm
+        );
+      }
+      vnode = createEmptyVNode();
+    }
+    // set parent
+    vnode.parent = _parentVnode;
+    return vnode
+  };
+}
+
+/*  */
+
+function ensureCtor (comp, base) {
+  if (
+    comp.__esModule ||
+    (hasSymbol && comp[Symbol.toStringTag] === 'Module')
+  ) {
+    comp = comp.default;
+  }
+  return isObject(comp)
+    ? base.extend(comp)
+    : comp
+}
+
+function createAsyncPlaceholder (
+  factory,
+  data,
+  context,
+  children,
+  tag
+) {
+  var node = createEmptyVNode();
+  node.asyncFactory = factory;
+  node.asyncMeta = { data: data, context: context, children: children, tag: tag };
+  return node
+}
+
+function resolveAsyncComponent (
+  factory,
+  baseCtor
+) {
+  if (isTrue(factory.error) && isDef(factory.errorComp)) {
+    return factory.errorComp
+  }
+
+  if (isDef(factory.resolved)) {
+    return factory.resolved
+  }
+
+  var owner = currentRenderingInstance;
+  if (owner && isDef(factory.owners) && factory.owners.indexOf(owner) === -1) {
+    // already pending
+    factory.owners.push(owner);
+  }
+
+  if (isTrue(factory.loading) && isDef(factory.loadingComp)) {
+    return factory.loadingComp
+  }
+
+  if (owner && !isDef(factory.owners)) {
+    var owners = factory.owners = [owner];
+    var sync = true;
+    var timerLoading = null;
+    var timerTimeout = null
+
+    ;(owner).$on('hook:destroyed', function () { return remove(owners, owner); });
+
+    var forceRender = function (renderCompleted) {
+      for (var i = 0, l = owners.length; i < l; i++) {
+        (owners[i]).$forceUpdate();
+      }
+
+      if (renderCompleted) {
+        owners.length = 0;
+        if (timerLoading !== null) {
+          clearTimeout(timerLoading);
+          timerLoading = null;
+        }
+        if (timerTimeout !== null) {
+          clearTimeout(timerTimeout);
+          timerTimeout = null;
+        }
+      }
+    };
+
+    var resolve = once(function (res) {
+      // cache resolved
+      factory.resolved = ensureCtor(res, baseCtor);
+      // invoke callbacks only if this is not a synchronous resolve
+      // (async resolves are shimmed as synchronous during SSR)
+      if (!sync) {
+        forceRender(true);
+      } else {
+        owners.length = 0;
+      }
+    });
+
+    var reject = once(function (reason) {
+       true && warn(
+        "Failed to resolve async component: " + (String(factory)) +
+        (reason ? ("\nReason: " + reason) : '')
+      );
+      if (isDef(factory.errorComp)) {
+        factory.error = true;
+        forceRender(true);
+      }
+    });
+
+    var res = factory(resolve, reject);
+
+    if (isObject(res)) {
+      if (isPromise(res)) {
+        // () => Promise
+        if (isUndef(factory.resolved)) {
+          res.then(resolve, reject);
+        }
+      } else if (isPromise(res.component)) {
+        res.component.then(resolve, reject);
+
+        if (isDef(res.error)) {
+          factory.errorComp = ensureCtor(res.error, baseCtor);
+        }
+
+        if (isDef(res.loading)) {
+          factory.loadingComp = ensureCtor(res.loading, baseCtor);
+          if (res.delay === 0) {
+            factory.loading = true;
+          } else {
+            timerLoading = setTimeout(function () {
+              timerLoading = null;
+              if (isUndef(factory.resolved) && isUndef(factory.error)) {
+                factory.loading = true;
+                forceRender(false);
+              }
+            }, res.delay || 200);
+          }
+        }
+
+        if (isDef(res.timeout)) {
+          timerTimeout = setTimeout(function () {
+            timerTimeout = null;
+            if (isUndef(factory.resolved)) {
+              reject(
+                 true
+                  ? ("timeout (" + (res.timeout) + "ms)")
+                  : undefined
+              );
+            }
+          }, res.timeout);
+        }
+      }
+    }
+
+    sync = false;
+    // return in case resolved synchronously
+    return factory.loading
+      ? factory.loadingComp
+      : factory.resolved
+  }
+}
+
+/*  */
+
+function isAsyncPlaceholder (node) {
+  return node.isComment && node.asyncFactory
+}
+
+/*  */
+
+function getFirstComponentChild (children) {
+  if (Array.isArray(children)) {
+    for (var i = 0; i < children.length; i++) {
+      var c = children[i];
+      if (isDef(c) && (isDef(c.componentOptions) || isAsyncPlaceholder(c))) {
+        return c
+      }
+    }
+  }
+}
+
+/*  */
+
+/*  */
+
+function initEvents (vm) {
+  vm._events = Object.create(null);
+  vm._hasHookEvent = false;
+  // init parent attached events
+  var listeners = vm.$options._parentListeners;
+  if (listeners) {
+    updateComponentListeners(vm, listeners);
+  }
+}
+
+var target;
+
+function add (event, fn) {
+  target.$on(event, fn);
+}
+
+function remove$1 (event, fn) {
+  target.$off(event, fn);
+}
+
+function createOnceHandler (event, fn) {
+  var _target = target;
+  return function onceHandler () {
+    var res = fn.apply(null, arguments);
+    if (res !== null) {
+      _target.$off(event, onceHandler);
+    }
+  }
+}
+
+function updateComponentListeners (
+  vm,
+  listeners,
+  oldListeners
+) {
+  target = vm;
+  updateListeners(listeners, oldListeners || {}, add, remove$1, createOnceHandler, vm);
+  target = undefined;
+}
+
+function eventsMixin (Vue) {
+  var hookRE = /^hook:/;
+  Vue.prototype.$on = function (event, fn) {
+    var vm = this;
+    if (Array.isArray(event)) {
+      for (var i = 0, l = event.length; i < l; i++) {
+        vm.$on(event[i], fn);
+      }
+    } else {
+      (vm._events[event] || (vm._events[event] = [])).push(fn);
+      // optimize hook:event cost by using a boolean flag marked at registration
+      // instead of a hash lookup
+      if (hookRE.test(event)) {
+        vm._hasHookEvent = true;
+      }
+    }
+    return vm
+  };
+
+  Vue.prototype.$once = function (event, fn) {
+    var vm = this;
+    function on () {
+      vm.$off(event, on);
+      fn.apply(vm, arguments);
+    }
+    on.fn = fn;
+    vm.$on(event, on);
+    return vm
+  };
+
+  Vue.prototype.$off = function (event, fn) {
+    var vm = this;
+    // all
+    if (!arguments.length) {
+      vm._events = Object.create(null);
+      return vm
+    }
+    // array of events
+    if (Array.isArray(event)) {
+      for (var i$1 = 0, l = event.length; i$1 < l; i$1++) {
+        vm.$off(event[i$1], fn);
+      }
+      return vm
+    }
+    // specific event
+    var cbs = vm._events[event];
+    if (!cbs) {
+      return vm
+    }
+    if (!fn) {
+      vm._events[event] = null;
+      return vm
+    }
+    // specific handler
+    var cb;
+    var i = cbs.length;
+    while (i--) {
+      cb = cbs[i];
+      if (cb === fn || cb.fn === fn) {
+        cbs.splice(i, 1);
+        break
+      }
+    }
+    return vm
+  };
+
+  Vue.prototype.$emit = function (event) {
+    var vm = this;
+    if (true) {
+      var lowerCaseEvent = event.toLowerCase();
+      if (lowerCaseEvent !== event && vm._events[lowerCaseEvent]) {
+        tip(
+          "Event \"" + lowerCaseEvent + "\" is emitted in component " +
+          (formatComponentName(vm)) + " but the handler is registered for \"" + event + "\". " +
+          "Note that HTML attributes are case-insensitive and you cannot use " +
+          "v-on to listen to camelCase events when using in-DOM templates. " +
+          "You should probably use \"" + (hyphenate(event)) + "\" instead of \"" + event + "\"."
+        );
+      }
+    }
+    var cbs = vm._events[event];
+    if (cbs) {
+      cbs = cbs.length > 1 ? toArray(cbs) : cbs;
+      var args = toArray(arguments, 1);
+      var info = "event handler for \"" + event + "\"";
+      for (var i = 0, l = cbs.length; i < l; i++) {
+        invokeWithErrorHandling(cbs[i], vm, args, vm, info);
+      }
+    }
+    return vm
+  };
+}
+
+/*  */
+
+var activeInstance = null;
+var isUpdatingChildComponent = false;
+
+function setActiveInstance(vm) {
+  var prevActiveInstance = activeInstance;
+  activeInstance = vm;
+  return function () {
+    activeInstance = prevActiveInstance;
+  }
+}
+
+function initLifecycle (vm) {
+  var options = vm.$options;
+
+  // locate first non-abstract parent
+  var parent = options.parent;
+  if (parent && !options.abstract) {
+    while (parent.$options.abstract && parent.$parent) {
+      parent = parent.$parent;
+    }
+    parent.$children.push(vm);
+  }
+
+  vm.$parent = parent;
+  vm.$root = parent ? parent.$root : vm;
+
+  vm.$children = [];
+  vm.$refs = {};
+
+  vm._watcher = null;
+  vm._inactive = null;
+  vm._directInactive = false;
+  vm._isMounted = false;
+  vm._isDestroyed = false;
+  vm._isBeingDestroyed = false;
+}
+
+function lifecycleMixin (Vue) {
+  Vue.prototype._update = function (vnode, hydrating) {
+    var vm = this;
+    var prevEl = vm.$el;
+    var prevVnode = vm._vnode;
+    var restoreActiveInstance = setActiveInstance(vm);
+    vm._vnode = vnode;
+    // Vue.prototype.__patch__ is injected in entry points
+    // based on the rendering backend used.
+    if (!prevVnode) {
+      // initial render
+      vm.$el = vm.__patch__(vm.$el, vnode, hydrating, false /* removeOnly */);
+    } else {
+      // updates
+      vm.$el = vm.__patch__(prevVnode, vnode);
+    }
+    restoreActiveInstance();
+    // update __vue__ reference
+    if (prevEl) {
+      prevEl.__vue__ = null;
+    }
+    if (vm.$el) {
+      vm.$el.__vue__ = vm;
+    }
+    // if parent is an HOC, update its $el as well
+    if (vm.$vnode && vm.$parent && vm.$vnode === vm.$parent._vnode) {
+      vm.$parent.$el = vm.$el;
+    }
+    // updated hook is called by the scheduler to ensure that children are
+    // updated in a parent's updated hook.
+  };
+
+  Vue.prototype.$forceUpdate = function () {
+    var vm = this;
+    if (vm._watcher) {
+      vm._watcher.update();
+    }
+  };
+
+  Vue.prototype.$destroy = function () {
+    var vm = this;
+    if (vm._isBeingDestroyed) {
+      return
+    }
+    callHook(vm, 'beforeDestroy');
+    vm._isBeingDestroyed = true;
+    // remove self from parent
+    var parent = vm.$parent;
+    if (parent && !parent._isBeingDestroyed && !vm.$options.abstract) {
+      remove(parent.$children, vm);
+    }
+    // teardown watchers
+    if (vm._watcher) {
+      vm._watcher.teardown();
+    }
+    var i = vm._watchers.length;
+    while (i--) {
+      vm._watchers[i].teardown();
+    }
+    // remove reference from data ob
+    // frozen object may not have observer.
+    if (vm._data.__ob__) {
+      vm._data.__ob__.vmCount--;
+    }
+    // call the last hook...
+    vm._isDestroyed = true;
+    // invoke destroy hooks on current rendered tree
+    vm.__patch__(vm._vnode, null);
+    // fire destroyed hook
+    callHook(vm, 'destroyed');
+    // turn off all instance listeners.
+    vm.$off();
+    // remove __vue__ reference
+    if (vm.$el) {
+      vm.$el.__vue__ = null;
+    }
+    // release circular reference (#6759)
+    if (vm.$vnode) {
+      vm.$vnode.parent = null;
+    }
+  };
+}
+
+function updateChildComponent (
+  vm,
+  propsData,
+  listeners,
+  parentVnode,
+  renderChildren
+) {
+  if (true) {
+    isUpdatingChildComponent = true;
+  }
+
+  // determine whether component has slot children
+  // we need to do this before overwriting $options._renderChildren.
+
+  // check if there are dynamic scopedSlots (hand-written or compiled but with
+  // dynamic slot names). Static scoped slots compiled from template has the
+  // "$stable" marker.
+  var newScopedSlots = parentVnode.data.scopedSlots;
+  var oldScopedSlots = vm.$scopedSlots;
+  var hasDynamicScopedSlot = !!(
+    (newScopedSlots && !newScopedSlots.$stable) ||
+    (oldScopedSlots !== emptyObject && !oldScopedSlots.$stable) ||
+    (newScopedSlots && vm.$scopedSlots.$key !== newScopedSlots.$key)
+  );
+
+  // Any static slot children from the parent may have changed during parent's
+  // update. Dynamic scoped slots may also have changed. In such cases, a forced
+  // update is necessary to ensure correctness.
+  var needsForceUpdate = !!(
+    renderChildren ||               // has new static slots
+    vm.$options._renderChildren ||  // has old static slots
+    hasDynamicScopedSlot
+  );
+
+  vm.$options._parentVnode = parentVnode;
+  vm.$vnode = parentVnode; // update vm's placeholder node without re-render
+
+  if (vm._vnode) { // update child tree's parent
+    vm._vnode.parent = parentVnode;
+  }
+  vm.$options._renderChildren = renderChildren;
+
+  // update $attrs and $listeners hash
+  // these are also reactive so they may trigger child update if the child
+  // used them during render
+  vm.$attrs = parentVnode.data.attrs || emptyObject;
+  vm.$listeners = listeners || emptyObject;
+
+  // update props
+  if (propsData && vm.$options.props) {
+    toggleObserving(false);
+    var props = vm._props;
+    var propKeys = vm.$options._propKeys || [];
+    for (var i = 0; i < propKeys.length; i++) {
+      var key = propKeys[i];
+      var propOptions = vm.$options.props; // wtf flow?
+      props[key] = validateProp(key, propOptions, propsData, vm);
+    }
+    toggleObserving(true);
+    // keep a copy of raw propsData
+    vm.$options.propsData = propsData;
+  }
+
+  // update listeners
+  listeners = listeners || emptyObject;
+  var oldListeners = vm.$options._parentListeners;
+  vm.$options._parentListeners = listeners;
+  updateComponentListeners(vm, listeners, oldListeners);
+
+  // resolve slots + force update if has children
+  if (needsForceUpdate) {
+    vm.$slots = resolveSlots(renderChildren, parentVnode.context);
+    vm.$forceUpdate();
+  }
+
+  if (true) {
+    isUpdatingChildComponent = false;
+  }
+}
+
+function isInInactiveTree (vm) {
+  while (vm && (vm = vm.$parent)) {
+    if (vm._inactive) { return true }
+  }
+  return false
+}
+
+function activateChildComponent (vm, direct) {
+  if (direct) {
+    vm._directInactive = false;
+    if (isInInactiveTree(vm)) {
+      return
+    }
+  } else if (vm._directInactive) {
+    return
+  }
+  if (vm._inactive || vm._inactive === null) {
+    vm._inactive = false;
+    for (var i = 0; i < vm.$children.length; i++) {
+      activateChildComponent(vm.$children[i]);
+    }
+    callHook(vm, 'activated');
+  }
+}
+
+function deactivateChildComponent (vm, direct) {
+  if (direct) {
+    vm._directInactive = true;
+    if (isInInactiveTree(vm)) {
+      return
+    }
+  }
+  if (!vm._inactive) {
+    vm._inactive = true;
+    for (var i = 0; i < vm.$children.length; i++) {
+      deactivateChildComponent(vm.$children[i]);
+    }
+    callHook(vm, 'deactivated');
+  }
+}
+
+function callHook (vm, hook) {
+  // #7573 disable dep collection when invoking lifecycle hooks
+  pushTarget();
+  var handlers = vm.$options[hook];
+  var info = hook + " hook";
+  if (handlers) {
+    for (var i = 0, j = handlers.length; i < j; i++) {
+      invokeWithErrorHandling(handlers[i], vm, null, vm, info);
+    }
+  }
+  if (vm._hasHookEvent) {
+    vm.$emit('hook:' + hook);
+  }
+  popTarget();
+}
+
+/*  */
+
+var MAX_UPDATE_COUNT = 100;
+
+var queue = [];
+var activatedChildren = [];
+var has = {};
+var circular = {};
+var waiting = false;
+var flushing = false;
+var index = 0;
+
+/**
+ * Reset the scheduler's state.
+ */
+function resetSchedulerState () {
+  index = queue.length = activatedChildren.length = 0;
+  has = {};
+  if (true) {
+    circular = {};
+  }
+  waiting = flushing = false;
+}
+
+// Async edge case #6566 requires saving the timestamp when event listeners are
+// attached. However, calling performance.now() has a perf overhead especially
+// if the page has thousands of event listeners. Instead, we take a timestamp
+// every time the scheduler flushes and use that for all event listeners
+// attached during that flush.
+var currentFlushTimestamp = 0;
+
+// Async edge case fix requires storing an event listener's attach timestamp.
+var getNow = Date.now;
+
+// Determine what event timestamp the browser is using. Annoyingly, the
+// timestamp can either be hi-res (relative to page load) or low-res
+// (relative to UNIX epoch), so in order to compare time we have to use the
+// same timestamp type when saving the flush timestamp.
+// All IE versions use low-res event timestamps, and have problematic clock
+// implementations (#9632)
+if (inBrowser && !isIE) {
+  var performance = window.performance;
+  if (
+    performance &&
+    typeof performance.now === 'function' &&
+    getNow() > document.createEvent('Event').timeStamp
+  ) {
+    // if the event timestamp, although evaluated AFTER the Date.now(), is
+    // smaller than it, it means the event is using a hi-res timestamp,
+    // and we need to use the hi-res version for event listener timestamps as
+    // well.
+    getNow = function () { return performance.now(); };
+  }
+}
+
+/**
+ * Flush both queues and run the watchers.
+ */
+function flushSchedulerQueue () {
+  currentFlushTimestamp = getNow();
+  flushing = true;
+  var watcher, id;
+
+  // Sort queue before flush.
+  // This ensures that:
+  // 1. Components are updated from parent to child. (because parent is always
+  //    created before the child)
+  // 2. A component's user watchers are run before its render watcher (because
+  //    user watchers are created before the render watcher)
+  // 3. If a component is destroyed during a parent component's watcher run,
+  //    its watchers can be skipped.
+  queue.sort(function (a, b) { return a.id - b.id; });
+
+  // do not cache length because more watchers might be pushed
+  // as we run existing watchers
+  for (index = 0; index < queue.length; index++) {
+    watcher = queue[index];
+    if (watcher.before) {
+      watcher.before();
+    }
+    id = watcher.id;
+    has[id] = null;
+    watcher.run();
+    // in dev build, check and stop circular updates.
+    if ( true && has[id] != null) {
+      circular[id] = (circular[id] || 0) + 1;
+      if (circular[id] > MAX_UPDATE_COUNT) {
+        warn(
+          'You may have an infinite update loop ' + (
+            watcher.user
+              ? ("in watcher with expression \"" + (watcher.expression) + "\"")
+              : "in a component render function."
+          ),
+          watcher.vm
+        );
+        break
+      }
+    }
+  }
+
+  // keep copies of post queues before resetting state
+  var activatedQueue = activatedChildren.slice();
+  var updatedQueue = queue.slice();
+
+  resetSchedulerState();
+
+  // call component updated and activated hooks
+  callActivatedHooks(activatedQueue);
+  callUpdatedHooks(updatedQueue);
+
+  // devtool hook
+  /* istanbul ignore if */
+  if (devtools && config.devtools) {
+    devtools.emit('flush');
+  }
+}
+
+function callUpdatedHooks (queue) {
+  var i = queue.length;
+  while (i--) {
+    var watcher = queue[i];
+    var vm = watcher.vm;
+    if (vm._watcher === watcher && vm._isMounted && !vm._isDestroyed) {
+      callHook(vm, 'updated');
+    }
+  }
+}
+
+/**
+ * Queue a kept-alive component that was activated during patch.
+ * The queue will be processed after the entire tree has been patched.
+ */
+function queueActivatedComponent (vm) {
+  // setting _inactive to false here so that a render function can
+  // rely on checking whether it's in an inactive tree (e.g. router-view)
+  vm._inactive = false;
+  activatedChildren.push(vm);
+}
+
+function callActivatedHooks (queue) {
+  for (var i = 0; i < queue.length; i++) {
+    queue[i]._inactive = true;
+    activateChildComponent(queue[i], true /* true */);
+  }
+}
+
+/**
+ * Push a watcher into the watcher queue.
+ * Jobs with duplicate IDs will be skipped unless it's
+ * pushed when the queue is being flushed.
+ */
+function queueWatcher (watcher) {
+  var id = watcher.id;
+  if (has[id] == null) {
+    has[id] = true;
+    if (!flushing) {
+      queue.push(watcher);
+    } else {
+      // if already flushing, splice the watcher based on its id
+      // if already past its id, it will be run next immediately.
+      var i = queue.length - 1;
+      while (i > index && queue[i].id > watcher.id) {
+        i--;
+      }
+      queue.splice(i + 1, 0, watcher);
+    }
+    // queue the flush
+    if (!waiting) {
+      waiting = true;
+
+      if ( true && !config.async) {
+        flushSchedulerQueue();
+        return
+      }
+      nextTick(flushSchedulerQueue);
+    }
+  }
+}
+
+/*  */
+
+
+
+var uid$2 = 0;
+
+/**
+ * A watcher parses an expression, collects dependencies,
+ * and fires callback when the expression value changes.
+ * This is used for both the $watch() api and directives.
+ */
+var Watcher = function Watcher (
+  vm,
+  expOrFn,
+  cb,
+  options,
+  isRenderWatcher
+) {
+  this.vm = vm;
+  if (isRenderWatcher) {
+    vm._watcher = this;
+  }
+  vm._watchers.push(this);
+  // options
+  if (options) {
+    this.deep = !!options.deep;
+    this.user = !!options.user;
+    this.lazy = !!options.lazy;
+    this.sync = !!options.sync;
+    this.before = options.before;
+  } else {
+    this.deep = this.user = this.lazy = this.sync = false;
+  }
+  this.cb = cb;
+  this.id = ++uid$2; // uid for batching
+  this.active = true;
+  this.dirty = this.lazy; // for lazy watchers
+  this.deps = [];
+  this.newDeps = [];
+  this.depIds = new _Set();
+  this.newDepIds = new _Set();
+  this.expression =  true
+    ? expOrFn.toString()
+    : undefined;
+  // parse expression for getter
+  if (typeof expOrFn === 'function') {
+    this.getter = expOrFn;
+  } else {
+    this.getter = parsePath(expOrFn);
+    if (!this.getter) {
+      this.getter = noop;
+       true && warn(
+        "Failed watching path: \"" + expOrFn + "\" " +
+        'Watcher only accepts simple dot-delimited paths. ' +
+        'For full control, use a function instead.',
+        vm
+      );
+    }
+  }
+  this.value = this.lazy
+    ? undefined
+    : this.get();
+};
+
+/**
+ * Evaluate the getter, and re-collect dependencies.
+ */
+Watcher.prototype.get = function get () {
+  pushTarget(this);
+  var value;
+  var vm = this.vm;
+  try {
+    value = this.getter.call(vm, vm);
+  } catch (e) {
+    if (this.user) {
+      handleError(e, vm, ("getter for watcher \"" + (this.expression) + "\""));
+    } else {
+      throw e
+    }
+  } finally {
+    // "touch" every property so they are all tracked as
+    // dependencies for deep watching
+    if (this.deep) {
+      traverse(value);
+    }
+    popTarget();
+    this.cleanupDeps();
+  }
+  return value
+};
+
+/**
+ * Add a dependency to this directive.
+ */
+Watcher.prototype.addDep = function addDep (dep) {
+  var id = dep.id;
+  if (!this.newDepIds.has(id)) {
+    this.newDepIds.add(id);
+    this.newDeps.push(dep);
+    if (!this.depIds.has(id)) {
+      dep.addSub(this);
+    }
+  }
+};
+
+/**
+ * Clean up for dependency collection.
+ */
+Watcher.prototype.cleanupDeps = function cleanupDeps () {
+  var i = this.deps.length;
+  while (i--) {
+    var dep = this.deps[i];
+    if (!this.newDepIds.has(dep.id)) {
+      dep.removeSub(this);
+    }
+  }
+  var tmp = this.depIds;
+  this.depIds = this.newDepIds;
+  this.newDepIds = tmp;
+  this.newDepIds.clear();
+  tmp = this.deps;
+  this.deps = this.newDeps;
+  this.newDeps = tmp;
+  this.newDeps.length = 0;
+};
+
+/**
+ * Subscriber interface.
+ * Will be called when a dependency changes.
+ */
+Watcher.prototype.update = function update () {
+  /* istanbul ignore else */
+  if (this.lazy) {
+    this.dirty = true;
+  } else if (this.sync) {
+    this.run();
+  } else {
+    queueWatcher(this);
+  }
+};
+
+/**
+ * Scheduler job interface.
+ * Will be called by the scheduler.
+ */
+Watcher.prototype.run = function run () {
+  if (this.active) {
+    var value = this.get();
+    if (
+      value !== this.value ||
+      // Deep watchers and watchers on Object/Arrays should fire even
+      // when the value is the same, because the value may
+      // have mutated.
+      isObject(value) ||
+      this.deep
+    ) {
+      // set new value
+      var oldValue = this.value;
+      this.value = value;
+      if (this.user) {
+        try {
+          this.cb.call(this.vm, value, oldValue);
+        } catch (e) {
+          handleError(e, this.vm, ("callback for watcher \"" + (this.expression) + "\""));
+        }
+      } else {
+        this.cb.call(this.vm, value, oldValue);
+      }
+    }
+  }
+};
+
+/**
+ * Evaluate the value of the watcher.
+ * This only gets called for lazy watchers.
+ */
+Watcher.prototype.evaluate = function evaluate () {
+  this.value = this.get();
+  this.dirty = false;
+};
+
+/**
+ * Depend on all deps collected by this watcher.
+ */
+Watcher.prototype.depend = function depend () {
+  var i = this.deps.length;
+  while (i--) {
+    this.deps[i].depend();
+  }
+};
+
+/**
+ * Remove self from all dependencies' subscriber list.
+ */
+Watcher.prototype.teardown = function teardown () {
+  if (this.active) {
+    // remove self from vm's watcher list
+    // this is a somewhat expensive operation so we skip it
+    // if the vm is being destroyed.
+    if (!this.vm._isBeingDestroyed) {
+      remove(this.vm._watchers, this);
+    }
+    var i = this.deps.length;
+    while (i--) {
+      this.deps[i].removeSub(this);
+    }
+    this.active = false;
+  }
+};
+
+/*  */
+
+var sharedPropertyDefinition = {
+  enumerable: true,
+  configurable: true,
+  get: noop,
+  set: noop
+};
+
+function proxy (target, sourceKey, key) {
+  sharedPropertyDefinition.get = function proxyGetter () {
+    return this[sourceKey][key]
+  };
+  sharedPropertyDefinition.set = function proxySetter (val) {
+    this[sourceKey][key] = val;
+  };
+  Object.defineProperty(target, key, sharedPropertyDefinition);
+}
+
+function initState (vm) {
+  vm._watchers = [];
+  var opts = vm.$options;
+  if (opts.props) { initProps(vm, opts.props); }
+  if (opts.methods) { initMethods(vm, opts.methods); }
+  if (opts.data) {
+    initData(vm);
+  } else {
+    observe(vm._data = {}, true /* asRootData */);
+  }
+  if (opts.computed) { initComputed(vm, opts.computed); }
+  if (opts.watch && opts.watch !== nativeWatch) {
+    initWatch(vm, opts.watch);
+  }
+}
+
+function initProps (vm, propsOptions) {
+  var propsData = vm.$options.propsData || {};
+  var props = vm._props = {};
+  // cache prop keys so that future props updates can iterate using Array
+  // instead of dynamic object key enumeration.
+  var keys = vm.$options._propKeys = [];
+  var isRoot = !vm.$parent;
+  // root instance props should be converted
+  if (!isRoot) {
+    toggleObserving(false);
+  }
+  var loop = function ( key ) {
+    keys.push(key);
+    var value = validateProp(key, propsOptions, propsData, vm);
+    /* istanbul ignore else */
+    if (true) {
+      var hyphenatedKey = hyphenate(key);
+      if (isReservedAttribute(hyphenatedKey) ||
+          config.isReservedAttr(hyphenatedKey)) {
+        warn(
+          ("\"" + hyphenatedKey + "\" is a reserved attribute and cannot be used as component prop."),
+          vm
+        );
+      }
+      defineReactive$$1(props, key, value, function () {
+        if (!isRoot && !isUpdatingChildComponent) {
+          {
+            if(vm.mpHost === 'mp-baidu'){//百度 observer 在 setData callback 之后触发，直接忽略该 warn
+                return
+            }
+            //fixed by xxxxxx __next_tick_pending,uni://form-field 时不告警
+            if(
+                key === 'value' && 
+                Array.isArray(vm.$options.behaviors) &&
+                vm.$options.behaviors.indexOf('uni://form-field') !== -1
+              ){
+              return
+            }
+            if(vm._getFormData){
+              return
+            }
+            var $parent = vm.$parent;
+            while($parent){
+              if($parent.__next_tick_pending){
+                return  
+              }
+              $parent = $parent.$parent;
+            }
+          }
+          warn(
+            "Avoid mutating a prop directly since the value will be " +
+            "overwritten whenever the parent component re-renders. " +
+            "Instead, use a data or computed property based on the prop's " +
+            "value. Prop being mutated: \"" + key + "\"",
+            vm
+          );
+        }
+      });
+    } else {}
+    // static props are already proxied on the component's prototype
+    // during Vue.extend(). We only need to proxy props defined at
+    // instantiation here.
+    if (!(key in vm)) {
+      proxy(vm, "_props", key);
+    }
+  };
+
+  for (var key in propsOptions) loop( key );
+  toggleObserving(true);
+}
+
+function initData (vm) {
+  var data = vm.$options.data;
+  data = vm._data = typeof data === 'function'
+    ? getData(data, vm)
+    : data || {};
+  if (!isPlainObject(data)) {
+    data = {};
+     true && warn(
+      'data functions should return an object:\n' +
+      'https://vuejs.org/v2/guide/components.html#data-Must-Be-a-Function',
+      vm
+    );
+  }
+  // proxy data on instance
+  var keys = Object.keys(data);
+  var props = vm.$options.props;
+  var methods = vm.$options.methods;
+  var i = keys.length;
+  while (i--) {
+    var key = keys[i];
+    if (true) {
+      if (methods && hasOwn(methods, key)) {
+        warn(
+          ("Method \"" + key + "\" has already been defined as a data property."),
+          vm
+        );
+      }
+    }
+    if (props && hasOwn(props, key)) {
+       true && warn(
+        "The data property \"" + key + "\" is already declared as a prop. " +
+        "Use prop default value instead.",
+        vm
+      );
+    } else if (!isReserved(key)) {
+      proxy(vm, "_data", key);
+    }
+  }
+  // observe data
+  observe(data, true /* asRootData */);
+}
+
+function getData (data, vm) {
+  // #7573 disable dep collection when invoking data getters
+  pushTarget();
+  try {
+    return data.call(vm, vm)
+  } catch (e) {
+    handleError(e, vm, "data()");
+    return {}
+  } finally {
+    popTarget();
+  }
+}
+
+var computedWatcherOptions = { lazy: true };
+
+function initComputed (vm, computed) {
+  // $flow-disable-line
+  var watchers = vm._computedWatchers = Object.create(null);
+  // computed properties are just getters during SSR
+  var isSSR = isServerRendering();
+
+  for (var key in computed) {
+    var userDef = computed[key];
+    var getter = typeof userDef === 'function' ? userDef : userDef.get;
+    if ( true && getter == null) {
+      warn(
+        ("Getter is missing for computed property \"" + key + "\"."),
+        vm
+      );
+    }
+
+    if (!isSSR) {
+      // create internal watcher for the computed property.
+      watchers[key] = new Watcher(
+        vm,
+        getter || noop,
+        noop,
+        computedWatcherOptions
+      );
+    }
+
+    // component-defined computed properties are already defined on the
+    // component prototype. We only need to define computed properties defined
+    // at instantiation here.
+    if (!(key in vm)) {
+      defineComputed(vm, key, userDef);
+    } else if (true) {
+      if (key in vm.$data) {
+        warn(("The computed property \"" + key + "\" is already defined in data."), vm);
+      } else if (vm.$options.props && key in vm.$options.props) {
+        warn(("The computed property \"" + key + "\" is already defined as a prop."), vm);
+      }
+    }
+  }
+}
+
+function defineComputed (
+  target,
+  key,
+  userDef
+) {
+  var shouldCache = !isServerRendering();
+  if (typeof userDef === 'function') {
+    sharedPropertyDefinition.get = shouldCache
+      ? createComputedGetter(key)
+      : createGetterInvoker(userDef);
+    sharedPropertyDefinition.set = noop;
+  } else {
+    sharedPropertyDefinition.get = userDef.get
+      ? shouldCache && userDef.cache !== false
+        ? createComputedGetter(key)
+        : createGetterInvoker(userDef.get)
+      : noop;
+    sharedPropertyDefinition.set = userDef.set || noop;
+  }
+  if ( true &&
+      sharedPropertyDefinition.set === noop) {
+    sharedPropertyDefinition.set = function () {
+      warn(
+        ("Computed property \"" + key + "\" was assigned to but it has no setter."),
+        this
+      );
+    };
+  }
+  Object.defineProperty(target, key, sharedPropertyDefinition);
+}
+
+function createComputedGetter (key) {
+  return function computedGetter () {
+    var watcher = this._computedWatchers && this._computedWatchers[key];
+    if (watcher) {
+      if (watcher.dirty) {
+        watcher.evaluate();
+      }
+      if (Dep.SharedObject.target) {// fixed by xxxxxx
+        watcher.depend();
+      }
+      return watcher.value
+    }
+  }
+}
+
+function createGetterInvoker(fn) {
+  return function computedGetter () {
+    return fn.call(this, this)
+  }
+}
+
+function initMethods (vm, methods) {
+  var props = vm.$options.props;
+  for (var key in methods) {
+    if (true) {
+      if (typeof methods[key] !== 'function') {
+        warn(
+          "Method \"" + key + "\" has type \"" + (typeof methods[key]) + "\" in the component definition. " +
+          "Did you reference the function correctly?",
+          vm
+        );
+      }
+      if (props && hasOwn(props, key)) {
+        warn(
+          ("Method \"" + key + "\" has already been defined as a prop."),
+          vm
+        );
+      }
+      if ((key in vm) && isReserved(key)) {
+        warn(
+          "Method \"" + key + "\" conflicts with an existing Vue instance method. " +
+          "Avoid defining component methods that start with _ or $."
+        );
+      }
+    }
+    vm[key] = typeof methods[key] !== 'function' ? noop : bind(methods[key], vm);
+  }
+}
+
+function initWatch (vm, watch) {
+  for (var key in watch) {
+    var handler = watch[key];
+    if (Array.isArray(handler)) {
+      for (var i = 0; i < handler.length; i++) {
+        createWatcher(vm, key, handler[i]);
+      }
+    } else {
+      createWatcher(vm, key, handler);
+    }
+  }
+}
+
+function createWatcher (
+  vm,
+  expOrFn,
+  handler,
+  options
+) {
+  if (isPlainObject(handler)) {
+    options = handler;
+    handler = handler.handler;
+  }
+  if (typeof handler === 'string') {
+    handler = vm[handler];
+  }
+  return vm.$watch(expOrFn, handler, options)
+}
+
+function stateMixin (Vue) {
+  // flow somehow has problems with directly declared definition object
+  // when using Object.defineProperty, so we have to procedurally build up
+  // the object here.
+  var dataDef = {};
+  dataDef.get = function () { return this._data };
+  var propsDef = {};
+  propsDef.get = function () { return this._props };
+  if (true) {
+    dataDef.set = function () {
+      warn(
+        'Avoid replacing instance root $data. ' +
+        'Use nested data properties instead.',
+        this
+      );
+    };
+    propsDef.set = function () {
+      warn("$props is readonly.", this);
+    };
+  }
+  Object.defineProperty(Vue.prototype, '$data', dataDef);
+  Object.defineProperty(Vue.prototype, '$props', propsDef);
+
+  Vue.prototype.$set = set;
+  Vue.prototype.$delete = del;
+
+  Vue.prototype.$watch = function (
+    expOrFn,
+    cb,
+    options
+  ) {
+    var vm = this;
+    if (isPlainObject(cb)) {
+      return createWatcher(vm, expOrFn, cb, options)
+    }
+    options = options || {};
+    options.user = true;
+    var watcher = new Watcher(vm, expOrFn, cb, options);
+    if (options.immediate) {
+      try {
+        cb.call(vm, watcher.value);
+      } catch (error) {
+        handleError(error, vm, ("callback for immediate watcher \"" + (watcher.expression) + "\""));
+      }
+    }
+    return function unwatchFn () {
+      watcher.teardown();
+    }
+  };
+}
+
+/*  */
+
+var uid$3 = 0;
+
+function initMixin (Vue) {
+  Vue.prototype._init = function (options) {
+    var vm = this;
+    // a uid
+    vm._uid = uid$3++;
+
+    var startTag, endTag;
+    /* istanbul ignore if */
+    if ( true && config.performance && mark) {
+      startTag = "vue-perf-start:" + (vm._uid);
+      endTag = "vue-perf-end:" + (vm._uid);
+      mark(startTag);
+    }
+
+    // a flag to avoid this being observed
+    vm._isVue = true;
+    // merge options
+    if (options && options._isComponent) {
+      // optimize internal component instantiation
+      // since dynamic options merging is pretty slow, and none of the
+      // internal component options needs special treatment.
+      initInternalComponent(vm, options);
+    } else {
+      vm.$options = mergeOptions(
+        resolveConstructorOptions(vm.constructor),
+        options || {},
+        vm
+      );
+    }
+    /* istanbul ignore else */
+    if (true) {
+      initProxy(vm);
+    } else {}
+    // expose real self
+    vm._self = vm;
+    initLifecycle(vm);
+    initEvents(vm);
+    initRender(vm);
+    callHook(vm, 'beforeCreate');
+    vm.mpHost !== 'mp-toutiao' && initInjections(vm); // resolve injections before data/props  
+    initState(vm);
+    vm.mpHost !== 'mp-toutiao' && initProvide(vm); // resolve provide after data/props
+    vm.mpHost !== 'mp-toutiao' && callHook(vm, 'created');      
+
+    /* istanbul ignore if */
+    if ( true && config.performance && mark) {
+      vm._name = formatComponentName(vm, false);
+      mark(endTag);
+      measure(("vue " + (vm._name) + " init"), startTag, endTag);
+    }
+
+    if (vm.$options.el) {
+      vm.$mount(vm.$options.el);
+    }
+  };
+}
+
+function initInternalComponent (vm, options) {
+  var opts = vm.$options = Object.create(vm.constructor.options);
+  // doing this because it's faster than dynamic enumeration.
+  var parentVnode = options._parentVnode;
+  opts.parent = options.parent;
+  opts._parentVnode = parentVnode;
+
+  var vnodeComponentOptions = parentVnode.componentOptions;
+  opts.propsData = vnodeComponentOptions.propsData;
+  opts._parentListeners = vnodeComponentOptions.listeners;
+  opts._renderChildren = vnodeComponentOptions.children;
+  opts._componentTag = vnodeComponentOptions.tag;
+
+  if (options.render) {
+    opts.render = options.render;
+    opts.staticRenderFns = options.staticRenderFns;
+  }
+}
+
+function resolveConstructorOptions (Ctor) {
+  var options = Ctor.options;
+  if (Ctor.super) {
+    var superOptions = resolveConstructorOptions(Ctor.super);
+    var cachedSuperOptions = Ctor.superOptions;
+    if (superOptions !== cachedSuperOptions) {
+      // super option changed,
+      // need to resolve new options.
+      Ctor.superOptions = superOptions;
+      // check if there are any late-modified/attached options (#4976)
+      var modifiedOptions = resolveModifiedOptions(Ctor);
+      // update base extend options
+      if (modifiedOptions) {
+        extend(Ctor.extendOptions, modifiedOptions);
+      }
+      options = Ctor.options = mergeOptions(superOptions, Ctor.extendOptions);
+      if (options.name) {
+        options.components[options.name] = Ctor;
+      }
+    }
+  }
+  return options
+}
+
+function resolveModifiedOptions (Ctor) {
+  var modified;
+  var latest = Ctor.options;
+  var sealed = Ctor.sealedOptions;
+  for (var key in latest) {
+    if (latest[key] !== sealed[key]) {
+      if (!modified) { modified = {}; }
+      modified[key] = latest[key];
+    }
+  }
+  return modified
+}
+
+function Vue (options) {
+  if ( true &&
+    !(this instanceof Vue)
+  ) {
+    warn('Vue is a constructor and should be called with the `new` keyword');
+  }
+  this._init(options);
+}
+
+initMixin(Vue);
+stateMixin(Vue);
+eventsMixin(Vue);
+lifecycleMixin(Vue);
+renderMixin(Vue);
+
+/*  */
+
+function initUse (Vue) {
+  Vue.use = function (plugin) {
+    var installedPlugins = (this._installedPlugins || (this._installedPlugins = []));
+    if (installedPlugins.indexOf(plugin) > -1) {
+      return this
+    }
+
+    // additional parameters
+    var args = toArray(arguments, 1);
+    args.unshift(this);
+    if (typeof plugin.install === 'function') {
+      plugin.install.apply(plugin, args);
+    } else if (typeof plugin === 'function') {
+      plugin.apply(null, args);
+    }
+    installedPlugins.push(plugin);
+    return this
+  };
+}
+
+/*  */
+
+function initMixin$1 (Vue) {
+  Vue.mixin = function (mixin) {
+    this.options = mergeOptions(this.options, mixin);
+    return this
+  };
+}
+
+/*  */
+
+function initExtend (Vue) {
+  /**
+   * Each instance constructor, including Vue, has a unique
+   * cid. This enables us to create wrapped "child
+   * constructors" for prototypal inheritance and cache them.
+   */
+  Vue.cid = 0;
+  var cid = 1;
+
+  /**
+   * Class inheritance
+   */
+  Vue.extend = function (extendOptions) {
+    extendOptions = extendOptions || {};
+    var Super = this;
+    var SuperId = Super.cid;
+    var cachedCtors = extendOptions._Ctor || (extendOptions._Ctor = {});
+    if (cachedCtors[SuperId]) {
+      return cachedCtors[SuperId]
+    }
+
+    var name = extendOptions.name || Super.options.name;
+    if ( true && name) {
+      validateComponentName(name);
+    }
+
+    var Sub = function VueComponent (options) {
+      this._init(options);
+    };
+    Sub.prototype = Object.create(Super.prototype);
+    Sub.prototype.constructor = Sub;
+    Sub.cid = cid++;
+    Sub.options = mergeOptions(
+      Super.options,
+      extendOptions
+    );
+    Sub['super'] = Super;
+
+    // For props and computed properties, we define the proxy getters on
+    // the Vue instances at extension time, on the extended prototype. This
+    // avoids Object.defineProperty calls for each instance created.
+    if (Sub.options.props) {
+      initProps$1(Sub);
+    }
+    if (Sub.options.computed) {
+      initComputed$1(Sub);
+    }
+
+    // allow further extension/mixin/plugin usage
+    Sub.extend = Super.extend;
+    Sub.mixin = Super.mixin;
+    Sub.use = Super.use;
+
+    // create asset registers, so extended classes
+    // can have their private assets too.
+    ASSET_TYPES.forEach(function (type) {
+      Sub[type] = Super[type];
+    });
+    // enable recursive self-lookup
+    if (name) {
+      Sub.options.components[name] = Sub;
+    }
+
+    // keep a reference to the super options at extension time.
+    // later at instantiation we can check if Super's options have
+    // been updated.
+    Sub.superOptions = Super.options;
+    Sub.extendOptions = extendOptions;
+    Sub.sealedOptions = extend({}, Sub.options);
+
+    // cache constructor
+    cachedCtors[SuperId] = Sub;
+    return Sub
+  };
+}
+
+function initProps$1 (Comp) {
+  var props = Comp.options.props;
+  for (var key in props) {
+    proxy(Comp.prototype, "_props", key);
+  }
+}
+
+function initComputed$1 (Comp) {
+  var computed = Comp.options.computed;
+  for (var key in computed) {
+    defineComputed(Comp.prototype, key, computed[key]);
+  }
+}
+
+/*  */
+
+function initAssetRegisters (Vue) {
+  /**
+   * Create asset registration methods.
+   */
+  ASSET_TYPES.forEach(function (type) {
+    Vue[type] = function (
+      id,
+      definition
+    ) {
+      if (!definition) {
+        return this.options[type + 's'][id]
+      } else {
+        /* istanbul ignore if */
+        if ( true && type === 'component') {
+          validateComponentName(id);
+        }
+        if (type === 'component' && isPlainObject(definition)) {
+          definition.name = definition.name || id;
+          definition = this.options._base.extend(definition);
+        }
+        if (type === 'directive' && typeof definition === 'function') {
+          definition = { bind: definition, update: definition };
+        }
+        this.options[type + 's'][id] = definition;
+        return definition
+      }
+    };
+  });
+}
+
+/*  */
+
+
+
+function getComponentName (opts) {
+  return opts && (opts.Ctor.options.name || opts.tag)
+}
+
+function matches (pattern, name) {
+  if (Array.isArray(pattern)) {
+    return pattern.indexOf(name) > -1
+  } else if (typeof pattern === 'string') {
+    return pattern.split(',').indexOf(name) > -1
+  } else if (isRegExp(pattern)) {
+    return pattern.test(name)
+  }
+  /* istanbul ignore next */
+  return false
+}
+
+function pruneCache (keepAliveInstance, filter) {
+  var cache = keepAliveInstance.cache;
+  var keys = keepAliveInstance.keys;
+  var _vnode = keepAliveInstance._vnode;
+  for (var key in cache) {
+    var cachedNode = cache[key];
+    if (cachedNode) {
+      var name = getComponentName(cachedNode.componentOptions);
+      if (name && !filter(name)) {
+        pruneCacheEntry(cache, key, keys, _vnode);
+      }
+    }
+  }
+}
+
+function pruneCacheEntry (
+  cache,
+  key,
+  keys,
+  current
+) {
+  var cached$$1 = cache[key];
+  if (cached$$1 && (!current || cached$$1.tag !== current.tag)) {
+    cached$$1.componentInstance.$destroy();
+  }
+  cache[key] = null;
+  remove(keys, key);
+}
+
+var patternTypes = [String, RegExp, Array];
+
+var KeepAlive = {
+  name: 'keep-alive',
+  abstract: true,
+
+  props: {
+    include: patternTypes,
+    exclude: patternTypes,
+    max: [String, Number]
+  },
+
+  created: function created () {
+    this.cache = Object.create(null);
+    this.keys = [];
+  },
+
+  destroyed: function destroyed () {
+    for (var key in this.cache) {
+      pruneCacheEntry(this.cache, key, this.keys);
+    }
+  },
+
+  mounted: function mounted () {
+    var this$1 = this;
+
+    this.$watch('include', function (val) {
+      pruneCache(this$1, function (name) { return matches(val, name); });
+    });
+    this.$watch('exclude', function (val) {
+      pruneCache(this$1, function (name) { return !matches(val, name); });
+    });
+  },
+
+  render: function render () {
+    var slot = this.$slots.default;
+    var vnode = getFirstComponentChild(slot);
+    var componentOptions = vnode && vnode.componentOptions;
+    if (componentOptions) {
+      // check pattern
+      var name = getComponentName(componentOptions);
+      var ref = this;
+      var include = ref.include;
+      var exclude = ref.exclude;
+      if (
+        // not included
+        (include && (!name || !matches(include, name))) ||
+        // excluded
+        (exclude && name && matches(exclude, name))
+      ) {
+        return vnode
+      }
+
+      var ref$1 = this;
+      var cache = ref$1.cache;
+      var keys = ref$1.keys;
+      var key = vnode.key == null
+        // same constructor may get registered as different local components
+        // so cid alone is not enough (#3269)
+        ? componentOptions.Ctor.cid + (componentOptions.tag ? ("::" + (componentOptions.tag)) : '')
+        : vnode.key;
+      if (cache[key]) {
+        vnode.componentInstance = cache[key].componentInstance;
+        // make current key freshest
+        remove(keys, key);
+        keys.push(key);
+      } else {
+        cache[key] = vnode;
+        keys.push(key);
+        // prune oldest entry
+        if (this.max && keys.length > parseInt(this.max)) {
+          pruneCacheEntry(cache, keys[0], keys, this._vnode);
+        }
+      }
+
+      vnode.data.keepAlive = true;
+    }
+    return vnode || (slot && slot[0])
+  }
+};
+
+var builtInComponents = {
+  KeepAlive: KeepAlive
+};
+
+/*  */
+
+function initGlobalAPI (Vue) {
+  // config
+  var configDef = {};
+  configDef.get = function () { return config; };
+  if (true) {
+    configDef.set = function () {
+      warn(
+        'Do not replace the Vue.config object, set individual fields instead.'
+      );
+    };
+  }
+  Object.defineProperty(Vue, 'config', configDef);
+
+  // exposed util methods.
+  // NOTE: these are not considered part of the public API - avoid relying on
+  // them unless you are aware of the risk.
+  Vue.util = {
+    warn: warn,
+    extend: extend,
+    mergeOptions: mergeOptions,
+    defineReactive: defineReactive$$1
+  };
+
+  Vue.set = set;
+  Vue.delete = del;
+  Vue.nextTick = nextTick;
+
+  // 2.6 explicit observable API
+  Vue.observable = function (obj) {
+    observe(obj);
+    return obj
+  };
+
+  Vue.options = Object.create(null);
+  ASSET_TYPES.forEach(function (type) {
+    Vue.options[type + 's'] = Object.create(null);
+  });
+
+  // this is used to identify the "base" constructor to extend all plain-object
+  // components with in Weex's multi-instance scenarios.
+  Vue.options._base = Vue;
+
+  extend(Vue.options.components, builtInComponents);
+
+  initUse(Vue);
+  initMixin$1(Vue);
+  initExtend(Vue);
+  initAssetRegisters(Vue);
+}
+
+initGlobalAPI(Vue);
+
+Object.defineProperty(Vue.prototype, '$isServer', {
+  get: isServerRendering
+});
+
+Object.defineProperty(Vue.prototype, '$ssrContext', {
+  get: function get () {
+    /* istanbul ignore next */
+    return this.$vnode && this.$vnode.ssrContext
+  }
+});
+
+// expose FunctionalRenderContext for ssr runtime helper installation
+Object.defineProperty(Vue, 'FunctionalRenderContext', {
+  value: FunctionalRenderContext
+});
+
+Vue.version = '2.6.10';
+
+/**
+ * https://raw.githubusercontent.com/Tencent/westore/master/packages/westore/utils/diff.js
+ */
+var ARRAYTYPE = '[object Array]';
+var OBJECTTYPE = '[object Object]';
+// const FUNCTIONTYPE = '[object Function]'
+
+function diff(current, pre) {
+    var result = {};
+    syncKeys(current, pre);
+    _diff(current, pre, '', result);
+    return result
+}
+
+function syncKeys(current, pre) {
+    if (current === pre) { return }
+    var rootCurrentType = type(current);
+    var rootPreType = type(pre);
+    if (rootCurrentType == OBJECTTYPE && rootPreType == OBJECTTYPE) {
+        if(Object.keys(current).length >= Object.keys(pre).length){
+            for (var key in pre) {
+                var currentValue = current[key];
+                if (currentValue === undefined) {
+                    current[key] = null;
+                } else {
+                    syncKeys(currentValue, pre[key]);
+                }
+            }
+        }
+    } else if (rootCurrentType == ARRAYTYPE && rootPreType == ARRAYTYPE) {
+        if (current.length >= pre.length) {
+            pre.forEach(function (item, index) {
+                syncKeys(current[index], item);
+            });
+        }
+    }
+}
+
+function _diff(current, pre, path, result) {
+    if (current === pre) { return }
+    var rootCurrentType = type(current);
+    var rootPreType = type(pre);
+    if (rootCurrentType == OBJECTTYPE) {
+        if (rootPreType != OBJECTTYPE || Object.keys(current).length < Object.keys(pre).length) {
+            setResult(result, path, current);
+        } else {
+            var loop = function ( key ) {
+                var currentValue = current[key];
+                var preValue = pre[key];
+                var currentType = type(currentValue);
+                var preType = type(preValue);
+                if (currentType != ARRAYTYPE && currentType != OBJECTTYPE) {
+                    if (currentValue != pre[key]) {
+                        setResult(result, (path == '' ? '' : path + ".") + key, currentValue);
+                    }
+                } else if (currentType == ARRAYTYPE) {
+                    if (preType != ARRAYTYPE) {
+                        setResult(result, (path == '' ? '' : path + ".") + key, currentValue);
+                    } else {
+                        if (currentValue.length < preValue.length) {
+                            setResult(result, (path == '' ? '' : path + ".") + key, currentValue);
+                        } else {
+                            currentValue.forEach(function (item, index) {
+                                _diff(item, preValue[index], (path == '' ? '' : path + ".") + key + '[' + index + ']', result);
+                            });
+                        }
+                    }
+                } else if (currentType == OBJECTTYPE) {
+                    if (preType != OBJECTTYPE || Object.keys(currentValue).length < Object.keys(preValue).length) {
+                        setResult(result, (path == '' ? '' : path + ".") + key, currentValue);
+                    } else {
+                        for (var subKey in currentValue) {
+                            _diff(currentValue[subKey], preValue[subKey], (path == '' ? '' : path + ".") + key + '.' + subKey, result);
+                        }
+                    }
+                }
+            };
+
+            for (var key in current) loop( key );
+        }
+    } else if (rootCurrentType == ARRAYTYPE) {
+        if (rootPreType != ARRAYTYPE) {
+            setResult(result, path, current);
+        } else {
+            if (current.length < pre.length) {
+                setResult(result, path, current);
+            } else {
+                current.forEach(function (item, index) {
+                    _diff(item, pre[index], path + '[' + index + ']', result);
+                });
+            }
+        }
+    } else {
+        setResult(result, path, current);
+    }
+}
+
+function setResult(result, k, v) {
+    // if (type(v) != FUNCTIONTYPE) {
+        result[k] = v;
+    // }
+}
+
+function type(obj) {
+    return Object.prototype.toString.call(obj)
+}
+
+/*  */
+
+function flushCallbacks$1(vm) {
+    if (vm.__next_tick_callbacks && vm.__next_tick_callbacks.length) {
+        if (Object({"NODE_ENV":"development","VUE_APP_PLATFORM":"mp-weixin","BASE_URL":"/"}).VUE_APP_DEBUG) {
+            var mpInstance = vm.$scope;
+            console.log('[' + (+new Date) + '][' + (mpInstance.is || mpInstance.route) + '][' + vm._uid +
+                ']:flushCallbacks[' + vm.__next_tick_callbacks.length + ']');
+        }
+        var copies = vm.__next_tick_callbacks.slice(0);
+        vm.__next_tick_callbacks.length = 0;
+        for (var i = 0; i < copies.length; i++) {
+            copies[i]();
+        }
+    }
+}
+
+function hasRenderWatcher(vm) {
+    return queue.find(function (watcher) { return vm._watcher === watcher; })
+}
+
+function nextTick$1(vm, cb) {
+    //1.nextTick 之前 已 setData 且 setData 还未回调完成
+    //2.nextTick 之前存在 render watcher
+    if (!vm.__next_tick_pending && !hasRenderWatcher(vm)) {
+        if(Object({"NODE_ENV":"development","VUE_APP_PLATFORM":"mp-weixin","BASE_URL":"/"}).VUE_APP_DEBUG){
+            var mpInstance = vm.$scope;
+            console.log('[' + (+new Date) + '][' + (mpInstance.is || mpInstance.route) + '][' + vm._uid +
+                ']:nextVueTick');
+        }
+        return nextTick(cb, vm)
+    }else{
+        if(Object({"NODE_ENV":"development","VUE_APP_PLATFORM":"mp-weixin","BASE_URL":"/"}).VUE_APP_DEBUG){
+            var mpInstance$1 = vm.$scope;
+            console.log('[' + (+new Date) + '][' + (mpInstance$1.is || mpInstance$1.route) + '][' + vm._uid +
+                ']:nextMPTick');
+        }
+    }
+    var _resolve;
+    if (!vm.__next_tick_callbacks) {
+        vm.__next_tick_callbacks = [];
+    }
+    vm.__next_tick_callbacks.push(function () {
+        if (cb) {
+            try {
+                cb.call(vm);
+            } catch (e) {
+                handleError(e, vm, 'nextTick');
+            }
+        } else if (_resolve) {
+            _resolve(vm);
+        }
+    });
+    // $flow-disable-line
+    if (!cb && typeof Promise !== 'undefined') {
+        return new Promise(function (resolve) {
+            _resolve = resolve;
+        })
+    }
+}
+
+/*  */
+
+function cloneWithData(vm) {
+  // 确保当前 vm 所有数据被同步
+  var ret = Object.create(null);
+  var dataKeys = [].concat(
+    Object.keys(vm._data || {}),
+    Object.keys(vm._computedWatchers || {}));
+
+  dataKeys.reduce(function(ret, key) {
+    ret[key] = vm[key];
+    return ret
+  }, ret);
+  //TODO 需要把无用数据处理掉，比如 list=>l0 则 list 需要移除，否则多传输一份数据
+  Object.assign(ret, vm.$mp.data || {});
+  if (
+    Array.isArray(vm.$options.behaviors) &&
+    vm.$options.behaviors.indexOf('uni://form-field') !== -1
+  ) { //form-field
+    ret['name'] = vm.name;
+    ret['value'] = vm.value;
+  }
+
+  return JSON.parse(JSON.stringify(ret))
+}
+
+var patch = function(oldVnode, vnode) {
+  var this$1 = this;
+
+  if (vnode === null) { //destroy
+    return
+  }
+  if (this.mpType === 'page' || this.mpType === 'component') {
+    var mpInstance = this.$scope;
+    var data = Object.create(null);
+    try {
+      data = cloneWithData(this);
+    } catch (err) {
+      console.error(err);
+    }
+    data.__webviewId__ = mpInstance.data.__webviewId__;
+    var mpData = Object.create(null);
+    Object.keys(data).forEach(function (key) { //仅同步 data 中有的数据
+      mpData[key] = mpInstance.data[key];
+    });
+    var diffData = diff(data, mpData);
+    if (Object.keys(diffData).length) {
+      if (Object({"NODE_ENV":"development","VUE_APP_PLATFORM":"mp-weixin","BASE_URL":"/"}).VUE_APP_DEBUG) {
+        console.log('[' + (+new Date) + '][' + (mpInstance.is || mpInstance.route) + '][' + this._uid +
+          ']差量更新',
+          JSON.stringify(diffData));
+      }
+      this.__next_tick_pending = true;
+      mpInstance.setData(diffData, function () {
+        this$1.__next_tick_pending = false;
+        flushCallbacks$1(this$1);
+      });
+    } else {
+      flushCallbacks$1(this);
+    }
+  }
+};
+
+/*  */
+
+function createEmptyRender() {
+
+}
+
+function mountComponent$1(
+  vm,
+  el,
+  hydrating
+) {
+  if (!vm.mpType) {//main.js 中的 new Vue
+    return vm
+  }
+  if (vm.mpType === 'app') {
+    vm.$options.render = createEmptyRender;
+  }
+  if (!vm.$options.render) {
+    vm.$options.render = createEmptyRender;
+    if (true) {
+      /* istanbul ignore if */
+      if ((vm.$options.template && vm.$options.template.charAt(0) !== '#') ||
+        vm.$options.el || el) {
+        warn(
+          'You are using the runtime-only build of Vue where the template ' +
+          'compiler is not available. Either pre-compile the templates into ' +
+          'render functions, or use the compiler-included build.',
+          vm
+        );
+      } else {
+        warn(
+          'Failed to mount component: template or render function not defined.',
+          vm
+        );
+      }
+    }
+  }
+  
+  vm.mpHost !== 'mp-toutiao' && callHook(vm, 'beforeMount');
+
+  var updateComponent = function () {
+    vm._update(vm._render(), hydrating);
+  };
+
+  // we set this to vm._watcher inside the watcher's constructor
+  // since the watcher's initial patch may call $forceUpdate (e.g. inside child
+  // component's mounted hook), which relies on vm._watcher being already defined
+  new Watcher(vm, updateComponent, noop, {
+    before: function before() {
+      if (vm._isMounted && !vm._isDestroyed) {
+        callHook(vm, 'beforeUpdate');
+      }
+    }
+  }, true /* isRenderWatcher */);
+  hydrating = false;
+  return vm
+}
+
+/*  */
+
+function renderClass (
+  staticClass,
+  dynamicClass
+) {
+  if (isDef(staticClass) || isDef(dynamicClass)) {
+    return concat(staticClass, stringifyClass(dynamicClass))
+  }
+  /* istanbul ignore next */
+  return ''
+}
+
+function concat (a, b) {
+  return a ? b ? (a + ' ' + b) : a : (b || '')
+}
+
+function stringifyClass (value) {
+  if (Array.isArray(value)) {
+    return stringifyArray(value)
+  }
+  if (isObject(value)) {
+    return stringifyObject(value)
+  }
+  if (typeof value === 'string') {
+    return value
+  }
+  /* istanbul ignore next */
+  return ''
+}
+
+function stringifyArray (value) {
+  var res = '';
+  var stringified;
+  for (var i = 0, l = value.length; i < l; i++) {
+    if (isDef(stringified = stringifyClass(value[i])) && stringified !== '') {
+      if (res) { res += ' '; }
+      res += stringified;
+    }
+  }
+  return res
+}
+
+function stringifyObject (value) {
+  var res = '';
+  for (var key in value) {
+    if (value[key]) {
+      if (res) { res += ' '; }
+      res += key;
+    }
+  }
+  return res
+}
+
+/*  */
+
+var parseStyleText = cached(function (cssText) {
+  var res = {};
+  var listDelimiter = /;(?![^(]*\))/g;
+  var propertyDelimiter = /:(.+)/;
+  cssText.split(listDelimiter).forEach(function (item) {
+    if (item) {
+      var tmp = item.split(propertyDelimiter);
+      tmp.length > 1 && (res[tmp[0].trim()] = tmp[1].trim());
+    }
+  });
+  return res
+});
+
+// normalize possible array / string values into Object
+function normalizeStyleBinding (bindingStyle) {
+  if (Array.isArray(bindingStyle)) {
+    return toObject(bindingStyle)
+  }
+  if (typeof bindingStyle === 'string') {
+    return parseStyleText(bindingStyle)
+  }
+  return bindingStyle
+}
+
+/*  */
+
+var MP_METHODS = ['createSelectorQuery', 'createIntersectionObserver', 'selectAllComponents', 'selectComponent'];
+
+function getTarget(obj, path) {
+  var parts = path.split('.');
+  var key = parts[0];
+  if (key.indexOf('__$n') === 0) { //number index
+    key = parseInt(key.replace('__$n', ''));
+  }
+  if (parts.length === 1) {
+    return obj[key]
+  }
+  return getTarget(obj[key], parts.slice(1).join('.'))
+}
+
+function internalMixin(Vue) {
+
+  Vue.config.errorHandler = function(err) {
+    console.error(err);
+  };
+
+  var oldEmit = Vue.prototype.$emit;
+
+  Vue.prototype.$emit = function(event) {
+    if (this.$scope && event) {
+      this.$scope['triggerEvent'](event, {
+        __args__: toArray(arguments, 1)
+      });
+    }
+    return oldEmit.apply(this, arguments)
+  };
+
+  Vue.prototype.$nextTick = function(fn) {
+    return nextTick$1(this, fn)
+  };
+
+  MP_METHODS.forEach(function (method) {
+    Vue.prototype[method] = function(args) {
+      if (this.$scope) {
+        return this.$scope[method](args)
+      }
+    };
+  });
+
+  Vue.prototype.__init_provide = initProvide;
+
+  Vue.prototype.__init_injections = initInjections;
+
+  Vue.prototype.__call_hook = function(hook, args) {
+    var vm = this;
+    // #7573 disable dep collection when invoking lifecycle hooks
+    pushTarget();
+    var handlers = vm.$options[hook];
+    var info = hook + " hook";
+    var ret;
+    if (handlers) {
+      for (var i = 0, j = handlers.length; i < j; i++) {
+        ret = invokeWithErrorHandling(handlers[i], vm, args ? [args] : null, vm, info);
+      }
+    }
+    if (vm._hasHookEvent) {
+      vm.$emit('hook:' + hook);
+    }
+    popTarget();
+    return ret
+  };
+
+  Vue.prototype.__set_model = function(target, key, value, modifiers) {
+    if (Array.isArray(modifiers)) {
+      if (modifiers.indexOf('trim') !== -1) {
+        value = value.trim();
+      }
+      if (modifiers.indexOf('number') !== -1) {
+        value = this._n(value);
+      }
+    }
+    if (!target) {
+      target = this;
+    }
+    target[key] = value;
+  };
+
+  Vue.prototype.__set_sync = function(target, key, value) {
+    if (!target) {
+      target = this;
+    }
+    target[key] = value;
+  };
+
+  Vue.prototype.__get_orig = function(item) {
+    if (isPlainObject(item)) {
+      return item['$orig'] || item
+    }
+    return item
+  };
+
+  Vue.prototype.__get_value = function(dataPath, target) {
+    return getTarget(target || this, dataPath)
+  };
+
+
+  Vue.prototype.__get_class = function(dynamicClass, staticClass) {
+    return renderClass(staticClass, dynamicClass)
+  };
+
+  Vue.prototype.__get_style = function(dynamicStyle, staticStyle) {
+    if (!dynamicStyle && !staticStyle) {
+      return ''
+    }
+    var dynamicStyleObj = normalizeStyleBinding(dynamicStyle);
+    var styleObj = staticStyle ? extend(staticStyle, dynamicStyleObj) : dynamicStyleObj;
+    return Object.keys(styleObj).map(function (name) { return ((hyphenate(name)) + ":" + (styleObj[name])); }).join(';')
+  };
+
+  Vue.prototype.__map = function(val, iteratee) {
+    //TODO 暂不考虑 string,number
+    var ret, i, l, keys, key;
+    if (Array.isArray(val)) {
+      ret = new Array(val.length);
+      for (i = 0, l = val.length; i < l; i++) {
+        ret[i] = iteratee(val[i], i);
+      }
+      return ret
+    } else if (isObject(val)) {
+      keys = Object.keys(val);
+      ret = Object.create(null);
+      for (i = 0, l = keys.length; i < l; i++) {
+        key = keys[i];
+        ret[key] = iteratee(val[key], key, i);
+      }
+      return ret
+    }
+    return []
+  };
+
+}
+
+/*  */
+
+var LIFECYCLE_HOOKS$1 = [
+    //App
+    'onLaunch',
+    'onShow',
+    'onHide',
+    'onUniNViewMessage',
+    'onError',
+    //Page
+    'onLoad',
+    // 'onShow',
+    'onReady',
+    // 'onHide',
+    'onUnload',
+    'onPullDownRefresh',
+    'onReachBottom',
+    'onTabItemTap',
+    'onShareAppMessage',
+    'onResize',
+    'onPageScroll',
+    'onNavigationBarButtonTap',
+    'onBackPress',
+    'onNavigationBarSearchInputChanged',
+    'onNavigationBarSearchInputConfirmed',
+    'onNavigationBarSearchInputClicked',
+    //Component
+    // 'onReady', // 兼容旧版本，应该移除该事件
+    'onPageShow',
+    'onPageHide',
+    'onPageResize'
+];
+function lifecycleMixin$1(Vue) {
+
+    //fixed vue-class-component
+    var oldExtend = Vue.extend;
+    Vue.extend = function(extendOptions) {
+        extendOptions = extendOptions || {};
+
+        var methods = extendOptions.methods;
+        if (methods) {
+            Object.keys(methods).forEach(function (methodName) {
+                if (LIFECYCLE_HOOKS$1.indexOf(methodName)!==-1) {
+                    extendOptions[methodName] = methods[methodName];
+                    delete methods[methodName];
+                }
+            });
+        }
+
+        return oldExtend.call(this, extendOptions)
+    };
+
+    var strategies = Vue.config.optionMergeStrategies;
+    var mergeHook = strategies.created;
+    LIFECYCLE_HOOKS$1.forEach(function (hook) {
+        strategies[hook] = mergeHook;
+    });
+
+    Vue.prototype.__lifecycle_hooks__ = LIFECYCLE_HOOKS$1;
+}
+
+/*  */
+
+// install platform patch function
+Vue.prototype.__patch__ = patch;
+
+// public mount method
+Vue.prototype.$mount = function(
+    el ,
+    hydrating 
+) {
+    return mountComponent$1(this, el, hydrating)
+};
+
+lifecycleMixin$1(Vue);
+internalMixin(Vue);
+
+/*  */
+
+/* harmony default export */ __webpack_exports__["default"] = (Vue);
+
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../../../../../webpack/buildin/global.js */ 3)))
+
+/***/ }),
+
+/***/ 21:
+/*!**********************************************************************!*\
+  !*** C:/Users/Administrator/Desktop/mobile-app-git/common/public.js ***!
+  \**********************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var variable = "http://ht.finedoing.com",
+// var variable="http://erdoscxgg.com",//创新广告
+// var variable="http://www.zxr360.cn",//佐贤广告
+unExist = '/static/image/unExist.png';
+var publicIf = function publicIf(data) {
+  if (data == 201 || data == 202) {
+    uni.removeStorageSync('jsonList');
+    uni.showToast({
+      title: '登录身份已过期，请重新登录',
+      icon: 'none',
+      complete: function complete() {
+        setTimeout(function () {
+          uni.navigateTo({
+            url: "../index/login" });
+
+        }, 1000);
+      } });
+
+    return false;
+  }
+};
+
+var checkCsid = function checkCsid(csid) {
+  if (!csid) {
+    uni.showToast({
+      title: '请先完善公司信息',
+      icon: 'none',
+      duration: 3000,
+      complete: function complete() {
+        setTimeout(function () {
+          uni.navigateTo({
+            url: "../user/companyInfo" });
+
+        }, 3000);
+      } });
+
+    return false;
+  }
+};
+
+var checkStatus = function checkStatus() {
+  var jsonList = uni.getStorageSync("jsonList");
+  if (jsonList) {
+    var data = JSON.parse(jsonList); //JSON字符串转对象
+    return { "userName": data.userName, "userImgActive": false, "userActive": true };
+  } else {
+    return { "userName": '', "userImgActive": true, "userActive": false };
+  }
+};
+// 总金额计算
+var totalMoney = function totalMoney(subTotal, freight, taxes, discount, rebate) {
+  var total_money = (subTotal + freight + taxes - discount) * rebate;
+  return { 'total_money': total_money };
+};var _default =
+{
+  variable: variable,
+  unExist: unExist,
+  publicIf: publicIf,
+  checkStatus: checkStatus,
+  totalMoney: totalMoney,
+  checkCsid: checkCsid };exports.default = _default;
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 1)["default"]))
+
+/***/ }),
+
+/***/ 22:
+/*!****************************************************************************!*\
+  !*** C:/Users/Administrator/Desktop/mobile-app-git/common/vue-lazyload.js ***!
+  \****************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+ /*!
+               * Vue-Lazyload.js v1.3.1
+               * (c) 2019 Awe <hilongjw@gmail.com>
+               * Released under the MIT License.
+               */
+!function (t, e) { true ? module.exports = e() : undefined;}(void 0, function () {"use strict";function t(t) {return t.constructor && "function" == typeof t.constructor.isBuffer && t.constructor.isBuffer(t);}function e(t) {t = t || {};var e = arguments.length,i = 0;if (1 === e) return t;for (; ++i < e;) {var o = arguments[i];m(t) && (t = o), r(o) && n(t, o);}return t;}function n(t, n) {w(t, n);for (var a in n) {if (o(a) && i(n, a)) {var s = n[a];r(s) ? ("undefined" === _(t[a]) && "function" === _(s) && (t[a] = s), t[a] = e(t[a] || {}, s)) : t[a] = s;}}return t;}function r(t) {return "object" === _(t) || "function" === _(t);}function i(t, e) {return Object.prototype.hasOwnProperty.call(t, e);}function o(t) {return "__proto__" !== t && "constructor" !== t && "prototype" !== t;}function a(t, e) {if (t.length) {var n = t.indexOf(e);return n > -1 ? t.splice(n, 1) : void 0;}}function s(t, e) {for (var n = !1, r = 0, i = t.length; r < i; r++) {if (e(t[r])) {n = !0;break;}}return n;}function u(t, e) {if ("IMG" === t.tagName && t.getAttribute("data-srcset")) {var n = t.getAttribute("data-srcset"),r = [],i = t.parentNode,o = i.offsetWidth * e,a = void 0,s = void 0,u = void 0;n = n.trim().split(","), n.map(function (t) {t = t.trim(), a = t.lastIndexOf(" "), -1 === a ? (s = t, u = 999998) : (s = t.substr(0, a), u = parseInt(t.substr(a + 1, t.length - a - 2), 10)), r.push([u, s]);}), r.sort(function (t, e) {if (t[0] < e[0]) return 1;if (t[0] > e[0]) return -1;if (t[0] === e[0]) {if (-1 !== e[1].indexOf(".webp", e[1].length - 5)) return 1;if (-1 !== t[1].indexOf(".webp", t[1].length - 5)) return -1;}return 0;});for (var d = "", l = void 0, c = 0; c < r.length; c++) {l = r[c], d = l[1];var h = r[c + 1];if (h && h[0] < o) {d = l[1];break;}if (!h) {d = l[1];break;}}return d;}}function d(t, e) {for (var n = void 0, r = 0, i = t.length; r < i; r++) {if (e(t[r])) {n = t[r];break;}}return n;}function l() {if (!k) return !1;var t = !0,e = document;try {var n = e.createElement("object");n.type = "image/webp", n.style.visibility = "hidden", n.innerHTML = "!", e.body.appendChild(n), t = !n.offsetWidth, e.body.removeChild(n);} catch (e) {t = !1;}return t;}function c(t, e) {var n = null,r = 0;return function () {if (!n) {var i = Date.now() - r,o = this,a = arguments,s = function s() {r = Date.now(), n = !1, t.apply(o, a);};i >= e ? s() : n = setTimeout(s, e);}};}function h(t) {return null !== t && "object" === (void 0 === t ? "undefined" : y(t));}function f(t) {if (!(t instanceof Object)) return [];if (Object.keys) return Object.keys(t);var e = [];for (var n in t) {t.hasOwnProperty(n) && e.push(n);}return e;}function v(t) {for (var e = t.length, n = [], r = 0; r < e; r++) {n.push(t[r]);}return n;}function p() {}var y = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (t) {return typeof t;} : function (t) {return t && "function" == typeof Symbol && t.constructor === Symbol && t !== Symbol.prototype ? "symbol" : typeof t;},b = function b(t, e) {if (!(t instanceof e)) throw new TypeError("Cannot call a class as a function");},g = function () {function t(t, e) {for (var n = 0; n < e.length; n++) {var r = e[n];r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(t, r.key, r);}}return function (e, n, r) {return n && t(e.prototype, n), r && t(e, r), e;};}(),m = function m(t) {return null == t || "function" != typeof t && "object" !== (void 0 === t ? "undefined" : y(t));},w = function w(t, e) {if (null === t || void 0 === t) throw new TypeError("expected first argument to be an object.");if (void 0 === e || "undefined" == typeof Symbol) return t;if ("function" != typeof Object.getOwnPropertySymbols) return t;for (var n = Object.prototype.propertyIsEnumerable, r = Object(t), i = arguments.length, o = 0; ++o < i;) {for (var a = Object(arguments[o]), s = Object.getOwnPropertySymbols(a), u = 0; u < s.length; u++) {var d = s[u];n.call(a, d) && (r[d] = a[d]);}}return r;},L = Object.prototype.toString,_ = function _(e) {var n = void 0 === e ? "undefined" : y(e);return "undefined" === n ? "undefined" : null === e ? "null" : !0 === e || !1 === e || e instanceof Boolean ? "boolean" : "string" === n || e instanceof String ? "string" : "number" === n || e instanceof Number ? "number" : "function" === n || e instanceof Function ? void 0 !== e.constructor.name && "Generator" === e.constructor.name.slice(0, 9) ? "generatorfunction" : "function" : void 0 !== Array.isArray && Array.isArray(e) ? "array" : e instanceof RegExp ? "regexp" : e instanceof Date ? "date" : (n = L.call(e), "[object RegExp]" === n ? "regexp" : "[object Date]" === n ? "date" : "[object Arguments]" === n ? "arguments" : "[object Error]" === n ? "error" : "[object Promise]" === n ? "promise" : t(e) ? "buffer" : "[object Set]" === n ? "set" : "[object WeakSet]" === n ? "weakset" : "[object Map]" === n ? "map" : "[object WeakMap]" === n ? "weakmap" : "[object Symbol]" === n ? "symbol" : "[object Map Iterator]" === n ? "mapiterator" : "[object Set Iterator]" === n ? "setiterator" : "[object String Iterator]" === n ? "stringiterator" : "[object Array Iterator]" === n ? "arrayiterator" : "[object Int8Array]" === n ? "int8array" : "[object Uint8Array]" === n ? "uint8array" : "[object Uint8ClampedArray]" === n ? "uint8clampedarray" : "[object Int16Array]" === n ? "int16array" : "[object Uint16Array]" === n ? "uint16array" : "[object Int32Array]" === n ? "int32array" : "[object Uint32Array]" === n ? "uint32array" : "[object Float32Array]" === n ? "float32array" : "[object Float64Array]" === n ? "float64array" : "object");},E = e,k = "undefined" != typeof window,A = function () {return !!(k && "IntersectionObserver" in window && "IntersectionObserverEntry" in window && "intersectionRatio" in window.IntersectionObserverEntry.prototype) && ("isIntersecting" in window.IntersectionObserverEntry.prototype || Object.defineProperty(window.IntersectionObserverEntry.prototype, "isIntersecting", { get: function get() {return this.intersectionRatio > 0;} }), !0);}(),j = { event: "event", observer: "observer" },z = function () {function t(t, e) {e = e || { bubbles: !1, cancelable: !1, detail: void 0 };var n = document.createEvent("CustomEvent");return n.initCustomEvent(t, e.bubbles, e.cancelable, e.detail), n;}if (k) return "function" == typeof window.CustomEvent ? window.CustomEvent : (t.prototype = window.Event.prototype, t);}(),I = function I() {var t = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : 1;return k ? window.devicePixelRatio || t : t;},O = function () {if (k) {var t = !1;try {var e = Object.defineProperty({}, "passive", { get: function get() {t = !0;} });window.addEventListener("test", null, e);} catch (t) {}return t;}}(),T = { on: function on(t, e, n) {var r = arguments.length > 3 && void 0 !== arguments[3] && arguments[3];O ? t.addEventListener(e, n, { capture: r, passive: !0 }) : t.addEventListener(e, n, r);}, off: function off(t, e, n) {var r = arguments.length > 3 && void 0 !== arguments[3] && arguments[3];t.removeEventListener(e, n, r);} },S = function S(t, e, n) {var r = new Image();r.src = t.src, r.onload = function () {e({ naturalHeight: r.naturalHeight, naturalWidth: r.naturalWidth, src: r.src });}, r.onerror = function (t) {n(t);};},x = function x(t, e) {return "undefined" != typeof getComputedStyle ? getComputedStyle(t, null).getPropertyValue(e) : t.style[e];},$ = function $(t) {return x(t, "overflow") + x(t, "overflow-y") + x(t, "overflow-x");},C = function C(t) {if (k) {if (!(t instanceof HTMLElement)) return window;for (var e = t; e && e !== document.body && e !== document.documentElement && e.parentNode;) {if (/(scroll|auto)/.test($(e))) return e;e = e.parentNode;}return window;}},H = function () {function t(e) {var n = e.max;b(this, t), this.options = { max: n || 100 }, this._caches = [];}return g(t, [{ key: "has", value: function value(t) {return this._caches.indexOf(t) > -1;} }, { key: "add", value: function value(t) {this.has(t) || (this._caches.push(t), this._caches.length > this.options.max && this.free());} }, { key: "free", value: function value() {this._caches.shift();} }]), t;}(),Q = function () {function t(e) {var n = e.el,r = e.src,i = e.error,o = e.loading,a = e.bindType,s = e.$parent,u = e.options,d = e.elRenderer,l = e.imageCache;b(this, t), this.el = n, this.src = r, this.error = i, this.loading = o, this.bindType = a, this.attempt = 0, this.naturalHeight = 0, this.naturalWidth = 0, this.options = u, this.rect = null, this.$parent = s, this.elRenderer = d, this._imageCache = l, this.performanceData = { init: Date.now(), loadStart: 0, loadEnd: 0 }, this.filter(), this.initState(), this.render("loading", !1);}return g(t, [{ key: "initState", value: function value() {"dataset" in this.el ? this.el.dataset.src = this.src : this.el.setAttribute("data-src", this.src), this.state = { loading: !1, error: !1, loaded: !1, rendered: !1 };} }, { key: "record", value: function value(t) {this.performanceData[t] = Date.now();} }, { key: "update", value: function value(t) {var e = t.src,n = t.loading,r = t.error,i = this.src;this.src = e, this.loading = n, this.error = r, this.filter(), i !== this.src && (this.attempt = 0, this.initState());} }, { key: "getRect", value: function value() {this.rect = this.el.getBoundingClientRect();} }, { key: "checkInView", value: function value() {return this.getRect(), this.rect.top < window.innerHeight * this.options.preLoad && this.rect.bottom > this.options.preLoadTop && this.rect.left < window.innerWidth * this.options.preLoad && this.rect.right > 0;} }, { key: "filter", value: function value() {var t = this;f(this.options.filter).map(function (e) {t.options.filter[e](t, t.options);});} }, { key: "renderLoading", value: function value(t) {var e = this;this.state.loading = !0, S({ src: this.loading }, function (n) {e.render("loading", !1), e.state.loading = !1, t();}, function () {t(), e.state.loading = !1, e.options.silent || console.warn("VueLazyload log: load failed with loading image(" + e.loading + ")");});} }, { key: "load", value: function value() {var t = this,e = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : p;return this.attempt > this.options.attempt - 1 && this.state.error ? (this.options.silent || console.log("VueLazyload log: " + this.src + " tried too more than " + this.options.attempt + " times"), void e()) : this.state.rendered && this.state.loaded ? void 0 : this._imageCache.has(this.src) ? (this.state.loaded = !0, this.render("loaded", !0), this.state.rendered = !0, e()) : void this.renderLoading(function () {t.attempt++, t.options.adapter.beforeLoad && t.options.adapter.beforeLoad(t, t.options), t.record("loadStart"), S({ src: t.src }, function (n) {t.naturalHeight = n.naturalHeight, t.naturalWidth = n.naturalWidth, t.state.loaded = !0, t.state.error = !1, t.record("loadEnd"), t.render("loaded", !1), t.state.rendered = !0, t._imageCache.add(t.src), e();}, function (e) {!t.options.silent && console.error(e), t.state.error = !0, t.state.loaded = !1, t.render("error", !1);});});} }, { key: "render", value: function value(t, e) {this.elRenderer(this, t, e);} }, { key: "performance", value: function value() {var t = "loading",e = 0;return this.state.loaded && (t = "loaded", e = (this.performanceData.loadEnd - this.performanceData.loadStart) / 1e3), this.state.error && (t = "error"), { src: this.src, state: t, time: e };} }, { key: "destroy", value: function value() {this.el = null, this.src = null, this.error = null, this.loading = null, this.bindType = null, this.attempt = 0;} }]), t;}(),R = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",W = ["scroll", "wheel", "mousewheel", "resize", "animationend", "transitionend", "touchmove"],B = { rootMargin: "0px", threshold: 0 },D = function D(t) {return function () {function e(t) {var n = t.preLoad,r = t.error,i = t.throttleWait,o = t.preLoadTop,a = t.dispatchEvent,s = t.loading,u = t.attempt,d = t.silent,h = void 0 === d || d,f = t.scale,v = t.listenEvents,p = (t.hasbind, t.filter),y = t.adapter,g = t.observer,m = t.observerOptions;b(this, e), this.version = "1.3.1", this.mode = j.event, this.ListenerQueue = [], this.TargetIndex = 0, this.TargetQueue = [], this.options = { silent: h, dispatchEvent: !!a, throttleWait: i || 200, preLoad: n || 1.3, preLoadTop: o || 0, error: r || R, loading: s || R, attempt: u || 3, scale: f || I(f), ListenEvents: v || W, hasbind: !1, supportWebp: l(), filter: p || {}, adapter: y || {}, observer: !!g, observerOptions: m || B }, this._initEvent(), this._imageCache = new H({ max: 200 }), this.lazyLoadHandler = c(this._lazyLoadHandler.bind(this), this.options.throttleWait), this.setMode(this.options.observer ? j.observer : j.event);}return g(e, [{ key: "config", value: function value() {var t = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : {};E(this.options, t);} }, { key: "performance", value: function value() {var t = [];return this.ListenerQueue.map(function (e) {t.push(e.performance());}), t;} }, { key: "addLazyBox", value: function value(t) {this.ListenerQueue.push(t), k && (this._addListenerTarget(window), this._observer && this._observer.observe(t.el), t.$el && t.$el.parentNode && this._addListenerTarget(t.$el.parentNode));} }, { key: "add", value: function value(e, n, r) {var i = this;if (s(this.ListenerQueue, function (t) {return t.el === e;})) return this.update(e, n), t.nextTick(this.lazyLoadHandler);var o = this._valueFormatter(n.value),a = o.src,d = o.loading,l = o.error;t.nextTick(function () {a = u(e, i.options.scale) || a, i._observer && i._observer.observe(e);var o = Object.keys(n.modifiers)[0],s = void 0;o && (s = r.context.$refs[o], s = s ? s.$el || s : document.getElementById(o)), s || (s = C(e));var c = new Q({ bindType: n.arg, $parent: s, el: e, loading: d, error: l, src: a, elRenderer: i._elRenderer.bind(i), options: i.options, imageCache: i._imageCache });i.ListenerQueue.push(c), k && (i._addListenerTarget(window), i._addListenerTarget(s)), i.lazyLoadHandler(), t.nextTick(function () {return i.lazyLoadHandler();});});} }, { key: "update", value: function value(e, n, r) {var i = this,o = this._valueFormatter(n.value),a = o.src,s = o.loading,l = o.error;a = u(e, this.options.scale) || a;var c = d(this.ListenerQueue, function (t) {return t.el === e;});c ? c.update({ src: a, loading: s, error: l }) : this.add(e, n, r), this._observer && (this._observer.unobserve(e), this._observer.observe(e)), this.lazyLoadHandler(), t.nextTick(function () {return i.lazyLoadHandler();});} }, { key: "remove", value: function value(t) {if (t) {this._observer && this._observer.unobserve(t);var e = d(this.ListenerQueue, function (e) {return e.el === t;});e && (this._removeListenerTarget(e.$parent), this._removeListenerTarget(window), a(this.ListenerQueue, e), e.destroy());}} }, { key: "removeComponent", value: function value(t) {t && (a(this.ListenerQueue, t), this._observer && this._observer.unobserve(t.el), t.$parent && t.$el.parentNode && this._removeListenerTarget(t.$el.parentNode), this._removeListenerTarget(window));} }, { key: "setMode", value: function value(t) {var e = this;A || t !== j.observer || (t = j.event), this.mode = t, t === j.event ? (this._observer && (this.ListenerQueue.forEach(function (t) {e._observer.unobserve(t.el);}), this._observer = null), this.TargetQueue.forEach(function (t) {e._initListen(t.el, !0);})) : (this.TargetQueue.forEach(function (t) {e._initListen(t.el, !1);}), this._initIntersectionObserver());} }, { key: "_addListenerTarget", value: function value(t) {if (t) {var e = d(this.TargetQueue, function (e) {return e.el === t;});return e ? e.childrenCount++ : (e = { el: t, id: ++this.TargetIndex, childrenCount: 1, listened: !0 }, this.mode === j.event && this._initListen(e.el, !0), this.TargetQueue.push(e)), this.TargetIndex;}} }, { key: "_removeListenerTarget", value: function value(t) {var e = this;this.TargetQueue.forEach(function (n, r) {n.el === t && (--n.childrenCount || (e._initListen(n.el, !1), e.TargetQueue.splice(r, 1), n = null));});} }, { key: "_initListen", value: function value(t, e) {var n = this;this.options.ListenEvents.forEach(function (r) {return T[e ? "on" : "off"](t, r, n.lazyLoadHandler);});} }, { key: "_initEvent", value: function value() {var t = this;this.Event = { listeners: { loading: [], loaded: [], error: [] } }, this.$on = function (e, n) {t.Event.listeners[e] || (t.Event.listeners[e] = []), t.Event.listeners[e].push(n);}, this.$once = function (e, n) {function r() {i.$off(e, r), n.apply(i, arguments);}var i = t;t.$on(e, r);}, this.$off = function (e, n) {if (!n) {if (!t.Event.listeners[e]) return;return void (t.Event.listeners[e].length = 0);}a(t.Event.listeners[e], n);}, this.$emit = function (e, n, r) {t.Event.listeners[e] && t.Event.listeners[e].forEach(function (t) {return t(n, r);});};} }, { key: "_lazyLoadHandler", value: function value() {var t = this,e = [];this.ListenerQueue.forEach(function (t, n) {t.el && t.el.parentNode || e.push(t), t.checkInView() && t.load();}), e.forEach(function (e) {a(t.ListenerQueue, e), e.destroy();});} }, { key: "_initIntersectionObserver", value: function value() {var t = this;A && (this._observer = new IntersectionObserver(this._observerHandler.bind(this), this.options.observerOptions), this.ListenerQueue.length && this.ListenerQueue.forEach(function (e) {t._observer.observe(e.el);}));} }, { key: "_observerHandler", value: function value(t, e) {var n = this;t.forEach(function (t) {t.isIntersecting && n.ListenerQueue.forEach(function (e) {if (e.el === t.target) {if (e.state.loaded) return n._observer.unobserve(e.el);e.load();}});});} }, { key: "_elRenderer", value: function value(t, e, n) {if (t.el) {var r = t.el,i = t.bindType,o = void 0;switch (e) {case "loading":o = t.loading;break;case "error":o = t.error;break;default:o = t.src;}if (i ? r.style[i] = 'url("' + o + '")' : r.getAttribute("src") !== o && r.setAttribute("src", o), r.setAttribute("lazy", e), this.$emit(e, t, n), this.options.adapter[e] && this.options.adapter[e](t, this.options), this.options.dispatchEvent) {var a = new z(e, { detail: t });r.dispatchEvent(a);}}} }, { key: "_valueFormatter", value: function value(t) {var e = t,n = this.options.loading,r = this.options.error;return h(t) && (t.src || this.options.silent || console.error("Vue Lazyload warning: miss src with " + t), e = t.src, n = t.loading || this.options.loading, r = t.error || this.options.error), { src: e, loading: n, error: r };} }]), e;}();},V = function V(t) {return { props: { tag: { type: String, default: "div" } }, render: function render(t) {return !1 === this.show ? t(this.tag) : t(this.tag, null, this.$slots.default);}, data: function data() {return { el: null, state: { loaded: !1 }, rect: {}, show: !1 };}, mounted: function mounted() {this.el = this.$el, t.addLazyBox(this), t.lazyLoadHandler();}, beforeDestroy: function beforeDestroy() {t.removeComponent(this);}, methods: { getRect: function getRect() {this.rect = this.$el.getBoundingClientRect();}, checkInView: function checkInView() {return this.getRect(), k && this.rect.top < window.innerHeight * t.options.preLoad && this.rect.bottom > 0 && this.rect.left < window.innerWidth * t.options.preLoad && this.rect.right > 0;}, load: function load() {this.show = !0, this.state.loaded = !0, this.$emit("show", this);} } };},N = function () {function t(e) {var n = e.lazy;b(this, t), this.lazy = n, n.lazyContainerMananger = this, this._queue = [];}return g(t, [{ key: "bind", value: function value(t, e, n) {var r = new M({ el: t, binding: e, vnode: n, lazy: this.lazy });this._queue.push(r);} }, { key: "update", value: function value(t, e, n) {var r = d(this._queue, function (e) {return e.el === t;});r && r.update({ el: t, binding: e, vnode: n });} }, { key: "unbind", value: function value(t, e, n) {var r = d(this._queue, function (e) {return e.el === t;});r && (r.clear(), a(this._queue, r));} }]), t;}(),P = { selector: "img" },M = function () {function t(e) {var n = e.el,r = e.binding,i = e.vnode,o = e.lazy;b(this, t), this.el = null, this.vnode = i, this.binding = r, this.options = {}, this.lazy = o, this._queue = [], this.update({ el: n, binding: r });}return g(t, [{ key: "update", value: function value(t) {var e = this,n = t.el,r = t.binding;this.el = n, this.options = E({}, P, r.value), this.getImgs().forEach(function (t) {e.lazy.add(t, E({}, e.binding, { value: { src: "dataset" in t ? t.dataset.src : t.getAttribute("data-src"), error: ("dataset" in t ? t.dataset.error : t.getAttribute("data-error")) || e.options.error, loading: ("dataset" in t ? t.dataset.loading : t.getAttribute("data-loading")) || e.options.loading } }), e.vnode);});} }, { key: "getImgs", value: function value() {return v(this.el.querySelectorAll(this.options.selector));} }, { key: "clear", value: function value() {var t = this;this.getImgs().forEach(function (e) {return t.lazy.remove(e);}), this.vnode = null, this.binding = null, this.lazy = null;} }]), t;}(),q = function q(t) {return { props: { src: [String, Object], tag: { type: String, default: "img" } }, render: function render(t) {return t(this.tag, { attrs: { src: this.renderSrc } }, this.$slots.default);}, data: function data() {return { el: null, options: { src: "", error: "", loading: "", attempt: t.options.attempt }, state: { loaded: !1, error: !1, attempt: 0 }, rect: {}, renderSrc: "" };}, watch: { src: function src() {this.init(), t.addLazyBox(this), t.lazyLoadHandler();} }, created: function created() {this.init(), this.renderSrc = this.options.loading;}, mounted: function mounted() {this.el = this.$el, t.addLazyBox(this), t.lazyLoadHandler();}, beforeDestroy: function beforeDestroy() {t.removeComponent(this);}, methods: { init: function init() {var e = t._valueFormatter(this.src),n = e.src,r = e.loading,i = e.error;this.state.loaded = !1, this.options.src = n, this.options.error = i, this.options.loading = r, this.renderSrc = this.options.loading;}, getRect: function getRect() {this.rect = this.$el.getBoundingClientRect();}, checkInView: function checkInView() {return this.getRect(), k && this.rect.top < window.innerHeight * t.options.preLoad && this.rect.bottom > 0 && this.rect.left < window.innerWidth * t.options.preLoad && this.rect.right > 0;}, load: function load() {var e = this,n = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : p;if (this.state.attempt > this.options.attempt - 1 && this.state.error) return t.options.silent || console.log("VueLazyload log: " + this.options.src + " tried too more than " + this.options.attempt + " times"), void n();var r = this.options.src;S({ src: r }, function (t) {var n = t.src;e.renderSrc = n, e.state.loaded = !0;}, function (t) {e.state.attempt++, e.renderSrc = e.options.error, e.state.error = !0;});} } };};return { install: function install(t) {var e = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : {},n = D(t),r = new n(e),i = new N({ lazy: r }),o = "2" === t.version.split(".")[0];t.prototype.$Lazyload = r, e.lazyComponent && t.component("lazy-component", V(r)), e.lazyImage && t.component("lazy-image", q(r)), o ? (t.directive("lazy", { bind: r.add.bind(r), update: r.update.bind(r), componentUpdated: r.lazyLoadHandler.bind(r), unbind: r.remove.bind(r) }), t.directive("lazy-container", { bind: i.bind.bind(i), componentUpdated: i.update.bind(i), unbind: i.unbind.bind(i) })) : (t.directive("lazy", { bind: r.lazyLoadHandler.bind(r), update: function update(t, e) {E(this.vm.$refs, this.vm.$els), r.add(this.el, { modifiers: this.modifiers || {}, arg: this.arg, value: t, oldValue: e }, { context: this.vm });}, unbind: function unbind() {r.remove(this.el);} }), t.directive("lazy-container", { update: function update(t, e) {i.update(this.el, { modifiers: this.modifiers || {}, arg: this.arg, value: t, oldValue: e }, { context: this.vm });}, unbind: function unbind() {i.unbind(this.el);} }));} };});
+
+/***/ }),
+
+/***/ 3:
+/*!***********************************!*\
+  !*** (webpack)/buildin/global.js ***!
+  \***********************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+var g;
+
+// This works in non-strict mode
+g = (function() {
+	return this;
+})();
+
+try {
+	// This works if eval is allowed (see CSP)
+	g = g || new Function("return this")();
+} catch (e) {
+	// This works if the window reference is available
+	if (typeof window === "object") g = window;
+}
+
+// g can still be undefined, but nothing to do about it...
+// We return undefined, instead of nothing here, so it's
+// easier to handle this case. if(!global) { ...}
+
+module.exports = g;
+
+
+/***/ }),
+
+/***/ 355:
+/*!*******************************************************************************************************!*\
+  !*** C:/Users/Administrator/Desktop/mobile-app-git/components/mpvue-citypicker/city-data/province.js ***!
+  \*******************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0; /* eslint-disable */
+var provinceData = [{
+  "label": "北京市",
+  "value": "11" },
+
+{
+  "label": "天津市",
+  "value": "12" },
+
+{
+  "label": "河北省",
+  "value": "13" },
+
+{
+  "label": "山西省",
+  "value": "14" },
+
+{
+  "label": "内蒙古自治区",
+  "value": "15" },
+
+{
+  "label": "辽宁省",
+  "value": "21" },
+
+{
+  "label": "吉林省",
+  "value": "22" },
+
+{
+  "label": "黑龙江省",
+  "value": "23" },
+
+{
+  "label": "上海市",
+  "value": "31" },
+
+{
+  "label": "江苏省",
+  "value": "32" },
+
+{
+  "label": "浙江省",
+  "value": "33" },
+
+{
+  "label": "安徽省",
+  "value": "34" },
+
+{
+  "label": "福建省",
+  "value": "35" },
+
+{
+  "label": "江西省",
+  "value": "36" },
+
+{
+  "label": "山东省",
+  "value": "37" },
+
+{
+  "label": "河南省",
+  "value": "41" },
+
+{
+  "label": "湖北省",
+  "value": "42" },
+
+{
+  "label": "湖南省",
+  "value": "43" },
+
+{
+  "label": "广东省",
+  "value": "44" },
+
+{
+  "label": "广西壮族自治区",
+  "value": "45" },
+
+{
+  "label": "海南省",
+  "value": "46" },
+
+{
+  "label": "重庆市",
+  "value": "50" },
+
+{
+  "label": "四川省",
+  "value": "51" },
+
+{
+  "label": "贵州省",
+  "value": "52" },
+
+{
+  "label": "云南省",
+  "value": "53" },
+
+{
+  "label": "西藏自治区",
+  "value": "54" },
+
+{
+  "label": "陕西省",
+  "value": "61" },
+
+{
+  "label": "甘肃省",
+  "value": "62" },
+
+{
+  "label": "青海省",
+  "value": "63" },
+
+{
+  "label": "宁夏回族自治区",
+  "value": "64" },
+
+{
+  "label": "新疆维吾尔自治区",
+  "value": "65" },
+
+{
+  "label": "台湾",
+  "value": "66" },
+
+{
+  "label": "香港",
+  "value": "67" },
+
+{
+  "label": "澳门",
+  "value": "68" }];var _default =
+
+
+provinceData;exports.default = _default;
+
+/***/ }),
+
+/***/ 356:
+/*!***************************************************************************************************!*\
+  !*** C:/Users/Administrator/Desktop/mobile-app-git/components/mpvue-citypicker/city-data/city.js ***!
+  \***************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0; /* eslint-disable */
+var cityData = [
+[{
+  "label": "市辖区",
+  "value": "1101" }],
+
+[{
+  "label": "市辖区",
+  "value": "1201" }],
+
+[{
+  "label": "石家庄市",
+  "value": "1301" },
+
+{
+  "label": "唐山市",
+  "value": "1302" },
+
+{
+  "label": "秦皇岛市",
+  "value": "1303" },
+
+{
+  "label": "邯郸市",
+  "value": "1304" },
+
+{
+  "label": "邢台市",
+  "value": "1305" },
+
+{
+  "label": "保定市",
+  "value": "1306" },
+
+{
+  "label": "张家口市",
+  "value": "1307" },
+
+{
+  "label": "承德市",
+  "value": "1308" },
+
+{
+  "label": "沧州市",
+  "value": "1309" },
+
+{
+  "label": "廊坊市",
+  "value": "1310" },
+
+{
+  "label": "衡水市",
+  "value": "1311" }],
+
+
+[{
+  "label": "太原市",
+  "value": "1401" },
+
+{
+  "label": "大同市",
+  "value": "1402" },
+
+{
+  "label": "阳泉市",
+  "value": "1403" },
+
+{
+  "label": "长治市",
+  "value": "1404" },
+
+{
+  "label": "晋城市",
+  "value": "1405" },
+
+{
+  "label": "朔州市",
+  "value": "1406" },
+
+{
+  "label": "晋中市",
+  "value": "1407" },
+
+{
+  "label": "运城市",
+  "value": "1408" },
+
+{
+  "label": "忻州市",
+  "value": "1409" },
+
+{
+  "label": "临汾市",
+  "value": "1410" },
+
+{
+  "label": "吕梁市",
+  "value": "1411" }],
+
+
+[{
+  "label": "呼和浩特市",
+  "value": "1501" },
+
+{
+  "label": "包头市",
+  "value": "1502" },
+
+{
+  "label": "乌海市",
+  "value": "1503" },
+
+{
+  "label": "赤峰市",
+  "value": "1504" },
+
+{
+  "label": "通辽市",
+  "value": "1505" },
+
+{
+  "label": "鄂尔多斯市",
+  "value": "1506" },
+
+{
+  "label": "呼伦贝尔市",
+  "value": "1507" },
+
+{
+  "label": "巴彦淖尔市",
+  "value": "1508" },
+
+{
+  "label": "乌兰察布市",
+  "value": "1509" },
+
+{
+  "label": "兴安盟",
+  "value": "1522" },
+
+{
+  "label": "锡林郭勒盟",
+  "value": "1525" },
+
+{
+  "label": "阿拉善盟",
+  "value": "1529" }],
+
+
+[{
+  "label": "沈阳市",
+  "value": "2101" },
+
+{
+  "label": "大连市",
+  "value": "2102" },
+
+{
+  "label": "鞍山市",
+  "value": "2103" },
+
+{
+  "label": "抚顺市",
+  "value": "2104" },
+
+{
+  "label": "本溪市",
+  "value": "2105" },
+
+{
+  "label": "丹东市",
+  "value": "2106" },
+
+{
+  "label": "锦州市",
+  "value": "2107" },
+
+{
+  "label": "营口市",
+  "value": "2108" },
+
+{
+  "label": "阜新市",
+  "value": "2109" },
+
+{
+  "label": "辽阳市",
+  "value": "2110" },
+
+{
+  "label": "盘锦市",
+  "value": "2111" },
+
+{
+  "label": "铁岭市",
+  "value": "2112" },
+
+{
+  "label": "朝阳市",
+  "value": "2113" },
+
+{
+  "label": "葫芦岛市",
+  "value": "2114" }],
+
+
+[{
+  "label": "长春市",
+  "value": "2201" },
+
+{
+  "label": "吉林市",
+  "value": "2202" },
+
+{
+  "label": "四平市",
+  "value": "2203" },
+
+{
+  "label": "辽源市",
+  "value": "2204" },
+
+{
+  "label": "通化市",
+  "value": "2205" },
+
+{
+  "label": "白山市",
+  "value": "2206" },
+
+{
+  "label": "松原市",
+  "value": "2207" },
+
+{
+  "label": "白城市",
+  "value": "2208" },
+
+{
+  "label": "延边朝鲜族自治州",
+  "value": "2224" }],
+
+
+[{
+  "label": "哈尔滨市",
+  "value": "2301" },
+
+{
+  "label": "齐齐哈尔市",
+  "value": "2302" },
+
+{
+  "label": "鸡西市",
+  "value": "2303" },
+
+{
+  "label": "鹤岗市",
+  "value": "2304" },
+
+{
+  "label": "双鸭山市",
+  "value": "2305" },
+
+{
+  "label": "大庆市",
+  "value": "2306" },
+
+{
+  "label": "伊春市",
+  "value": "2307" },
+
+{
+  "label": "佳木斯市",
+  "value": "2308" },
+
+{
+  "label": "七台河市",
+  "value": "2309" },
+
+{
+  "label": "牡丹江市",
+  "value": "2310" },
+
+{
+  "label": "黑河市",
+  "value": "2311" },
+
+{
+  "label": "绥化市",
+  "value": "2312" },
+
+{
+  "label": "大兴安岭地区",
+  "value": "2327" }],
+
+
+[{
+  "label": "市辖区",
+  "value": "3101" }],
+
+[{
+  "label": "南京市",
+  "value": "3201" },
+
+{
+  "label": "无锡市",
+  "value": "3202" },
+
+{
+  "label": "徐州市",
+  "value": "3203" },
+
+{
+  "label": "常州市",
+  "value": "3204" },
+
+{
+  "label": "苏州市",
+  "value": "3205" },
+
+{
+  "label": "南通市",
+  "value": "3206" },
+
+{
+  "label": "连云港市",
+  "value": "3207" },
+
+{
+  "label": "淮安市",
+  "value": "3208" },
+
+{
+  "label": "盐城市",
+  "value": "3209" },
+
+{
+  "label": "扬州市",
+  "value": "3210" },
+
+{
+  "label": "镇江市",
+  "value": "3211" },
+
+{
+  "label": "泰州市",
+  "value": "3212" },
+
+{
+  "label": "宿迁市",
+  "value": "3213" }],
+
+
+[{
+  "label": "杭州市",
+  "value": "3301" },
+
+{
+  "label": "宁波市",
+  "value": "3302" },
+
+{
+  "label": "温州市",
+  "value": "3303" },
+
+{
+  "label": "嘉兴市",
+  "value": "3304" },
+
+{
+  "label": "湖州市",
+  "value": "3305" },
+
+{
+  "label": "绍兴市",
+  "value": "3306" },
+
+{
+  "label": "金华市",
+  "value": "3307" },
+
+{
+  "label": "衢州市",
+  "value": "3308" },
+
+{
+  "label": "舟山市",
+  "value": "3309" },
+
+{
+  "label": "台州市",
+  "value": "3310" },
+
+{
+  "label": "丽水市",
+  "value": "3311" }],
+
+
+[{
+  "label": "合肥市",
+  "value": "3401" },
+
+{
+  "label": "芜湖市",
+  "value": "3402" },
+
+{
+  "label": "蚌埠市",
+  "value": "3403" },
+
+{
+  "label": "淮南市",
+  "value": "3404" },
+
+{
+  "label": "马鞍山市",
+  "value": "3405" },
+
+{
+  "label": "淮北市",
+  "value": "3406" },
+
+{
+  "label": "铜陵市",
+  "value": "3407" },
+
+{
+  "label": "安庆市",
+  "value": "3408" },
+
+{
+  "label": "黄山市",
+  "value": "3410" },
+
+{
+  "label": "滁州市",
+  "value": "3411" },
+
+{
+  "label": "阜阳市",
+  "value": "3412" },
+
+{
+  "label": "宿州市",
+  "value": "3413" },
+
+{
+  "label": "六安市",
+  "value": "3415" },
+
+{
+  "label": "亳州市",
+  "value": "3416" },
+
+{
+  "label": "池州市",
+  "value": "3417" },
+
+{
+  "label": "宣城市",
+  "value": "3418" }],
+
+
+[{
+  "label": "福州市",
+  "value": "3501" },
+
+{
+  "label": "厦门市",
+  "value": "3502" },
+
+{
+  "label": "莆田市",
+  "value": "3503" },
+
+{
+  "label": "三明市",
+  "value": "3504" },
+
+{
+  "label": "泉州市",
+  "value": "3505" },
+
+{
+  "label": "漳州市",
+  "value": "3506" },
+
+{
+  "label": "南平市",
+  "value": "3507" },
+
+{
+  "label": "龙岩市",
+  "value": "3508" },
+
+{
+  "label": "宁德市",
+  "value": "3509" }],
+
+
+[{
+  "label": "南昌市",
+  "value": "3601" },
+
+{
+  "label": "景德镇市",
+  "value": "3602" },
+
+{
+  "label": "萍乡市",
+  "value": "3603" },
+
+{
+  "label": "九江市",
+  "value": "3604" },
+
+{
+  "label": "新余市",
+  "value": "3605" },
+
+{
+  "label": "鹰潭市",
+  "value": "3606" },
+
+{
+  "label": "赣州市",
+  "value": "3607" },
+
+{
+  "label": "吉安市",
+  "value": "3608" },
+
+{
+  "label": "宜春市",
+  "value": "3609" },
+
+{
+  "label": "抚州市",
+  "value": "3610" },
+
+{
+  "label": "上饶市",
+  "value": "3611" }],
+
+
+[{
+  "label": "济南市",
+  "value": "3701" },
+
+{
+  "label": "青岛市",
+  "value": "3702" },
+
+{
+  "label": "淄博市",
+  "value": "3703" },
+
+{
+  "label": "枣庄市",
+  "value": "3704" },
+
+{
+  "label": "东营市",
+  "value": "3705" },
+
+{
+  "label": "烟台市",
+  "value": "3706" },
+
+{
+  "label": "潍坊市",
+  "value": "3707" },
+
+{
+  "label": "济宁市",
+  "value": "3708" },
+
+{
+  "label": "泰安市",
+  "value": "3709" },
+
+{
+  "label": "威海市",
+  "value": "3710" },
+
+{
+  "label": "日照市",
+  "value": "3711" },
+
+{
+  "label": "莱芜市",
+  "value": "3712" },
+
+{
+  "label": "临沂市",
+  "value": "3713" },
+
+{
+  "label": "德州市",
+  "value": "3714" },
+
+{
+  "label": "聊城市",
+  "value": "3715" },
+
+{
+  "label": "滨州市",
+  "value": "3716" },
+
+{
+  "label": "菏泽市",
+  "value": "3717" }],
+
+
+[{
+  "label": "郑州市",
+  "value": "4101" },
+
+{
+  "label": "开封市",
+  "value": "4102" },
+
+{
+  "label": "洛阳市",
+  "value": "4103" },
+
+{
+  "label": "平顶山市",
+  "value": "4104" },
+
+{
+  "label": "安阳市",
+  "value": "4105" },
+
+{
+  "label": "鹤壁市",
+  "value": "4106" },
+
+{
+  "label": "新乡市",
+  "value": "4107" },
+
+{
+  "label": "焦作市",
+  "value": "4108" },
+
+{
+  "label": "濮阳市",
+  "value": "4109" },
+
+{
+  "label": "许昌市",
+  "value": "4110" },
+
+{
+  "label": "漯河市",
+  "value": "4111" },
+
+{
+  "label": "三门峡市",
+  "value": "4112" },
+
+{
+  "label": "南阳市",
+  "value": "4113" },
+
+{
+  "label": "商丘市",
+  "value": "4114" },
+
+{
+  "label": "信阳市",
+  "value": "4115" },
+
+{
+  "label": "周口市",
+  "value": "4116" },
+
+{
+  "label": "驻马店市",
+  "value": "4117" },
+
+{
+  "label": "省直辖县级行政区划",
+  "value": "4190" }],
+
+
+[{
+  "label": "武汉市",
+  "value": "4201" },
+
+{
+  "label": "黄石市",
+  "value": "4202" },
+
+{
+  "label": "十堰市",
+  "value": "4203" },
+
+{
+  "label": "宜昌市",
+  "value": "4205" },
+
+{
+  "label": "襄阳市",
+  "value": "4206" },
+
+{
+  "label": "鄂州市",
+  "value": "4207" },
+
+{
+  "label": "荆门市",
+  "value": "4208" },
+
+{
+  "label": "孝感市",
+  "value": "4209" },
+
+{
+  "label": "荆州市",
+  "value": "4210" },
+
+{
+  "label": "黄冈市",
+  "value": "4211" },
+
+{
+  "label": "咸宁市",
+  "value": "4212" },
+
+{
+  "label": "随州市",
+  "value": "4213" },
+
+{
+  "label": "恩施土家族苗族自治州",
+  "value": "4228" },
+
+{
+  "label": "省直辖县级行政区划",
+  "value": "4290" }],
+
+
+[{
+  "label": "长沙市",
+  "value": "4301" },
+
+{
+  "label": "株洲市",
+  "value": "4302" },
+
+{
+  "label": "湘潭市",
+  "value": "4303" },
+
+{
+  "label": "衡阳市",
+  "value": "4304" },
+
+{
+  "label": "邵阳市",
+  "value": "4305" },
+
+{
+  "label": "岳阳市",
+  "value": "4306" },
+
+{
+  "label": "常德市",
+  "value": "4307" },
+
+{
+  "label": "张家界市",
+  "value": "4308" },
+
+{
+  "label": "益阳市",
+  "value": "4309" },
+
+{
+  "label": "郴州市",
+  "value": "4310" },
+
+{
+  "label": "永州市",
+  "value": "4311" },
+
+{
+  "label": "怀化市",
+  "value": "4312" },
+
+{
+  "label": "娄底市",
+  "value": "4313" },
+
+{
+  "label": "湘西土家族苗族自治州",
+  "value": "4331" }],
+
+
+[{
+  "label": "广州市",
+  "value": "4401" },
+
+{
+  "label": "韶关市",
+  "value": "4402" },
+
+{
+  "label": "深圳市",
+  "value": "4403" },
+
+{
+  "label": "珠海市",
+  "value": "4404" },
+
+{
+  "label": "汕头市",
+  "value": "4405" },
+
+{
+  "label": "佛山市",
+  "value": "4406" },
+
+{
+  "label": "江门市",
+  "value": "4407" },
+
+{
+  "label": "湛江市",
+  "value": "4408" },
+
+{
+  "label": "茂名市",
+  "value": "4409" },
+
+{
+  "label": "肇庆市",
+  "value": "4412" },
+
+{
+  "label": "惠州市",
+  "value": "4413" },
+
+{
+  "label": "梅州市",
+  "value": "4414" },
+
+{
+  "label": "汕尾市",
+  "value": "4415" },
+
+{
+  "label": "河源市",
+  "value": "4416" },
+
+{
+  "label": "阳江市",
+  "value": "4417" },
+
+{
+  "label": "清远市",
+  "value": "4418" },
+
+{
+  "label": "东莞市",
+  "value": "4419" },
+
+{
+  "label": "中山市",
+  "value": "4420" },
+
+{
+  "label": "潮州市",
+  "value": "4451" },
+
+{
+  "label": "揭阳市",
+  "value": "4452" },
+
+{
+  "label": "云浮市",
+  "value": "4453" }],
+
+
+[{
+  "label": "南宁市",
+  "value": "4501" },
+
+{
+  "label": "柳州市",
+  "value": "4502" },
+
+{
+  "label": "桂林市",
+  "value": "4503" },
+
+{
+  "label": "梧州市",
+  "value": "4504" },
+
+{
+  "label": "北海市",
+  "value": "4505" },
+
+{
+  "label": "防城港市",
+  "value": "4506" },
+
+{
+  "label": "钦州市",
+  "value": "4507" },
+
+{
+  "label": "贵港市",
+  "value": "4508" },
+
+{
+  "label": "玉林市",
+  "value": "4509" },
+
+{
+  "label": "百色市",
+  "value": "4510" },
+
+{
+  "label": "贺州市",
+  "value": "4511" },
+
+{
+  "label": "河池市",
+  "value": "4512" },
+
+{
+  "label": "来宾市",
+  "value": "4513" },
+
+{
+  "label": "崇左市",
+  "value": "4514" }],
+
+
+[{
+  "label": "海口市",
+  "value": "4601" },
+
+{
+  "label": "三亚市",
+  "value": "4602" },
+
+{
+  "label": "三沙市",
+  "value": "4603" },
+
+{
+  "label": "儋州市",
+  "value": "4604" },
+
+{
+  "label": "省直辖县级行政区划",
+  "value": "4690" }],
+
+
+[{
+  "label": "市辖区",
+  "value": "5001" },
+
+{
+  "label": "县",
+  "value": "5002" }],
+
+
+[{
+  "label": "成都市",
+  "value": "5101" },
+
+{
+  "label": "自贡市",
+  "value": "5103" },
+
+{
+  "label": "攀枝花市",
+  "value": "5104" },
+
+{
+  "label": "泸州市",
+  "value": "5105" },
+
+{
+  "label": "德阳市",
+  "value": "5106" },
+
+{
+  "label": "绵阳市",
+  "value": "5107" },
+
+{
+  "label": "广元市",
+  "value": "5108" },
+
+{
+  "label": "遂宁市",
+  "value": "5109" },
+
+{
+  "label": "内江市",
+  "value": "5110" },
+
+{
+  "label": "乐山市",
+  "value": "5111" },
+
+{
+  "label": "南充市",
+  "value": "5113" },
+
+{
+  "label": "眉山市",
+  "value": "5114" },
+
+{
+  "label": "宜宾市",
+  "value": "5115" },
+
+{
+  "label": "广安市",
+  "value": "5116" },
+
+{
+  "label": "达州市",
+  "value": "5117" },
+
+{
+  "label": "雅安市",
+  "value": "5118" },
+
+{
+  "label": "巴中市",
+  "value": "5119" },
+
+{
+  "label": "资阳市",
+  "value": "5120" },
+
+{
+  "label": "阿坝藏族羌族自治州",
+  "value": "5132" },
+
+{
+  "label": "甘孜藏族自治州",
+  "value": "5133" },
+
+{
+  "label": "凉山彝族自治州",
+  "value": "5134" }],
+
+
+[{
+  "label": "贵阳市",
+  "value": "5201" },
+
+{
+  "label": "六盘水市",
+  "value": "5202" },
+
+{
+  "label": "遵义市",
+  "value": "5203" },
+
+{
+  "label": "安顺市",
+  "value": "5204" },
+
+{
+  "label": "毕节市",
+  "value": "5205" },
+
+{
+  "label": "铜仁市",
+  "value": "5206" },
+
+{
+  "label": "黔西南布依族苗族自治州",
+  "value": "5223" },
+
+{
+  "label": "黔东南苗族侗族自治州",
+  "value": "5226" },
+
+{
+  "label": "黔南布依族苗族自治州",
+  "value": "5227" }],
+
+
+[{
+  "label": "昆明市",
+  "value": "5301" },
+
+{
+  "label": "曲靖市",
+  "value": "5303" },
+
+{
+  "label": "玉溪市",
+  "value": "5304" },
+
+{
+  "label": "保山市",
+  "value": "5305" },
+
+{
+  "label": "昭通市",
+  "value": "5306" },
+
+{
+  "label": "丽江市",
+  "value": "5307" },
+
+{
+  "label": "普洱市",
+  "value": "5308" },
+
+{
+  "label": "临沧市",
+  "value": "5309" },
+
+{
+  "label": "楚雄彝族自治州",
+  "value": "5323" },
+
+{
+  "label": "红河哈尼族彝族自治州",
+  "value": "5325" },
+
+{
+  "label": "文山壮族苗族自治州",
+  "value": "5326" },
+
+{
+  "label": "西双版纳傣族自治州",
+  "value": "5328" },
+
+{
+  "label": "大理白族自治州",
+  "value": "5329" },
+
+{
+  "label": "德宏傣族景颇族自治州",
+  "value": "5331" },
+
+{
+  "label": "怒江傈僳族自治州",
+  "value": "5333" },
+
+{
+  "label": "迪庆藏族自治州",
+  "value": "5334" }],
+
+
+[{
+  "label": "拉萨市",
+  "value": "5401" },
+
+{
+  "label": "日喀则市",
+  "value": "5402" },
+
+{
+  "label": "昌都市",
+  "value": "5403" },
+
+{
+  "label": "林芝市",
+  "value": "5404" },
+
+{
+  "label": "山南市",
+  "value": "5405" },
+
+{
+  "label": "那曲地区",
+  "value": "5424" },
+
+{
+  "label": "阿里地区",
+  "value": "5425" }],
+
+
+[{
+  "label": "西安市",
+  "value": "6101" },
+
+{
+  "label": "铜川市",
+  "value": "6102" },
+
+{
+  "label": "宝鸡市",
+  "value": "6103" },
+
+{
+  "label": "咸阳市",
+  "value": "6104" },
+
+{
+  "label": "渭南市",
+  "value": "6105" },
+
+{
+  "label": "延安市",
+  "value": "6106" },
+
+{
+  "label": "汉中市",
+  "value": "6107" },
+
+{
+  "label": "榆林市",
+  "value": "6108" },
+
+{
+  "label": "安康市",
+  "value": "6109" },
+
+{
+  "label": "商洛市",
+  "value": "6110" }],
+
+
+[{
+  "label": "兰州市",
+  "value": "6201" },
+
+{
+  "label": "嘉峪关市",
+  "value": "6202" },
+
+{
+  "label": "金昌市",
+  "value": "6203" },
+
+{
+  "label": "白银市",
+  "value": "6204" },
+
+{
+  "label": "天水市",
+  "value": "6205" },
+
+{
+  "label": "武威市",
+  "value": "6206" },
+
+{
+  "label": "张掖市",
+  "value": "6207" },
+
+{
+  "label": "平凉市",
+  "value": "6208" },
+
+{
+  "label": "酒泉市",
+  "value": "6209" },
+
+{
+  "label": "庆阳市",
+  "value": "6210" },
+
+{
+  "label": "定西市",
+  "value": "6211" },
+
+{
+  "label": "陇南市",
+  "value": "6212" },
+
+{
+  "label": "临夏回族自治州",
+  "value": "6229" },
+
+{
+  "label": "甘南藏族自治州",
+  "value": "6230" }],
+
+
+[{
+  "label": "西宁市",
+  "value": "6301" },
+
+{
+  "label": "海东市",
+  "value": "6302" },
+
+{
+  "label": "海北藏族自治州",
+  "value": "6322" },
+
+{
+  "label": "黄南藏族自治州",
+  "value": "6323" },
+
+{
+  "label": "海南藏族自治州",
+  "value": "6325" },
+
+{
+  "label": "果洛藏族自治州",
+  "value": "6326" },
+
+{
+  "label": "玉树藏族自治州",
+  "value": "6327" },
+
+{
+  "label": "海西蒙古族藏族自治州",
+  "value": "6328" }],
+
+
+[{
+  "label": "银川市",
+  "value": "6401" },
+
+{
+  "label": "石嘴山市",
+  "value": "6402" },
+
+{
+  "label": "吴忠市",
+  "value": "6403" },
+
+{
+  "label": "固原市",
+  "value": "6404" },
+
+{
+  "label": "中卫市",
+  "value": "6405" }],
+
+
+[{
+  "label": "乌鲁木齐市",
+  "value": "6501" },
+
+{
+  "label": "克拉玛依市",
+  "value": "6502" },
+
+{
+  "label": "吐鲁番市",
+  "value": "6504" },
+
+{
+  "label": "哈密市",
+  "value": "6505" },
+
+{
+  "label": "昌吉回族自治州",
+  "value": "6523" },
+
+{
+  "label": "博尔塔拉蒙古自治州",
+  "value": "6527" },
+
+{
+  "label": "巴音郭楞蒙古自治州",
+  "value": "6528" },
+
+{
+  "label": "阿克苏地区",
+  "value": "6529" },
+
+{
+  "label": "克孜勒苏柯尔克孜自治州",
+  "value": "6530" },
+
+{
+  "label": "喀什地区",
+  "value": "6531" },
+
+{
+  "label": "和田地区",
+  "value": "6532" },
+
+{
+  "label": "伊犁哈萨克自治州",
+  "value": "6540" },
+
+{
+  "label": "塔城地区",
+  "value": "6542" },
+
+{
+  "label": "阿勒泰地区",
+  "value": "6543" },
+
+{
+  "label": "自治区直辖县级行政区划",
+  "value": "6590" }],
+
+
+[{
+  "label": "台北",
+  "value": "6601" },
+
+{
+  "label": "高雄",
+  "value": "6602" },
+
+{
+  "label": "基隆",
+  "value": "6603" },
+
+{
+  "label": "台中",
+  "value": "6604" },
+
+{
+  "label": "台南",
+  "value": "6605" },
+
+{
+  "label": "新竹",
+  "value": "6606" },
+
+{
+  "label": "嘉义",
+  "value": "6607" },
+
+{
+  "label": "宜兰",
+  "value": "6608" },
+
+{
+  "label": "桃园",
+  "value": "6609" },
+
+{
+  "label": "苗栗",
+  "value": "6610" },
+
+{
+  "label": "彰化",
+  "value": "6611" },
+
+{
+  "label": "南投",
+  "value": "6612" },
+
+{
+  "label": "云林",
+  "value": "6613" },
+
+{
+  "label": "屏东",
+  "value": "6614" },
+
+{
+  "label": "台东",
+  "value": "6615" },
+
+{
+  "label": "花莲",
+  "value": "6616" },
+
+{
+  "label": "澎湖",
+  "value": "6617" }],
+
+
+[{
+  "label": "香港岛",
+  "value": "6701" },
+
+{
+  "label": "九龙",
+  "value": "6702" },
+
+{
+  "label": "新界",
+  "value": "6703" }],
+
+
+[{
+  "label": "澳门半岛",
+  "value": "6801" },
+
+{
+  "label": "氹仔岛",
+  "value": "6802" },
+
+{
+  "label": "路环岛",
+  "value": "6803" },
+
+{
+  "label": "路氹城",
+  "value": "6804" }]];var _default =
+
+
+
+cityData;exports.default = _default;
+
+/***/ }),
+
+/***/ 357:
+/*!***************************************************************************************************!*\
+  !*** C:/Users/Administrator/Desktop/mobile-app-git/components/mpvue-citypicker/city-data/area.js ***!
+  \***************************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -12565,11637 +21931,4205 @@ areaData;exports.default = _default;
 
 /***/ }),
 
-/***/ "../../mobile-app/components/mpvue-citypicker/city-data/city.js":
-/*!********************************************************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/mpvue-citypicker/city-data/city.js ***!
-  \********************************************************************************************************************/
+/***/ 374:
+/*!***************************************************************************!*\
+  !*** C:/Users/Administrator/Desktop/mobile-app-git/common/NativeShare.js ***!
+  \***************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0; /* eslint-disable */
-var cityData = [
-[{
-  "label": "市辖区",
-  "value": "1101" }],
-
-[{
-  "label": "市辖区",
-  "value": "1201" }],
-
-[{
-  "label": "石家庄市",
-  "value": "1301" },
-
-{
-  "label": "唐山市",
-  "value": "1302" },
-
-{
-  "label": "秦皇岛市",
-  "value": "1303" },
-
-{
-  "label": "邯郸市",
-  "value": "1304" },
-
-{
-  "label": "邢台市",
-  "value": "1305" },
-
-{
-  "label": "保定市",
-  "value": "1306" },
-
-{
-  "label": "张家口市",
-  "value": "1307" },
-
-{
-  "label": "承德市",
-  "value": "1308" },
-
-{
-  "label": "沧州市",
-  "value": "1309" },
-
-{
-  "label": "廊坊市",
-  "value": "1310" },
-
-{
-  "label": "衡水市",
-  "value": "1311" }],
-
-
-[{
-  "label": "太原市",
-  "value": "1401" },
-
-{
-  "label": "大同市",
-  "value": "1402" },
-
-{
-  "label": "阳泉市",
-  "value": "1403" },
-
-{
-  "label": "长治市",
-  "value": "1404" },
-
-{
-  "label": "晋城市",
-  "value": "1405" },
-
-{
-  "label": "朔州市",
-  "value": "1406" },
-
-{
-  "label": "晋中市",
-  "value": "1407" },
-
-{
-  "label": "运城市",
-  "value": "1408" },
-
-{
-  "label": "忻州市",
-  "value": "1409" },
-
-{
-  "label": "临汾市",
-  "value": "1410" },
-
-{
-  "label": "吕梁市",
-  "value": "1411" }],
-
-
-[{
-  "label": "呼和浩特市",
-  "value": "1501" },
-
-{
-  "label": "包头市",
-  "value": "1502" },
-
-{
-  "label": "乌海市",
-  "value": "1503" },
-
-{
-  "label": "赤峰市",
-  "value": "1504" },
-
-{
-  "label": "通辽市",
-  "value": "1505" },
-
-{
-  "label": "鄂尔多斯市",
-  "value": "1506" },
-
-{
-  "label": "呼伦贝尔市",
-  "value": "1507" },
-
-{
-  "label": "巴彦淖尔市",
-  "value": "1508" },
-
-{
-  "label": "乌兰察布市",
-  "value": "1509" },
-
-{
-  "label": "兴安盟",
-  "value": "1522" },
-
-{
-  "label": "锡林郭勒盟",
-  "value": "1525" },
-
-{
-  "label": "阿拉善盟",
-  "value": "1529" }],
-
-
-[{
-  "label": "沈阳市",
-  "value": "2101" },
-
-{
-  "label": "大连市",
-  "value": "2102" },
-
-{
-  "label": "鞍山市",
-  "value": "2103" },
-
-{
-  "label": "抚顺市",
-  "value": "2104" },
-
-{
-  "label": "本溪市",
-  "value": "2105" },
-
-{
-  "label": "丹东市",
-  "value": "2106" },
-
-{
-  "label": "锦州市",
-  "value": "2107" },
-
-{
-  "label": "营口市",
-  "value": "2108" },
-
-{
-  "label": "阜新市",
-  "value": "2109" },
-
-{
-  "label": "辽阳市",
-  "value": "2110" },
-
-{
-  "label": "盘锦市",
-  "value": "2111" },
-
-{
-  "label": "铁岭市",
-  "value": "2112" },
-
-{
-  "label": "朝阳市",
-  "value": "2113" },
-
-{
-  "label": "葫芦岛市",
-  "value": "2114" }],
-
-
-[{
-  "label": "长春市",
-  "value": "2201" },
-
-{
-  "label": "吉林市",
-  "value": "2202" },
-
-{
-  "label": "四平市",
-  "value": "2203" },
-
-{
-  "label": "辽源市",
-  "value": "2204" },
-
-{
-  "label": "通化市",
-  "value": "2205" },
-
-{
-  "label": "白山市",
-  "value": "2206" },
-
-{
-  "label": "松原市",
-  "value": "2207" },
-
-{
-  "label": "白城市",
-  "value": "2208" },
-
-{
-  "label": "延边朝鲜族自治州",
-  "value": "2224" }],
-
-
-[{
-  "label": "哈尔滨市",
-  "value": "2301" },
-
-{
-  "label": "齐齐哈尔市",
-  "value": "2302" },
-
-{
-  "label": "鸡西市",
-  "value": "2303" },
-
-{
-  "label": "鹤岗市",
-  "value": "2304" },
-
-{
-  "label": "双鸭山市",
-  "value": "2305" },
-
-{
-  "label": "大庆市",
-  "value": "2306" },
-
-{
-  "label": "伊春市",
-  "value": "2307" },
-
-{
-  "label": "佳木斯市",
-  "value": "2308" },
-
-{
-  "label": "七台河市",
-  "value": "2309" },
-
-{
-  "label": "牡丹江市",
-  "value": "2310" },
-
-{
-  "label": "黑河市",
-  "value": "2311" },
-
-{
-  "label": "绥化市",
-  "value": "2312" },
-
-{
-  "label": "大兴安岭地区",
-  "value": "2327" }],
-
-
-[{
-  "label": "市辖区",
-  "value": "3101" }],
-
-[{
-  "label": "南京市",
-  "value": "3201" },
-
-{
-  "label": "无锡市",
-  "value": "3202" },
-
-{
-  "label": "徐州市",
-  "value": "3203" },
-
-{
-  "label": "常州市",
-  "value": "3204" },
-
-{
-  "label": "苏州市",
-  "value": "3205" },
-
-{
-  "label": "南通市",
-  "value": "3206" },
-
-{
-  "label": "连云港市",
-  "value": "3207" },
-
-{
-  "label": "淮安市",
-  "value": "3208" },
-
-{
-  "label": "盐城市",
-  "value": "3209" },
-
-{
-  "label": "扬州市",
-  "value": "3210" },
-
-{
-  "label": "镇江市",
-  "value": "3211" },
-
-{
-  "label": "泰州市",
-  "value": "3212" },
-
-{
-  "label": "宿迁市",
-  "value": "3213" }],
-
-
-[{
-  "label": "杭州市",
-  "value": "3301" },
-
-{
-  "label": "宁波市",
-  "value": "3302" },
-
-{
-  "label": "温州市",
-  "value": "3303" },
-
-{
-  "label": "嘉兴市",
-  "value": "3304" },
-
-{
-  "label": "湖州市",
-  "value": "3305" },
-
-{
-  "label": "绍兴市",
-  "value": "3306" },
-
-{
-  "label": "金华市",
-  "value": "3307" },
-
-{
-  "label": "衢州市",
-  "value": "3308" },
-
-{
-  "label": "舟山市",
-  "value": "3309" },
-
-{
-  "label": "台州市",
-  "value": "3310" },
-
-{
-  "label": "丽水市",
-  "value": "3311" }],
-
-
-[{
-  "label": "合肥市",
-  "value": "3401" },
-
-{
-  "label": "芜湖市",
-  "value": "3402" },
-
-{
-  "label": "蚌埠市",
-  "value": "3403" },
-
-{
-  "label": "淮南市",
-  "value": "3404" },
-
-{
-  "label": "马鞍山市",
-  "value": "3405" },
-
-{
-  "label": "淮北市",
-  "value": "3406" },
-
-{
-  "label": "铜陵市",
-  "value": "3407" },
-
-{
-  "label": "安庆市",
-  "value": "3408" },
-
-{
-  "label": "黄山市",
-  "value": "3410" },
-
-{
-  "label": "滁州市",
-  "value": "3411" },
-
-{
-  "label": "阜阳市",
-  "value": "3412" },
-
-{
-  "label": "宿州市",
-  "value": "3413" },
-
-{
-  "label": "六安市",
-  "value": "3415" },
-
-{
-  "label": "亳州市",
-  "value": "3416" },
-
-{
-  "label": "池州市",
-  "value": "3417" },
-
-{
-  "label": "宣城市",
-  "value": "3418" }],
-
-
-[{
-  "label": "福州市",
-  "value": "3501" },
-
-{
-  "label": "厦门市",
-  "value": "3502" },
-
-{
-  "label": "莆田市",
-  "value": "3503" },
-
-{
-  "label": "三明市",
-  "value": "3504" },
-
-{
-  "label": "泉州市",
-  "value": "3505" },
-
-{
-  "label": "漳州市",
-  "value": "3506" },
-
-{
-  "label": "南平市",
-  "value": "3507" },
-
-{
-  "label": "龙岩市",
-  "value": "3508" },
-
-{
-  "label": "宁德市",
-  "value": "3509" }],
-
-
-[{
-  "label": "南昌市",
-  "value": "3601" },
-
-{
-  "label": "景德镇市",
-  "value": "3602" },
-
-{
-  "label": "萍乡市",
-  "value": "3603" },
-
-{
-  "label": "九江市",
-  "value": "3604" },
-
-{
-  "label": "新余市",
-  "value": "3605" },
-
-{
-  "label": "鹰潭市",
-  "value": "3606" },
-
-{
-  "label": "赣州市",
-  "value": "3607" },
-
-{
-  "label": "吉安市",
-  "value": "3608" },
-
-{
-  "label": "宜春市",
-  "value": "3609" },
-
-{
-  "label": "抚州市",
-  "value": "3610" },
-
-{
-  "label": "上饶市",
-  "value": "3611" }],
-
-
-[{
-  "label": "济南市",
-  "value": "3701" },
-
-{
-  "label": "青岛市",
-  "value": "3702" },
-
-{
-  "label": "淄博市",
-  "value": "3703" },
-
-{
-  "label": "枣庄市",
-  "value": "3704" },
-
-{
-  "label": "东营市",
-  "value": "3705" },
-
-{
-  "label": "烟台市",
-  "value": "3706" },
-
-{
-  "label": "潍坊市",
-  "value": "3707" },
-
-{
-  "label": "济宁市",
-  "value": "3708" },
-
-{
-  "label": "泰安市",
-  "value": "3709" },
-
-{
-  "label": "威海市",
-  "value": "3710" },
-
-{
-  "label": "日照市",
-  "value": "3711" },
-
-{
-  "label": "莱芜市",
-  "value": "3712" },
-
-{
-  "label": "临沂市",
-  "value": "3713" },
-
-{
-  "label": "德州市",
-  "value": "3714" },
-
-{
-  "label": "聊城市",
-  "value": "3715" },
-
-{
-  "label": "滨州市",
-  "value": "3716" },
-
-{
-  "label": "菏泽市",
-  "value": "3717" }],
-
-
-[{
-  "label": "郑州市",
-  "value": "4101" },
-
-{
-  "label": "开封市",
-  "value": "4102" },
-
-{
-  "label": "洛阳市",
-  "value": "4103" },
-
-{
-  "label": "平顶山市",
-  "value": "4104" },
-
-{
-  "label": "安阳市",
-  "value": "4105" },
-
-{
-  "label": "鹤壁市",
-  "value": "4106" },
-
-{
-  "label": "新乡市",
-  "value": "4107" },
-
-{
-  "label": "焦作市",
-  "value": "4108" },
-
-{
-  "label": "濮阳市",
-  "value": "4109" },
-
-{
-  "label": "许昌市",
-  "value": "4110" },
-
-{
-  "label": "漯河市",
-  "value": "4111" },
-
-{
-  "label": "三门峡市",
-  "value": "4112" },
-
-{
-  "label": "南阳市",
-  "value": "4113" },
-
-{
-  "label": "商丘市",
-  "value": "4114" },
-
-{
-  "label": "信阳市",
-  "value": "4115" },
-
-{
-  "label": "周口市",
-  "value": "4116" },
-
-{
-  "label": "驻马店市",
-  "value": "4117" },
-
-{
-  "label": "省直辖县级行政区划",
-  "value": "4190" }],
-
-
-[{
-  "label": "武汉市",
-  "value": "4201" },
-
-{
-  "label": "黄石市",
-  "value": "4202" },
-
-{
-  "label": "十堰市",
-  "value": "4203" },
-
-{
-  "label": "宜昌市",
-  "value": "4205" },
-
-{
-  "label": "襄阳市",
-  "value": "4206" },
-
-{
-  "label": "鄂州市",
-  "value": "4207" },
-
-{
-  "label": "荆门市",
-  "value": "4208" },
-
-{
-  "label": "孝感市",
-  "value": "4209" },
-
-{
-  "label": "荆州市",
-  "value": "4210" },
-
-{
-  "label": "黄冈市",
-  "value": "4211" },
-
-{
-  "label": "咸宁市",
-  "value": "4212" },
-
-{
-  "label": "随州市",
-  "value": "4213" },
-
-{
-  "label": "恩施土家族苗族自治州",
-  "value": "4228" },
-
-{
-  "label": "省直辖县级行政区划",
-  "value": "4290" }],
-
-
-[{
-  "label": "长沙市",
-  "value": "4301" },
-
-{
-  "label": "株洲市",
-  "value": "4302" },
-
-{
-  "label": "湘潭市",
-  "value": "4303" },
-
-{
-  "label": "衡阳市",
-  "value": "4304" },
-
-{
-  "label": "邵阳市",
-  "value": "4305" },
-
-{
-  "label": "岳阳市",
-  "value": "4306" },
-
-{
-  "label": "常德市",
-  "value": "4307" },
-
-{
-  "label": "张家界市",
-  "value": "4308" },
-
-{
-  "label": "益阳市",
-  "value": "4309" },
-
-{
-  "label": "郴州市",
-  "value": "4310" },
-
-{
-  "label": "永州市",
-  "value": "4311" },
-
-{
-  "label": "怀化市",
-  "value": "4312" },
-
-{
-  "label": "娄底市",
-  "value": "4313" },
-
-{
-  "label": "湘西土家族苗族自治州",
-  "value": "4331" }],
-
-
-[{
-  "label": "广州市",
-  "value": "4401" },
-
-{
-  "label": "韶关市",
-  "value": "4402" },
-
-{
-  "label": "深圳市",
-  "value": "4403" },
-
-{
-  "label": "珠海市",
-  "value": "4404" },
-
-{
-  "label": "汕头市",
-  "value": "4405" },
-
-{
-  "label": "佛山市",
-  "value": "4406" },
-
-{
-  "label": "江门市",
-  "value": "4407" },
-
-{
-  "label": "湛江市",
-  "value": "4408" },
-
-{
-  "label": "茂名市",
-  "value": "4409" },
-
-{
-  "label": "肇庆市",
-  "value": "4412" },
-
-{
-  "label": "惠州市",
-  "value": "4413" },
-
-{
-  "label": "梅州市",
-  "value": "4414" },
-
-{
-  "label": "汕尾市",
-  "value": "4415" },
-
-{
-  "label": "河源市",
-  "value": "4416" },
-
-{
-  "label": "阳江市",
-  "value": "4417" },
-
-{
-  "label": "清远市",
-  "value": "4418" },
-
-{
-  "label": "东莞市",
-  "value": "4419" },
-
-{
-  "label": "中山市",
-  "value": "4420" },
-
-{
-  "label": "潮州市",
-  "value": "4451" },
-
-{
-  "label": "揭阳市",
-  "value": "4452" },
-
-{
-  "label": "云浮市",
-  "value": "4453" }],
-
-
-[{
-  "label": "南宁市",
-  "value": "4501" },
-
-{
-  "label": "柳州市",
-  "value": "4502" },
-
-{
-  "label": "桂林市",
-  "value": "4503" },
-
-{
-  "label": "梧州市",
-  "value": "4504" },
-
-{
-  "label": "北海市",
-  "value": "4505" },
-
-{
-  "label": "防城港市",
-  "value": "4506" },
-
-{
-  "label": "钦州市",
-  "value": "4507" },
-
-{
-  "label": "贵港市",
-  "value": "4508" },
-
-{
-  "label": "玉林市",
-  "value": "4509" },
-
-{
-  "label": "百色市",
-  "value": "4510" },
-
-{
-  "label": "贺州市",
-  "value": "4511" },
-
-{
-  "label": "河池市",
-  "value": "4512" },
-
-{
-  "label": "来宾市",
-  "value": "4513" },
-
-{
-  "label": "崇左市",
-  "value": "4514" }],
-
-
-[{
-  "label": "海口市",
-  "value": "4601" },
-
-{
-  "label": "三亚市",
-  "value": "4602" },
-
-{
-  "label": "三沙市",
-  "value": "4603" },
-
-{
-  "label": "儋州市",
-  "value": "4604" },
-
-{
-  "label": "省直辖县级行政区划",
-  "value": "4690" }],
-
-
-[{
-  "label": "市辖区",
-  "value": "5001" },
-
-{
-  "label": "县",
-  "value": "5002" }],
-
-
-[{
-  "label": "成都市",
-  "value": "5101" },
-
-{
-  "label": "自贡市",
-  "value": "5103" },
-
-{
-  "label": "攀枝花市",
-  "value": "5104" },
-
-{
-  "label": "泸州市",
-  "value": "5105" },
-
-{
-  "label": "德阳市",
-  "value": "5106" },
-
-{
-  "label": "绵阳市",
-  "value": "5107" },
-
-{
-  "label": "广元市",
-  "value": "5108" },
-
-{
-  "label": "遂宁市",
-  "value": "5109" },
-
-{
-  "label": "内江市",
-  "value": "5110" },
-
-{
-  "label": "乐山市",
-  "value": "5111" },
-
-{
-  "label": "南充市",
-  "value": "5113" },
-
-{
-  "label": "眉山市",
-  "value": "5114" },
-
-{
-  "label": "宜宾市",
-  "value": "5115" },
-
-{
-  "label": "广安市",
-  "value": "5116" },
-
-{
-  "label": "达州市",
-  "value": "5117" },
-
-{
-  "label": "雅安市",
-  "value": "5118" },
-
-{
-  "label": "巴中市",
-  "value": "5119" },
-
-{
-  "label": "资阳市",
-  "value": "5120" },
-
-{
-  "label": "阿坝藏族羌族自治州",
-  "value": "5132" },
-
-{
-  "label": "甘孜藏族自治州",
-  "value": "5133" },
-
-{
-  "label": "凉山彝族自治州",
-  "value": "5134" }],
-
-
-[{
-  "label": "贵阳市",
-  "value": "5201" },
-
-{
-  "label": "六盘水市",
-  "value": "5202" },
-
-{
-  "label": "遵义市",
-  "value": "5203" },
-
-{
-  "label": "安顺市",
-  "value": "5204" },
-
-{
-  "label": "毕节市",
-  "value": "5205" },
-
-{
-  "label": "铜仁市",
-  "value": "5206" },
-
-{
-  "label": "黔西南布依族苗族自治州",
-  "value": "5223" },
-
-{
-  "label": "黔东南苗族侗族自治州",
-  "value": "5226" },
-
-{
-  "label": "黔南布依族苗族自治州",
-  "value": "5227" }],
-
-
-[{
-  "label": "昆明市",
-  "value": "5301" },
-
-{
-  "label": "曲靖市",
-  "value": "5303" },
-
-{
-  "label": "玉溪市",
-  "value": "5304" },
-
-{
-  "label": "保山市",
-  "value": "5305" },
-
-{
-  "label": "昭通市",
-  "value": "5306" },
-
-{
-  "label": "丽江市",
-  "value": "5307" },
-
-{
-  "label": "普洱市",
-  "value": "5308" },
-
-{
-  "label": "临沧市",
-  "value": "5309" },
-
-{
-  "label": "楚雄彝族自治州",
-  "value": "5323" },
-
-{
-  "label": "红河哈尼族彝族自治州",
-  "value": "5325" },
-
-{
-  "label": "文山壮族苗族自治州",
-  "value": "5326" },
-
-{
-  "label": "西双版纳傣族自治州",
-  "value": "5328" },
-
-{
-  "label": "大理白族自治州",
-  "value": "5329" },
-
-{
-  "label": "德宏傣族景颇族自治州",
-  "value": "5331" },
-
-{
-  "label": "怒江傈僳族自治州",
-  "value": "5333" },
-
-{
-  "label": "迪庆藏族自治州",
-  "value": "5334" }],
-
-
-[{
-  "label": "拉萨市",
-  "value": "5401" },
-
-{
-  "label": "日喀则市",
-  "value": "5402" },
-
-{
-  "label": "昌都市",
-  "value": "5403" },
-
-{
-  "label": "林芝市",
-  "value": "5404" },
-
-{
-  "label": "山南市",
-  "value": "5405" },
-
-{
-  "label": "那曲地区",
-  "value": "5424" },
-
-{
-  "label": "阿里地区",
-  "value": "5425" }],
-
-
-[{
-  "label": "西安市",
-  "value": "6101" },
-
-{
-  "label": "铜川市",
-  "value": "6102" },
-
-{
-  "label": "宝鸡市",
-  "value": "6103" },
-
-{
-  "label": "咸阳市",
-  "value": "6104" },
-
-{
-  "label": "渭南市",
-  "value": "6105" },
-
-{
-  "label": "延安市",
-  "value": "6106" },
-
-{
-  "label": "汉中市",
-  "value": "6107" },
-
-{
-  "label": "榆林市",
-  "value": "6108" },
-
-{
-  "label": "安康市",
-  "value": "6109" },
-
-{
-  "label": "商洛市",
-  "value": "6110" }],
-
-
-[{
-  "label": "兰州市",
-  "value": "6201" },
-
-{
-  "label": "嘉峪关市",
-  "value": "6202" },
-
-{
-  "label": "金昌市",
-  "value": "6203" },
-
-{
-  "label": "白银市",
-  "value": "6204" },
-
-{
-  "label": "天水市",
-  "value": "6205" },
-
-{
-  "label": "武威市",
-  "value": "6206" },
-
-{
-  "label": "张掖市",
-  "value": "6207" },
-
-{
-  "label": "平凉市",
-  "value": "6208" },
-
-{
-  "label": "酒泉市",
-  "value": "6209" },
-
-{
-  "label": "庆阳市",
-  "value": "6210" },
-
-{
-  "label": "定西市",
-  "value": "6211" },
-
-{
-  "label": "陇南市",
-  "value": "6212" },
-
-{
-  "label": "临夏回族自治州",
-  "value": "6229" },
-
-{
-  "label": "甘南藏族自治州",
-  "value": "6230" }],
-
-
-[{
-  "label": "西宁市",
-  "value": "6301" },
-
-{
-  "label": "海东市",
-  "value": "6302" },
-
-{
-  "label": "海北藏族自治州",
-  "value": "6322" },
-
-{
-  "label": "黄南藏族自治州",
-  "value": "6323" },
-
-{
-  "label": "海南藏族自治州",
-  "value": "6325" },
-
-{
-  "label": "果洛藏族自治州",
-  "value": "6326" },
-
-{
-  "label": "玉树藏族自治州",
-  "value": "6327" },
-
-{
-  "label": "海西蒙古族藏族自治州",
-  "value": "6328" }],
-
-
-[{
-  "label": "银川市",
-  "value": "6401" },
-
-{
-  "label": "石嘴山市",
-  "value": "6402" },
-
-{
-  "label": "吴忠市",
-  "value": "6403" },
-
-{
-  "label": "固原市",
-  "value": "6404" },
-
-{
-  "label": "中卫市",
-  "value": "6405" }],
-
-
-[{
-  "label": "乌鲁木齐市",
-  "value": "6501" },
-
-{
-  "label": "克拉玛依市",
-  "value": "6502" },
-
-{
-  "label": "吐鲁番市",
-  "value": "6504" },
-
-{
-  "label": "哈密市",
-  "value": "6505" },
-
-{
-  "label": "昌吉回族自治州",
-  "value": "6523" },
-
-{
-  "label": "博尔塔拉蒙古自治州",
-  "value": "6527" },
-
-{
-  "label": "巴音郭楞蒙古自治州",
-  "value": "6528" },
-
-{
-  "label": "阿克苏地区",
-  "value": "6529" },
-
-{
-  "label": "克孜勒苏柯尔克孜自治州",
-  "value": "6530" },
-
-{
-  "label": "喀什地区",
-  "value": "6531" },
-
-{
-  "label": "和田地区",
-  "value": "6532" },
-
-{
-  "label": "伊犁哈萨克自治州",
-  "value": "6540" },
-
-{
-  "label": "塔城地区",
-  "value": "6542" },
-
-{
-  "label": "阿勒泰地区",
-  "value": "6543" },
-
-{
-  "label": "自治区直辖县级行政区划",
-  "value": "6590" }],
-
-
-[{
-  "label": "台北",
-  "value": "6601" },
-
-{
-  "label": "高雄",
-  "value": "6602" },
-
-{
-  "label": "基隆",
-  "value": "6603" },
-
-{
-  "label": "台中",
-  "value": "6604" },
-
-{
-  "label": "台南",
-  "value": "6605" },
-
-{
-  "label": "新竹",
-  "value": "6606" },
-
-{
-  "label": "嘉义",
-  "value": "6607" },
-
-{
-  "label": "宜兰",
-  "value": "6608" },
-
-{
-  "label": "桃园",
-  "value": "6609" },
-
-{
-  "label": "苗栗",
-  "value": "6610" },
-
-{
-  "label": "彰化",
-  "value": "6611" },
-
-{
-  "label": "南投",
-  "value": "6612" },
-
-{
-  "label": "云林",
-  "value": "6613" },
-
-{
-  "label": "屏东",
-  "value": "6614" },
-
-{
-  "label": "台东",
-  "value": "6615" },
-
-{
-  "label": "花莲",
-  "value": "6616" },
-
-{
-  "label": "澎湖",
-  "value": "6617" }],
-
-
-[{
-  "label": "香港岛",
-  "value": "6701" },
-
-{
-  "label": "九龙",
-  "value": "6702" },
-
-{
-  "label": "新界",
-  "value": "6703" }],
-
-
-[{
-  "label": "澳门半岛",
-  "value": "6801" },
-
-{
-  "label": "氹仔岛",
-  "value": "6802" },
-
-{
-  "label": "路环岛",
-  "value": "6803" },
-
-{
-  "label": "路氹城",
-  "value": "6804" }]];var _default =
-
-
-
-cityData;exports.default = _default;
+!function (e, t) {
+   true ? module.exports = t() : undefined;
+}(void 0, function () {
+  return function (e) {
+    function t(r) {
+      if (n[r]) return n[r].exports;
+      var o = n[r] = {
+        i: r,
+        l: !1,
+        exports: {} };
+
+      return e[r].call(o.exports, o, o.exports, t), o.l = !0, o.exports;
+    }
+    var n = {};
+    return t.m = e, t.c = n, t.d = function (e, n, r) {
+      t.o(e, n) || Object.defineProperty(e, n, {
+        configurable: !1,
+        enumerable: !0,
+        get: r });
+
+    }, t.n = function (e) {
+      var n = e && e.__esModule ? function () {
+        return e.default;
+      } : function () {
+        return e;
+      };
+      return t.d(n, "a", n), n;
+    }, t.o = function (e, t) {
+      return Object.prototype.hasOwnProperty.call(e, t);
+    }, t.p = "", t(t.s = 0);
+  }([function (e, t, n) {
+    "use strict";
+
+    function r() {}
+
+    function o(e) {
+      var t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : r,
+      n = document.getElementsByTagName("script")[0],
+      o = document.createElement("script");
+      o.src = e, o.async = !0, n.parentNode.insertBefore(o, n), o.onload = t;
+    }
+
+    function i(e, t) {
+      if (null == e) throw new TypeError("Cannot convert undefined or null to object");
+      for (var n = Object(e), r = 1; r < arguments.length; r++) {
+        var o = arguments[r];
+        if (null != o)
+        for (var i in o) {Object.prototype.hasOwnProperty.call(o, i) && (n[i] = o[i]);}
+      }
+      return n;
+    }
+
+    function a(e) {
+      if (se) location.href = e;else
+      {
+        var t = document.createElement("iframe");
+        t.style.display = "none", t.src = e, document.body.appendChild(t), setTimeout(function () {
+          t && t.parentNode && t.parentNode.removeChild(t);
+        }, 2e3);
+      }
+    }
+
+    function c(e) {
+      var t = arguments.length > 1 && void 0 !== arguments[1] && arguments[1],
+      n = [];
+      for (var r in e) {t ? n.push(r + "=" + encodeURIComponent(e[r])) : n.push(r + "=" + e[r]);}
+      return n.join("&");
+    }
+
+    function u(e) {
+      var t = document.createElement("a");
+      return t.href = e, t.hostname;
+    }
+
+    function l(e) {
+      Oe ? Oe.content = e : document.head.insertAdjacentHTML("beforeend", '<meta name="description" content="' + e +
+      '">');
+    }
+
+    function f(e) {
+      je ? je.href = e : document.head.insertAdjacentHTML("beforeend", '<link rel="shortcut icon" href="' + e + '">');
+    }
+
+    function s(e) {
+      document.title = e;
+    }
+
+    function p(e) {
+      return c({
+        share_id: 924053302,
+        url: _e.encode(e.link),
+        title: _e.encode(e.title),
+        description: _e.encode(e.desc),
+        previewimageUrl: _e.encode(e.icon),
+        image_url: _e.encode(e.icon) });
+
+    }
+
+    function h() {
+      a((se ? "mqqapi://share/to_fri?src_type=web&version=1&file_type=news" :
+      "mqqapi://share/to_fri?src_type=isqqBrowser&version=1&file_type=news") + "&" + p(Se));
+    }
+
+    function b() {
+      a((se ?
+      "mqqapi://share/to_fri?file_type=news&src_type=web&version=1&generalpastboard=1&shareType=1&cflag=1&objectlocation=pasteboard&callback_type=scheme&callback_name=QQ41AF4B2A" :
+      "mqqapi://share/to_qzone?src_type=isqqBrowser&version=1&file_type=news&req_type=1") + "&" + p(Se));
+    }
+
+    function y() {
+      var e = {
+        url: Se.link,
+        title: Se.title,
+        pic: Se.icon,
+        desc: Se.desc };
+
+      location.href = "http://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?" + c(e, !0);
+    }
+
+    function d() {
+      var e = {
+        url: Se.link,
+        title: Se.title,
+        pic: Se.icon };
+
+      location.href = "http://service.weibo.com/share/share.php?" + c(e, !0);
+    }
+
+    function w(e, t) {
+      if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
+    }
+
+    function v(e, t, n) {
+      return t in e ? Object.defineProperty(e, t, {
+        value: n,
+        enumerable: !0,
+        configurable: !0,
+        writable: !0 }) :
+      e[t] = n, e;
+    }
+
+    function g(e, t) {
+      if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
+    }
+
+    function m(e, t) {
+      if (!e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+      return !t || "object" != typeof t && "function" != typeof t ? e : t;
+    }
+
+    function _(e, t) {
+      if ("function" != typeof t && null !== t) throw new TypeError(
+      "Super expression must either be null or a function, not " + typeof t);
+      e.prototype = Object.create(t && t.prototype, {
+        constructor: {
+          value: e,
+          enumerable: !1,
+          writable: !0,
+          configurable: !0 } }),
+
+      t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
+    }
+
+    function O(e, t, n) {
+      return t in e ? Object.defineProperty(e, t, {
+        value: n,
+        enumerable: !0,
+        configurable: !0,
+        writable: !0 }) :
+      e[t] = n, e;
+    }
+
+    function j(e, t) {
+      if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
+    }
+
+    function S(e, t) {
+      if (!e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+      return !t || "object" != typeof t && "function" != typeof t ? e : t;
+    }
+
+    function k(e, t) {
+      if ("function" != typeof t && null !== t) throw new TypeError(
+      "Super expression must either be null or a function, not " + typeof t);
+      e.prototype = Object.create(t && t.prototype, {
+        constructor: {
+          value: e,
+          enumerable: !1,
+          writable: !0,
+          configurable: !0 } }),
+
+      t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
+    }
+
+    function P(e, t, n) {
+      return t in e ? Object.defineProperty(e, t, {
+        value: n,
+        enumerable: !0,
+        configurable: !0,
+        writable: !0 }) :
+      e[t] = n, e;
+    }
+
+    function C(e, t) {
+      if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
+    }
+
+    function q(e, t) {
+      if (!e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+      return !t || "object" != typeof t && "function" != typeof t ? e : t;
+    }
+
+    function T(e, t) {
+      if ("function" != typeof t && null !== t) throw new TypeError(
+      "Super expression must either be null or a function, not " + typeof t);
+      e.prototype = Object.create(t && t.prototype, {
+        constructor: {
+          value: e,
+          enumerable: !1,
+          writable: !0,
+          configurable: !0 } }),
+
+      t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
+    }
+
+    function E(e, t) {
+      if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
+    }
+
+    function D(e, t) {
+      if (!e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+      return !t || "object" != typeof t && "function" != typeof t ? e : t;
+    }
+
+    function x(e, t) {
+      if ("function" != typeof t && null !== t) throw new TypeError(
+      "Super expression must either be null or a function, not " + typeof t);
+      e.prototype = Object.create(t && t.prototype, {
+        constructor: {
+          value: e,
+          enumerable: !1,
+          writable: !0,
+          configurable: !0 } }),
+
+      t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
+    }
+
+    function Q(e, t) {
+      if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
+    }
+
+    function M(e, t) {
+      if (!e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+      return !t || "object" != typeof t && "function" != typeof t ? e : t;
+    }
+
+    function N(e, t) {
+      if ("function" != typeof t && null !== t) throw new TypeError(
+      "Super expression must either be null or a function, not " + typeof t);
+      e.prototype = Object.create(t && t.prototype, {
+        constructor: {
+          value: e,
+          enumerable: !1,
+          writable: !0,
+          configurable: !0 } }),
+
+      t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
+    }
+
+    function A(e, t) {
+      if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
+    }
+
+    function U(e, t) {
+      if (!e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+      return !t || "object" != typeof t && "function" != typeof t ? e : t;
+    }
+
+    function B(e, t) {
+      if ("function" != typeof t && null !== t) throw new TypeError(
+      "Super expression must either be null or a function, not " + typeof t);
+      e.prototype = Object.create(t && t.prototype, {
+        constructor: {
+          value: e,
+          enumerable: !1,
+          writable: !0,
+          configurable: !0 } }),
+
+      t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
+    }
+
+    function R(e, t) {
+      if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
+    }
+
+    function W(e, t) {
+      if (!e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+      return !t || "object" != typeof t && "function" != typeof t ? e : t;
+    }
+
+    function I(e, t) {
+      if ("function" != typeof t && null !== t) throw new TypeError(
+      "Super expression must either be null or a function, not " + typeof t);
+      e.prototype = Object.create(t && t.prototype, {
+        constructor: {
+          value: e,
+          enumerable: !1,
+          writable: !0,
+          configurable: !0 } }),
+
+      t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
+    }
+
+    function z(e, t) {
+      if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
+    }
+
+    function F(e, t) {
+      if (!e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+      return !t || "object" != typeof t && "function" != typeof t ? e : t;
+    }
+
+    function L(e, t) {
+      if ("function" != typeof t && null !== t) throw new TypeError(
+      "Super expression must either be null or a function, not " + typeof t);
+      e.prototype = Object.create(t && t.prototype, {
+        constructor: {
+          value: e,
+          enumerable: !1,
+          writable: !0,
+          configurable: !0 } }),
+
+      t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
+    }
+
+    function Z(e, t) {
+      if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
+    }
+
+    function J(e, t) {
+      if (!e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+      return !t || "object" != typeof t && "function" != typeof t ? e : t;
+    }
+
+    function H(e, t) {
+      if ("function" != typeof t && null !== t) throw new TypeError(
+      "Super expression must either be null or a function, not " + typeof t);
+      e.prototype = Object.create(t && t.prototype, {
+        constructor: {
+          value: e,
+          enumerable: !1,
+          writable: !0,
+          configurable: !0 } }),
+
+      t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
+    }
+
+    function X(e, t) {
+      if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
+    }
+
+    function G(e, t) {
+      if (!e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+      return !t || "object" != typeof t && "function" != typeof t ? e : t;
+    }
+
+    function K(e, t) {
+      if ("function" != typeof t && null !== t) throw new TypeError(
+      "Super expression must either be null or a function, not " + typeof t);
+      e.prototype = Object.create(t && t.prototype, {
+        constructor: {
+          value: e,
+          enumerable: !1,
+          writable: !0,
+          configurable: !0 } }),
+
+      t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
+    }
+
+    function V(e, t) {
+      if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
+    }
+
+    function Y(e, t) {
+      if (!e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+      return !t || "object" != typeof t && "function" != typeof t ? e : t;
+    }
+
+    function $(e, t) {
+      if ("function" != typeof t && null !== t) throw new TypeError(
+      "Super expression must either be null or a function, not " + typeof t);
+      e.prototype = Object.create(t && t.prototype, {
+        constructor: {
+          value: e,
+          enumerable: !1,
+          writable: !0,
+          configurable: !0 } }),
+
+      t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
+    }
+
+    function ee(e, t) {
+      if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
+    }
+
+    function te(e, t) {
+      if (!e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+      return !t || "object" != typeof t && "function" != typeof t ? e : t;
+    }
+
+    function ne(e, t) {
+      if ("function" != typeof t && null !== t) throw new TypeError(
+      "Super expression must either be null or a function, not " + typeof t);
+      e.prototype = Object.create(t && t.prototype, {
+        constructor: {
+          value: e,
+          enumerable: !1,
+          writable: !0,
+          configurable: !0 } }),
+
+      t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
+    }
+
+    function re(e, t) {
+      if (!(e instanceof t)) throw new TypeError("Cannot call a class as a function");
+    }
+
+    function oe(e, t) {
+      if (!e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+      return !t || "object" != typeof t && "function" != typeof t ? e : t;
+    }
+
+    function ie(e, t) {
+      if ("function" != typeof t && null !== t) throw new TypeError(
+      "Super expression must either be null or a function, not " + typeof t);
+      e.prototype = Object.create(t && t.prototype, {
+        constructor: {
+          value: e,
+          enumerable: !1,
+          writable: !0,
+          configurable: !0 } }),
+
+      t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
+    }
+    Object.defineProperty(t, "__esModule", {
+      value: !0 });
+
+    var ae,ce = navigator.userAgent,
+    ue = /(iPad).*OS\s([\d_]+)/.test(ce),
+    le = /(iPod)(.*OS\s([\d_]+))?/.test(ce),
+    fe = !ue && /(iPhone\sOS)\s([\d_]+)/.test(ce),
+    se = ue || le || fe,
+    pe = /(Android);?[\s\/]+([\d.]+)?/.test(ce),
+    he = /micromessenger/i.test(ce),
+    be = /QQ\/([\d\.]+)/.test(ce),
+    ye = /Qzone\//.test(ce),
+    de = /MQQBrowser/i.test(ce) && !he && !be,
+    we = /UCBrowser/i.test(ce),
+    ve = /mobile.*baidubrowser/i.test(ce),
+    ge = /SogouMobileBrowser/i.test(ce),
+    me = /baiduboxapp/i.test(ce),
+    _e = {
+      _keyStr: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
+      encode: function encode(e) {
+        var t,n,r,o,i,a,c,u = "",
+        l = 0;
+        for (e = _e._utf8_encode(e); l < e.length;) {t = e.charCodeAt(l++), n = e.charCodeAt(l++), r = e.charCodeAt(l++),
+          o = t >> 2, i = (3 & t) << 4 | n >> 4, a = (15 & n) << 2 | r >> 6, c = 63 & r, isNaN(n) ? a = c = 64 : isNaN(
+          r) && (c = 64), u = u + this._keyStr.charAt(o) + this._keyStr.charAt(i) + this._keyStr.charAt(a) + this._keyStr.
+          charAt(c);}
+        return u;
+      },
+      _utf8_encode: function _utf8_encode(e) {
+        e = e.replace(/\r\n/g, "\n");
+        for (var t = "", n = 0; n < e.length; n++) {
+          var r = e.charCodeAt(n);
+          r < 128 ? t += String.fromCharCode(r) : r > 127 && r < 2048 ? (t += String.fromCharCode(r >> 6 | 192), t +=
+          String.fromCharCode(63 & r | 128)) : (t += String.fromCharCode(r >> 12 | 224), t += String.fromCharCode(r >>
+          6 & 63 | 128), t += String.fromCharCode(63 & r | 128));
+        }
+        return t;
+      } },
+
+    Oe = document.querySelector("meta[name=description]"),
+    je = document.querySelector("link[rel*=icon]"),
+    Se = {
+      link: location.href,
+      title: function () {
+        return document.title;
+      }(),
+      desc: function () {
+        return Object(Oe).content || "";
+      }(),
+      icon: function () {
+        return Object(je).href || location.protocol + "//" + location.hostname + "/favicon.ico";
+      }(),
+      from: "",
+      success: r,
+      fail: r,
+      trigger: r },
+
+    ke = function () {
+      function e(e, t) {
+        for (var n = 0; n < t.length; n++) {
+          var r = t[n];
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(
+          e, r.key, r);
+        }
+      }
+      return function (t, n, r) {
+        return n && e(t.prototype, n), r && e(t, r), t;
+      };
+    }(),
+    Pe = function () {
+      function e(t) {
+        w(this, e), this._shareData = Se, this._config = {
+          syncDescToTag: !1,
+          syncIconToTag: !1,
+          syncTitleToTag: !1 },
+        this.setConfig(t);
+      }
+      return ke(e, [{
+        key: "getShareData",
+        value: function value() {
+          return i({}, this._shareData);
+        } },
+      {
+        key: "setShareData",
+        value: function value() {
+          var e = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : {};
+          i(this._shareData, e), this._config.syncDescToTag && l(this._shareData.desc), this._config.syncIconToTag &&
+          f(this._shareData.icon), this._config.syncTitleToTag && s(this._shareData.title);
+        } },
+      {
+        key: "setConfig",
+        value: function value() {
+          var e = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : {};
+          i(this._config, e);
+        } },
+      {
+        key: "getConfig",
+        value: function value() {
+          return i({}, this._config);
+        } }]),
+      e;
+    }(),
+    Ce = Pe,
+    qe = function () {
+      function e(e, t) {
+        for (var n = 0; n < t.length; n++) {
+          var r = t[n];
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(
+          e, r.key, r);
+        }
+      }
+      return function (t, n, r) {
+        return n && e(t.prototype, n), r && e(t, r), t;
+      };
+    }(),
+    Te = function (e) {
+      function t(e) {
+        g(this, t);
+        var n = m(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
+        return o("https://jsapi.qq.com/get?api=app.share"), n;
+      }
+      return _(t, e), qe(t, [{
+        key: "call",
+        value: function value() {
+          var e = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : "default",
+          t = arguments[1];
+          this.setShareData(t);
+          var n = this.getShareData(),
+          r = this.constructor.commamdMap[String(e).toLowerCase()];
+          browser.app.share({
+            title: n.title,
+            description: n.desc,
+            url: n.link,
+            img_url: n.icon,
+            from: n.from,
+            to_app: r });
+
+        } }]),
+      t;
+    }(Ce);
+    Te.commamdMap = (ae = {}, v(ae, "wechattimeline", 8), v(ae, "wechatfriend", 1), v(ae, "qqfriend", 4), v(ae,
+    "qzone", 3), v(ae, "weibo", 11), v(ae, "copyurl", 10), v(ae, "more", 5), v(ae, "generateqrcode", 7), v(ae,
+    "default", void 0), ae);
+    var Ee,De = Te,
+    xe = function () {
+      function e(e, t) {
+        for (var n = 0; n < t.length; n++) {
+          var r = t[n];
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(
+          e, r.key, r);
+        }
+      }
+      return function (t, n, r) {
+        return n && e(t.prototype, n), r && e(t, r), t;
+      };
+    }(),
+    Qe = function (e) {
+      function t(e) {
+        return j(this, t), S(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
+      }
+      return k(t, e), xe(t, [{
+        key: "call",
+        value: function value() {
+          var e = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : "default",
+          t = arguments[1];
+          this.setShareData(t);
+          var n = this.getShareData(),
+          r = this.constructor.commamdMap[String(e).toLowerCase()];
+          ucbrowser.web_shareEX ? ucbrowser.web_shareEX(JSON.stringify({
+            title: n.title,
+            content: n.desc,
+            sourceUrl: n.link,
+            imageUrl: n.icon,
+            source: n.from,
+            target: r })) :
+          ucbrowser.web_share(title, desc, link, r, "", from, "");
+        } }]),
+      t;
+    }(Ce);
+    Qe.commamdMap = (Ee = {}, O(Ee, "wechattimeline", "kWeixinFriend"), O(Ee, "wechatfriend", "kWeixin"), O(Ee,
+    "qqfriend", "kQQ"), O(Ee, "qzone", "kQZone"), O(Ee, "weibo", "kSinaWeibo"), O(Ee, "default", void 0), Ee);
+    var Me,Ne = Qe,
+    Ae = function () {
+      function e(e, t) {
+        for (var n = 0; n < t.length; n++) {
+          var r = t[n];
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(
+          e, r.key, r);
+        }
+      }
+      return function (t, n, r) {
+        return n && e(t.prototype, n), r && e(t, r), t;
+      };
+    }(),
+    Ue = function (e) {
+      function t(e) {
+        return C(this, t), q(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
+      }
+      return T(t, e), Ae(t, [{
+        key: "call",
+        value: function value() {
+          var e = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : "default",
+          t = arguments[1];
+          this.setShareData(t);
+          var n = this.getShareData(),
+          r = this.constructor.commamdMap[String(e).toLowerCase()];
+          ucweb.startRequest("shell.page_share", [n.title, n.desc, n.link, r, "", n.from, n.icon]);
+        } }]),
+      t;
+    }(Ce);
+    Ue.commamdMap = (Me = {}, P(Me, "wechattimeline", "WechatTimeline"), P(Me, "wechatfriend", "WechatFriends"), P(Me,
+    "qqfriend", "QQ"), P(Me, "qzone", "Qzone"), P(Me, "weibo", "SinaWeibo"), P(Me, "default", ""), Me);
+    var Be = Ue,
+    Re = function () {
+      function e(e, t) {
+        for (var n = 0; n < t.length; n++) {
+          var r = t[n];
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(
+          e, r.key, r);
+        }
+      }
+      return function (t, n, r) {
+        return n && e(t.prototype, n), r && e(t, r), t;
+      };
+    }(),
+    We = function (e) {
+      function t(e) {
+        return E(this, t), D(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
+      }
+      return x(t, e), Re(t, [{
+        key: "call",
+        value: function value(e, t) {
+          this.setShareData(t);
+          var n = this.getShareData();
+          _flyflowNative.exec("bd_utils", "shareWebPage", JSON.stringify({
+            title: n.title,
+            content: n.desc,
+            landurl: n.link,
+            imageurl: n.icon,
+            shareSource: n.from }),
+          "");
+        } }]),
+      t;
+    }(Ce),
+    Ie = We,
+    ze = function () {
+      function e(e, t) {
+        for (var n = 0; n < t.length; n++) {
+          var r = t[n];
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(
+          e, r.key, r);
+        }
+      }
+      return function (t, n, r) {
+        return n && e(t.prototype, n), r && e(t, r), t;
+      };
+    }(),
+    Fe = function (e) {
+      function t(e) {
+        return Q(this, t), M(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
+      }
+      return N(t, e), ze(t, [{
+        key: "call",
+        value: function value(e, t) {
+          this.setShareData(t);
+          var n = this.getShareData();
+          location.href = "baidubrowserapp://bd_utils?action=shareWebPage&params=" + encodeURIComponent(JSON.stringify({
+            title: n.title,
+            content: n.desc,
+            imageurl: n.icon,
+            landurl: n.link,
+            mediaType: 0,
+            share_type: "webpage" }));
+
+        } }]),
+      t;
+    }(Ce),
+    Le = Fe,
+    Ze = function () {
+      function e(e, t) {
+        for (var n = 0; n < t.length; n++) {
+          var r = t[n];
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(
+          e, r.key, r);
+        }
+      }
+      return function (t, n, r) {
+        return n && e(t.prototype, n), r && e(t, r), t;
+      };
+    }(),
+    Je = function (e) {
+      function t(e) {
+        return A(this, t), U(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
+      }
+      return B(t, e), Ze(t, [{
+        key: "call",
+        value: function value(e, t) {
+          this.setShareData(t);
+          var n = this.getShareData();
+          SogouMse.Utility.shareWithInfo({
+            shareTitle: n.title,
+            shareContent: n.desc,
+            shareImageUrl: n.icon,
+            shareUrl: n.link });
+
+        } }]),
+      t;
+    }(Ce),
+    He = Je,
+    Xe = function () {
+      function e(e, t) {
+        for (var n = 0; n < t.length; n++) {
+          var r = t[n];
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(
+          e, r.key, r);
+        }
+      }
+      return function (t, n, r) {
+        return n && e(t.prototype, n), r && e(t, r), t;
+      };
+    }(),
+    Ge = function e(t, n, r) {
+      null === t && (t = Function.prototype);
+      var o = Object.getOwnPropertyDescriptor(t, n);
+      if (void 0 === o) {
+        var i = Object.getPrototypeOf(t);
+        return null === i ? void 0 : e(i, n, r);
+      }
+      if ("value" in o) return o.value;
+      var a = o.get;
+      if (void 0 !== a) return a.call(r);
+    },
+    Ke = function (e) {
+      function t(e) {
+        R(this, t);
+        var n = W(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
+        return n.setConfig(e), n;
+      }
+      return I(t, e), Xe(t, [{
+        key: "call",
+        value: function value(e, t) {
+          this.setShareData(t);
+        } },
+      {
+        key: "setConfig",
+        value: function value(e) {
+          Ge(t.prototype.__proto__ || Object.getPrototypeOf(t.prototype), "setConfig", this).call(this, e), this.init(
+          this.getConfig().wechatConfig);
+        } },
+      {
+        key: "init",
+        value: function value(e) {
+          var t = this;
+          e && o("https://res.wx.qq.com/open/js/jweixin-1.2.0.js", function () {
+            wx.config(i({
+              debug: !1,
+              jsApiList: ["onMenuShareTimeline", "onMenuShareAppMessage", "onMenuShareQQ", "onMenuShareWeibo",
+              "onMenuShareQZone"] },
+
+            e));
+            var n = t._shareData,
+            r = {};
+            Object.defineProperty(r, "trigger", {
+              get: function get() {
+                return function () {
+                  i(r, {
+                    title: n.title,
+                    desc: n.desc,
+                    link: n.link,
+                    imgUrl: n.icon,
+                    type: n.type,
+                    dataUrl: n.dataUrl,
+                    success: n.success,
+                    fail: n.fail,
+                    cancel: n.fail }),
+                  n.trigger.apply(n, arguments);
+                };
+              },
+              set: function set(e) {
+                n.trigger = e;
+              },
+              enumerable: !0 }),
+            wx.ready(function () {
+              wx.onMenuShareAppMessage(r), wx.onMenuShareQQ(r), wx.onMenuShareQZone(r), wx.onMenuShareWeibo(r),
+              wx.onMenuShareTimeline(r);
+            });
+          });
+        } }]),
+      t;
+    }(Ce),
+    Ve = Ke,
+    Ye = function () {
+      function e(e, t) {
+        for (var n = 0; n < t.length; n++) {
+          var r = t[n];
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(
+          e, r.key, r);
+        }
+      }
+      return function (t, n, r) {
+        return n && e(t.prototype, n), r && e(t, r), t;
+      };
+    }(),
+    $e = function (e) {
+      function t(e) {
+        return z(this, t), F(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
+      }
+      return L(t, e), Ye(t, [{
+        key: "call",
+        value: function value() {
+          var e = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : "default",
+          t = arguments[1];
+          if (this.setShareData(t), "weibo" !== (e = String(e).toLowerCase())) throw "qqfriend" === e ? h() :
+          "qzone" === e && b(), new Error("the browser may not support command " + e + "!");
+          d();
+        } }]),
+      t;
+    }(Ce),
+    et = $e,
+    tt = function () {
+      function e(e, t) {
+        for (var n = 0; n < t.length; n++) {
+          var r = t[n];
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(
+          e, r.key, r);
+        }
+      }
+      return function (t, n, r) {
+        return n && e(t.prototype, n), r && e(t, r), t;
+      };
+    }(),
+    nt = function (e) {
+      function t(e) {
+        Z(this, t);
+        var n = J(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
+        return n.init(), n;
+      }
+      return H(t, e), tt(t, [{
+        key: "call",
+        value: function value() {
+          var e = (arguments.length > 0 && void 0 !== arguments[0] && arguments[0], arguments[1]);
+          this.setShareData(e), mqq.ui.showShareMenu();
+        } },
+      {
+        key: "init",
+        value: function value() {
+          var e = this;
+          o("https://open.mobile.qq.com/sdk/qqapi.js", function () {
+            var t = e._shareData;
+            mqq.ui.setOnShareHandler(function (e) {
+              mqq.ui.shareMessage({
+                back: !0,
+                share_type: e,
+                title: t.title,
+                desc: t.desc,
+                share_url: t.link,
+                image_url: t.icon,
+                sourceName: t.from },
+              function (e) {
+                0 === e.retCode ? t.success(e) : t.fail(e);
+              });
+            });
+          });
+        } }]),
+      t;
+    }(Ce),
+    rt = nt,
+    ot = function () {
+      function e(e, t) {
+        for (var n = 0; n < t.length; n++) {
+          var r = t[n];
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(
+          e, r.key, r);
+        }
+      }
+      return function (t, n, r) {
+        return n && e(t.prototype, n), r && e(t, r), t;
+      };
+    }(),
+    it = function e(t, n, r) {
+      null === t && (t = Function.prototype);
+      var o = Object.getOwnPropertyDescriptor(t, n);
+      if (void 0 === o) {
+        var i = Object.getPrototypeOf(t);
+        return null === i ? void 0 : e(i, n, r);
+      }
+      if ("value" in o) return o.value;
+      var a = o.get;
+      if (void 0 !== a) return a.call(r);
+    },
+    at = function (e) {
+      function t(e) {
+        X(this, t);
+        var n = G(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
+        return n.init(), n;
+      }
+      return K(t, e), ot(t, [{
+        key: "setShareData",
+        value: function value(e) {
+          it(t.prototype.__proto__ || Object.getPrototypeOf(t.prototype), "setShareData", this).call(this, e);
+          var n = this.getShareData();
+          u(n.link) !== location.hostname && (n.link = location.href, console.warn(
+          "安卓的QQ自带浏览器分享url必须跟页面url同一个域名，已自动为你设置为当前页面的url"));
+          try {
+            mqq.data.setShareInfo({
+              share_url: n.link,
+              title: n.title,
+              desc: n.desc,
+              image_url: n.icon },
+            function (e) {
+              !0 !== e && console.warn(e);
+            });
+          } catch (e) {}
+        } },
+      {
+        key: "call",
+        value: function value() {
+          var e = (arguments.length > 0 && void 0 !== arguments[0] && arguments[0], arguments[1]);
+          this.setShareData(e), mqq.ui.showShareMenu();
+        } },
+      {
+        key: "init",
+        value: function value() {
+          var e = this;
+          o("https://open.mobile.qq.com/sdk/qqapi.js", function () {
+            e.setShareData();
+          });
+        } }]),
+      t;
+    }(Ce),
+    ct = at,
+    ut = function () {
+      function e(e, t) {
+        for (var n = 0; n < t.length; n++) {
+          var r = t[n];
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(
+          e, r.key, r);
+        }
+      }
+      return function (t, n, r) {
+        return n && e(t.prototype, n), r && e(t, r), t;
+      };
+    }(),
+    lt = function (e) {
+      function t(e) {
+        V(this, t);
+        var n = Y(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
+        return n.init(), n;
+      }
+      return $(t, e), ut(t, [{
+        key: "call",
+        value: function value() {
+          var e = this,
+          t = (arguments.length > 0 && void 0 !== arguments[0] && arguments[0], arguments[1]);
+          this.setShareData(t);
+          for (var n = this.getShareData(), r = [], o = [], i = [], a = [], c = 0; c < 5; c++) {r.push(n.icon), a.push(
+            n.link), o.push(n.title), i.push(n.desc);}
+          QZAppExternal.setShare(function (t) {
+            0 != t.code && (e.hasSomethingWrong = !0);
+          }, {
+            type: "share",
+            image: r,
+            title: o,
+            summary: i,
+            shareURL: a });
+
+        } },
+      {
+        key: "setShareData",
+        value: function value(e) {
+          try {
+            this.call("default", e);
+          } catch (e) {}
+        } },
+      {
+        key: "init",
+        value: function value() {
+          var e = this;
+          o("https://qzonestyle.gtimg.cn/qzone/phone/m/v4/widget/mobile/jsbridge.js", function () {
+            e.call("default");
+          });
+        } }]),
+      t;
+    }(Ce),
+    ft = lt,
+    st = function () {
+      function e(e, t) {
+        for (var n = 0; n < t.length; n++) {
+          var r = t[n];
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(
+          e, r.key, r);
+        }
+      }
+      return function (t, n, r) {
+        return n && e(t.prototype, n), r && e(t, r), t;
+      };
+    }(),
+    pt = function (e) {
+      function t(e) {
+        return ee(this, t), te(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
+      }
+      return ne(t, e), st(t, [{
+        key: "call",
+        value: function value(e, t) {
+          this.setShareData(t);
+          var n = this.getShareData();
+          window.NativeShareFailCallback = n.fail, window.NativeShareSuccessCallback = n.success, location.href =
+          "baiduboxapp://callShare?" + ["options=" + encodeURIComponent(JSON.stringify({
+            title: n.title,
+            imageUrl: "",
+            mediaType: "all",
+            content: n.desc,
+            linkUrl: n.link,
+            iconUrl: n.icon })),
+          "errorcallback=window.NativeShareFailCallback",
+          "successcallback=window.NativeShareSuccessCallback"].
+          join("&");
+        } }]),
+      t;
+    }(Ce),
+    ht = pt,
+    bt = function () {
+      function e(e, t) {
+        for (var n = 0; n < t.length; n++) {
+          var r = t[n];
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(
+          e, r.key, r);
+        }
+      }
+      return function (t, n, r) {
+        return n && e(t.prototype, n), r && e(t, r), t;
+      };
+    }(),
+    yt = function (e) {
+      function t(e) {
+        return re(this, t), oe(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
+      }
+      return ie(t, e), bt(t, [{
+        key: "call",
+        value: function value(e, t) {
+          this.setShareData(t);
+          var n = this.getShareData();
+          window.NativeShareFailCallback = n.fail, window.NativeShareSuccessCallback = n.success, prompt(
+          "BdboxApp:" + JSON.stringify({
+            obj: "Bdbox_android_utils",
+            func: "callShare",
+            args: [
+            '{\n                            imageUrl: "",\n                            mediaType: "all",\n                            title: "' +
+            n.title + '",\n                            content: "' + n.desc +
+            '",\n                            linkUrl: "' + n.link +
+            '",\n                            iconUrl: "' + n.icon + '"\n                        }',
+            "window.NativeShareSuccessCallback", "window.NativeShareFailCallback"] }));
+
+
+        } }]),
+      t;
+    }(Ce),
+    dt = yt;
+    n.d(t, "Share", function () {
+      return Ce;
+    }), n.d(t, "QQMobileBrowser", function () {
+      return De;
+    }), n.d(t, "UCIosBrowser", function () {
+      return Ne;
+    }), n.d(t, "UCAndroidBrowser", function () {
+      return Be;
+    }), n.d(t, "BaiduAndroidBrowser", function () {
+      return Ie;
+    }), n.d(t, "BaiduIosBrowser", function () {
+      return Le;
+    }), n.d(t, "SogouIosBrowser", function () {
+      return He;
+    }), n.d(t, "BaiduIos", function () {
+      return ht;
+    }), n.d(t, "BaiduAndroid", function () {
+      return dt;
+    }), n.d(t, "Wechat", function () {
+      return Ve;
+    }), n.d(t, "Others", function () {
+      return et;
+    }), n.d(t, "QQIos", function () {
+      return rt;
+    }), n.d(t, "QQAndroid", function () {
+      return ct;
+    }), n.d(t, "QZone", function () {
+      return ft;
+    }), n.d(t, "shareToQQ", function () {
+      return h;
+    }), n.d(t, "shareToQZone", function () {
+      return b;
+    }), n.d(t, "shareToWeibo4Web", function () {
+      return d;
+    }), n.d(t, "shareToQZone4Web", function () {
+      return y;
+    });
+    var wt = void 0;
+    wt = he ? Ve : be && se ? rt : be && pe ? ct : ye ? ft : de ? De : we && se ? Ne : we && pe ? Be : ve && pe ? Ie :
+    ve && se ? Le : ge && se ? He : me && se ? ht : me && pe ? dt : et, window.NativeShare = wt, t.default = wt;
+  }]);
+});
 
 /***/ }),
 
-/***/ "../../mobile-app/components/mpvue-citypicker/city-data/province.js":
-/*!************************************************************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/mpvue-citypicker/city-data/province.js ***!
-  \************************************************************************************************************************/
+/***/ 380:
+/*!*******************************************************************************************!*\
+  !*** C:/Users/Administrator/Desktop/mobile-app-git/components/fly-in-cart/fly-in-cart.js ***!
+  \*******************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0; /* eslint-disable */
-var provinceData = [{
-  "label": "北京市",
-  "value": "11" },
+Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0; // 贝塞尔算法
+function bezier(pots, amount) {
+  var pot;
+  var lines;
+  var ret = [];
+  var points;
+  for (var i = 0; i <= amount; i++) {
+    points = pots.slice(0);
+    lines = [];
+    while (pot = points.shift()) {
+      if (points.length) {
+        lines.push(pointLine([pot, points[0]], i / amount));
+      } else if (lines.length > 1) {
+        points = lines;
+        lines = [];
+      } else {
+        break;
+      }
+    }
+    ret.push(lines[0]);
+  }
+  function pointLine(points, rate) {
+    var pointA, pointB, pointDistance, xDistance, yDistance, tan, radian, tmpPointDistance;
+    var ret = [];
+    pointA = points[0]; //点击
+    pointB = points[1]; //中间
+    xDistance = pointB.x - pointA.x;
+    yDistance = pointB.y - pointA.y;
+    pointDistance = Math.pow(Math.pow(xDistance, 2) + Math.pow(yDistance, 2), 1 / 2);
+    tan = yDistance / xDistance;
+    radian = Math.atan(tan);
+    tmpPointDistance = pointDistance * rate;
+    ret = {
+      x: pointA.x + tmpPointDistance * Math.cos(radian),
+      y: pointA.y + tmpPointDistance * Math.sin(radian) };
+
+    return ret;
+  }
+  return {
+    'bezier_points': ret };
+
+}var _default =
 
 {
-  "label": "天津市",
-  "value": "12" },
-
-{
-  "label": "河北省",
-  "value": "13" },
-
-{
-  "label": "山西省",
-  "value": "14" },
-
-{
-  "label": "内蒙古自治区",
-  "value": "15" },
-
-{
-  "label": "辽宁省",
-  "value": "21" },
-
-{
-  "label": "吉林省",
-  "value": "22" },
-
-{
-  "label": "黑龙江省",
-  "value": "23" },
-
-{
-  "label": "上海市",
-  "value": "31" },
-
-{
-  "label": "江苏省",
-  "value": "32" },
-
-{
-  "label": "浙江省",
-  "value": "33" },
-
-{
-  "label": "安徽省",
-  "value": "34" },
-
-{
-  "label": "福建省",
-  "value": "35" },
-
-{
-  "label": "江西省",
-  "value": "36" },
-
-{
-  "label": "山东省",
-  "value": "37" },
-
-{
-  "label": "河南省",
-  "value": "41" },
-
-{
-  "label": "湖北省",
-  "value": "42" },
-
-{
-  "label": "湖南省",
-  "value": "43" },
-
-{
-  "label": "广东省",
-  "value": "44" },
-
-{
-  "label": "广西壮族自治区",
-  "value": "45" },
-
-{
-  "label": "海南省",
-  "value": "46" },
-
-{
-  "label": "重庆市",
-  "value": "50" },
-
-{
-  "label": "四川省",
-  "value": "51" },
-
-{
-  "label": "贵州省",
-  "value": "52" },
-
-{
-  "label": "云南省",
-  "value": "53" },
-
-{
-  "label": "西藏自治区",
-  "value": "54" },
-
-{
-  "label": "陕西省",
-  "value": "61" },
-
-{
-  "label": "甘肃省",
-  "value": "62" },
-
-{
-  "label": "青海省",
-  "value": "63" },
-
-{
-  "label": "宁夏回族自治区",
-  "value": "64" },
-
-{
-  "label": "新疆维吾尔自治区",
-  "value": "65" },
-
-{
-  "label": "台湾",
-  "value": "66" },
-
-{
-  "label": "香港",
-  "value": "67" },
-
-{
-  "label": "澳门",
-  "value": "68" }];var _default =
-
-
-provinceData;exports.default = _default;
+  bezier: bezier };exports.default = _default;
 
 /***/ }),
 
-/***/ "../../mobile-app/components/mpvue-citypicker/mpvueCityPicker.vue":
-/*!**********************************************************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/mpvue-citypicker/mpvueCityPicker.vue ***!
-  \**********************************************************************************************************************/
+/***/ 4:
+/*!****************************************************************!*\
+  !*** C:/Users/Administrator/Desktop/mobile-app-git/pages.json ***!
+  \****************************************************************/
 /*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+/***/ }),
+
+/***/ 47:
+/*!********************************************!*\
+  !*** ./node_modules/vuex/dist/vuex.esm.js ***!
+  \********************************************/
+/*! exports provided: Store, install, mapState, mapMutations, mapGetters, mapActions, createNamespacedHelpers, default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _mpvueCityPicker_vue_vue_type_template_id_e4d50284___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./mpvueCityPicker.vue?vue&type=template&id=e4d50284& */ "../../mobile-app/components/mpvue-citypicker/mpvueCityPicker.vue?vue&type=template&id=e4d50284&");
-/* harmony import */ var _mpvueCityPicker_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./mpvueCityPicker.vue?vue&type=script&lang=js& */ "../../mobile-app/components/mpvue-citypicker/mpvueCityPicker.vue?vue&type=script&lang=js&");
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _mpvueCityPicker_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _mpvueCityPicker_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__[key]; }) }(__WEBPACK_IMPORT_KEY__));
-/* harmony import */ var _mpvueCityPicker_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./mpvueCityPicker.vue?vue&type=style&index=0&lang=css& */ "../../mobile-app/components/mpvue-citypicker/mpvueCityPicker.vue?vue&type=style&index=0&lang=css&");
-/* harmony import */ var _plugins_uniapp_cli_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../plugins/uniapp-cli/node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Store", function() { return Store; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "install", function() { return install; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "mapState", function() { return mapState; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "mapMutations", function() { return mapMutations; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "mapGetters", function() { return mapGetters; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "mapActions", function() { return mapActions; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createNamespacedHelpers", function() { return createNamespacedHelpers; });
+/**
+ * vuex v3.0.1
+ * (c) 2017 Evan You
+ * @license MIT
+ */
+var applyMixin = function (Vue) {
+  var version = Number(Vue.version.split('.')[0]);
+
+  if (version >= 2) {
+    Vue.mixin({ beforeCreate: vuexInit });
+  } else {
+    // override init and inject vuex init procedure
+    // for 1.x backwards compatibility.
+    var _init = Vue.prototype._init;
+    Vue.prototype._init = function (options) {
+      if ( options === void 0 ) options = {};
+
+      options.init = options.init
+        ? [vuexInit].concat(options.init)
+        : vuexInit;
+      _init.call(this, options);
+    };
+  }
+
+  /**
+   * Vuex init hook, injected into each instances init hooks list.
+   */
+
+  function vuexInit () {
+    var options = this.$options;
+    // store injection
+    if (options.store) {
+      this.$store = typeof options.store === 'function'
+        ? options.store()
+        : options.store;
+    } else if (options.parent && options.parent.$store) {
+      this.$store = options.parent.$store;
+    }
+  }
+};
+
+var devtoolHook =
+  typeof window !== 'undefined' &&
+  window.__VUE_DEVTOOLS_GLOBAL_HOOK__;
+
+function devtoolPlugin (store) {
+  if (!devtoolHook) { return }
+
+  store._devtoolHook = devtoolHook;
+
+  devtoolHook.emit('vuex:init', store);
+
+  devtoolHook.on('vuex:travel-to-state', function (targetState) {
+    store.replaceState(targetState);
+  });
+
+  store.subscribe(function (mutation, state) {
+    devtoolHook.emit('vuex:mutation', mutation, state);
+  });
+}
+
+/**
+ * Get the first item that pass the test
+ * by second argument function
+ *
+ * @param {Array} list
+ * @param {Function} f
+ * @return {*}
+ */
+/**
+ * Deep copy the given object considering circular structure.
+ * This function caches all nested objects and its copies.
+ * If it detects circular structure, use cached copy to avoid infinite loop.
+ *
+ * @param {*} obj
+ * @param {Array<Object>} cache
+ * @return {*}
+ */
 
 
+/**
+ * forEach for object
+ */
+function forEachValue (obj, fn) {
+  Object.keys(obj).forEach(function (key) { return fn(obj[key], key); });
+}
+
+function isObject (obj) {
+  return obj !== null && typeof obj === 'object'
+}
+
+function isPromise (val) {
+  return val && typeof val.then === 'function'
+}
+
+function assert (condition, msg) {
+  if (!condition) { throw new Error(("[vuex] " + msg)) }
+}
+
+var Module = function Module (rawModule, runtime) {
+  this.runtime = runtime;
+  this._children = Object.create(null);
+  this._rawModule = rawModule;
+  var rawState = rawModule.state;
+  this.state = (typeof rawState === 'function' ? rawState() : rawState) || {};
+};
+
+var prototypeAccessors$1 = { namespaced: { configurable: true } };
+
+prototypeAccessors$1.namespaced.get = function () {
+  return !!this._rawModule.namespaced
+};
+
+Module.prototype.addChild = function addChild (key, module) {
+  this._children[key] = module;
+};
+
+Module.prototype.removeChild = function removeChild (key) {
+  delete this._children[key];
+};
+
+Module.prototype.getChild = function getChild (key) {
+  return this._children[key]
+};
+
+Module.prototype.update = function update (rawModule) {
+  this._rawModule.namespaced = rawModule.namespaced;
+  if (rawModule.actions) {
+    this._rawModule.actions = rawModule.actions;
+  }
+  if (rawModule.mutations) {
+    this._rawModule.mutations = rawModule.mutations;
+  }
+  if (rawModule.getters) {
+    this._rawModule.getters = rawModule.getters;
+  }
+};
+
+Module.prototype.forEachChild = function forEachChild (fn) {
+  forEachValue(this._children, fn);
+};
+
+Module.prototype.forEachGetter = function forEachGetter (fn) {
+  if (this._rawModule.getters) {
+    forEachValue(this._rawModule.getters, fn);
+  }
+};
+
+Module.prototype.forEachAction = function forEachAction (fn) {
+  if (this._rawModule.actions) {
+    forEachValue(this._rawModule.actions, fn);
+  }
+};
+
+Module.prototype.forEachMutation = function forEachMutation (fn) {
+  if (this._rawModule.mutations) {
+    forEachValue(this._rawModule.mutations, fn);
+  }
+};
+
+Object.defineProperties( Module.prototype, prototypeAccessors$1 );
+
+var ModuleCollection = function ModuleCollection (rawRootModule) {
+  // register root module (Vuex.Store options)
+  this.register([], rawRootModule, false);
+};
+
+ModuleCollection.prototype.get = function get (path) {
+  return path.reduce(function (module, key) {
+    return module.getChild(key)
+  }, this.root)
+};
+
+ModuleCollection.prototype.getNamespace = function getNamespace (path) {
+  var module = this.root;
+  return path.reduce(function (namespace, key) {
+    module = module.getChild(key);
+    return namespace + (module.namespaced ? key + '/' : '')
+  }, '')
+};
+
+ModuleCollection.prototype.update = function update$1 (rawRootModule) {
+  update([], this.root, rawRootModule);
+};
+
+ModuleCollection.prototype.register = function register (path, rawModule, runtime) {
+    var this$1 = this;
+    if ( runtime === void 0 ) runtime = true;
+
+  if (true) {
+    assertRawModule(path, rawModule);
+  }
+
+  var newModule = new Module(rawModule, runtime);
+  if (path.length === 0) {
+    this.root = newModule;
+  } else {
+    var parent = this.get(path.slice(0, -1));
+    parent.addChild(path[path.length - 1], newModule);
+  }
+
+  // register nested modules
+  if (rawModule.modules) {
+    forEachValue(rawModule.modules, function (rawChildModule, key) {
+      this$1.register(path.concat(key), rawChildModule, runtime);
+    });
+  }
+};
+
+ModuleCollection.prototype.unregister = function unregister (path) {
+  var parent = this.get(path.slice(0, -1));
+  var key = path[path.length - 1];
+  if (!parent.getChild(key).runtime) { return }
+
+  parent.removeChild(key);
+};
+
+function update (path, targetModule, newModule) {
+  if (true) {
+    assertRawModule(path, newModule);
+  }
+
+  // update target module
+  targetModule.update(newModule);
+
+  // update nested modules
+  if (newModule.modules) {
+    for (var key in newModule.modules) {
+      if (!targetModule.getChild(key)) {
+        if (true) {
+          console.warn(
+            "[vuex] trying to add a new module '" + key + "' on hot reloading, " +
+            'manual reload is needed'
+          );
+        }
+        return
+      }
+      update(
+        path.concat(key),
+        targetModule.getChild(key),
+        newModule.modules[key]
+      );
+    }
+  }
+}
+
+var functionAssert = {
+  assert: function (value) { return typeof value === 'function'; },
+  expected: 'function'
+};
+
+var objectAssert = {
+  assert: function (value) { return typeof value === 'function' ||
+    (typeof value === 'object' && typeof value.handler === 'function'); },
+  expected: 'function or object with "handler" function'
+};
+
+var assertTypes = {
+  getters: functionAssert,
+  mutations: functionAssert,
+  actions: objectAssert
+};
+
+function assertRawModule (path, rawModule) {
+  Object.keys(assertTypes).forEach(function (key) {
+    if (!rawModule[key]) { return }
+
+    var assertOptions = assertTypes[key];
+
+    forEachValue(rawModule[key], function (value, type) {
+      assert(
+        assertOptions.assert(value),
+        makeAssertionMessage(path, key, type, value, assertOptions.expected)
+      );
+    });
+  });
+}
+
+function makeAssertionMessage (path, key, type, value, expected) {
+  var buf = key + " should be " + expected + " but \"" + key + "." + type + "\"";
+  if (path.length > 0) {
+    buf += " in module \"" + (path.join('.')) + "\"";
+  }
+  buf += " is " + (JSON.stringify(value)) + ".";
+  return buf
+}
+
+var Vue; // bind on install
+
+var Store = function Store (options) {
+  var this$1 = this;
+  if ( options === void 0 ) options = {};
+
+  // Auto install if it is not done yet and `window` has `Vue`.
+  // To allow users to avoid auto-installation in some cases,
+  // this code should be placed here. See #731
+  if (!Vue && typeof window !== 'undefined' && window.Vue) {
+    install(window.Vue);
+  }
+
+  if (true) {
+    assert(Vue, "must call Vue.use(Vuex) before creating a store instance.");
+    assert(typeof Promise !== 'undefined', "vuex requires a Promise polyfill in this browser.");
+    assert(this instanceof Store, "Store must be called with the new operator.");
+  }
+
+  var plugins = options.plugins; if ( plugins === void 0 ) plugins = [];
+  var strict = options.strict; if ( strict === void 0 ) strict = false;
+
+  var state = options.state; if ( state === void 0 ) state = {};
+  if (typeof state === 'function') {
+    state = state() || {};
+  }
+
+  // store internal state
+  this._committing = false;
+  this._actions = Object.create(null);
+  this._actionSubscribers = [];
+  this._mutations = Object.create(null);
+  this._wrappedGetters = Object.create(null);
+  this._modules = new ModuleCollection(options);
+  this._modulesNamespaceMap = Object.create(null);
+  this._subscribers = [];
+  this._watcherVM = new Vue();
+
+  // bind commit and dispatch to self
+  var store = this;
+  var ref = this;
+  var dispatch = ref.dispatch;
+  var commit = ref.commit;
+  this.dispatch = function boundDispatch (type, payload) {
+    return dispatch.call(store, type, payload)
+  };
+  this.commit = function boundCommit (type, payload, options) {
+    return commit.call(store, type, payload, options)
+  };
+
+  // strict mode
+  this.strict = strict;
+
+  // init root module.
+  // this also recursively registers all sub-modules
+  // and collects all module getters inside this._wrappedGetters
+  installModule(this, state, [], this._modules.root);
+
+  // initialize the store vm, which is responsible for the reactivity
+  // (also registers _wrappedGetters as computed properties)
+  resetStoreVM(this, state);
+
+  // apply plugins
+  plugins.forEach(function (plugin) { return plugin(this$1); });
+
+  if (Vue.config.devtools) {
+    devtoolPlugin(this);
+  }
+};
+
+var prototypeAccessors = { state: { configurable: true } };
+
+prototypeAccessors.state.get = function () {
+  return this._vm._data.$$state
+};
+
+prototypeAccessors.state.set = function (v) {
+  if (true) {
+    assert(false, "Use store.replaceState() to explicit replace store state.");
+  }
+};
+
+Store.prototype.commit = function commit (_type, _payload, _options) {
+    var this$1 = this;
+
+  // check object-style commit
+  var ref = unifyObjectStyle(_type, _payload, _options);
+    var type = ref.type;
+    var payload = ref.payload;
+    var options = ref.options;
+
+  var mutation = { type: type, payload: payload };
+  var entry = this._mutations[type];
+  if (!entry) {
+    if (true) {
+      console.error(("[vuex] unknown mutation type: " + type));
+    }
+    return
+  }
+  this._withCommit(function () {
+    entry.forEach(function commitIterator (handler) {
+      handler(payload);
+    });
+  });
+  this._subscribers.forEach(function (sub) { return sub(mutation, this$1.state); });
+
+  if (
+     true &&
+    options && options.silent
+  ) {
+    console.warn(
+      "[vuex] mutation type: " + type + ". Silent option has been removed. " +
+      'Use the filter functionality in the vue-devtools'
+    );
+  }
+};
+
+Store.prototype.dispatch = function dispatch (_type, _payload) {
+    var this$1 = this;
+
+  // check object-style dispatch
+  var ref = unifyObjectStyle(_type, _payload);
+    var type = ref.type;
+    var payload = ref.payload;
+
+  var action = { type: type, payload: payload };
+  var entry = this._actions[type];
+  if (!entry) {
+    if (true) {
+      console.error(("[vuex] unknown action type: " + type));
+    }
+    return
+  }
+
+  this._actionSubscribers.forEach(function (sub) { return sub(action, this$1.state); });
+
+  return entry.length > 1
+    ? Promise.all(entry.map(function (handler) { return handler(payload); }))
+    : entry[0](payload)
+};
+
+Store.prototype.subscribe = function subscribe (fn) {
+  return genericSubscribe(fn, this._subscribers)
+};
+
+Store.prototype.subscribeAction = function subscribeAction (fn) {
+  return genericSubscribe(fn, this._actionSubscribers)
+};
+
+Store.prototype.watch = function watch (getter, cb, options) {
+    var this$1 = this;
+
+  if (true) {
+    assert(typeof getter === 'function', "store.watch only accepts a function.");
+  }
+  return this._watcherVM.$watch(function () { return getter(this$1.state, this$1.getters); }, cb, options)
+};
+
+Store.prototype.replaceState = function replaceState (state) {
+    var this$1 = this;
+
+  this._withCommit(function () {
+    this$1._vm._data.$$state = state;
+  });
+};
+
+Store.prototype.registerModule = function registerModule (path, rawModule, options) {
+    if ( options === void 0 ) options = {};
+
+  if (typeof path === 'string') { path = [path]; }
+
+  if (true) {
+    assert(Array.isArray(path), "module path must be a string or an Array.");
+    assert(path.length > 0, 'cannot register the root module by using registerModule.');
+  }
+
+  this._modules.register(path, rawModule);
+  installModule(this, this.state, path, this._modules.get(path), options.preserveState);
+  // reset store to update getters...
+  resetStoreVM(this, this.state);
+};
+
+Store.prototype.unregisterModule = function unregisterModule (path) {
+    var this$1 = this;
+
+  if (typeof path === 'string') { path = [path]; }
+
+  if (true) {
+    assert(Array.isArray(path), "module path must be a string or an Array.");
+  }
+
+  this._modules.unregister(path);
+  this._withCommit(function () {
+    var parentState = getNestedState(this$1.state, path.slice(0, -1));
+    Vue.delete(parentState, path[path.length - 1]);
+  });
+  resetStore(this);
+};
+
+Store.prototype.hotUpdate = function hotUpdate (newOptions) {
+  this._modules.update(newOptions);
+  resetStore(this, true);
+};
+
+Store.prototype._withCommit = function _withCommit (fn) {
+  var committing = this._committing;
+  this._committing = true;
+  fn();
+  this._committing = committing;
+};
+
+Object.defineProperties( Store.prototype, prototypeAccessors );
+
+function genericSubscribe (fn, subs) {
+  if (subs.indexOf(fn) < 0) {
+    subs.push(fn);
+  }
+  return function () {
+    var i = subs.indexOf(fn);
+    if (i > -1) {
+      subs.splice(i, 1);
+    }
+  }
+}
+
+function resetStore (store, hot) {
+  store._actions = Object.create(null);
+  store._mutations = Object.create(null);
+  store._wrappedGetters = Object.create(null);
+  store._modulesNamespaceMap = Object.create(null);
+  var state = store.state;
+  // init all modules
+  installModule(store, state, [], store._modules.root, true);
+  // reset vm
+  resetStoreVM(store, state, hot);
+}
+
+function resetStoreVM (store, state, hot) {
+  var oldVm = store._vm;
+
+  // bind store public getters
+  store.getters = {};
+  var wrappedGetters = store._wrappedGetters;
+  var computed = {};
+  forEachValue(wrappedGetters, function (fn, key) {
+    // use computed to leverage its lazy-caching mechanism
+    computed[key] = function () { return fn(store); };
+    Object.defineProperty(store.getters, key, {
+      get: function () { return store._vm[key]; },
+      enumerable: true // for local getters
+    });
+  });
+
+  // use a Vue instance to store the state tree
+  // suppress warnings just in case the user has added
+  // some funky global mixins
+  var silent = Vue.config.silent;
+  Vue.config.silent = true;
+  store._vm = new Vue({
+    data: {
+      $$state: state
+    },
+    computed: computed
+  });
+  Vue.config.silent = silent;
+
+  // enable strict mode for new vm
+  if (store.strict) {
+    enableStrictMode(store);
+  }
+
+  if (oldVm) {
+    if (hot) {
+      // dispatch changes in all subscribed watchers
+      // to force getter re-evaluation for hot reloading.
+      store._withCommit(function () {
+        oldVm._data.$$state = null;
+      });
+    }
+    Vue.nextTick(function () { return oldVm.$destroy(); });
+  }
+}
+
+function installModule (store, rootState, path, module, hot) {
+  var isRoot = !path.length;
+  var namespace = store._modules.getNamespace(path);
+
+  // register in namespace map
+  if (module.namespaced) {
+    store._modulesNamespaceMap[namespace] = module;
+  }
+
+  // set state
+  if (!isRoot && !hot) {
+    var parentState = getNestedState(rootState, path.slice(0, -1));
+    var moduleName = path[path.length - 1];
+    store._withCommit(function () {
+      Vue.set(parentState, moduleName, module.state);
+    });
+  }
+
+  var local = module.context = makeLocalContext(store, namespace, path);
+
+  module.forEachMutation(function (mutation, key) {
+    var namespacedType = namespace + key;
+    registerMutation(store, namespacedType, mutation, local);
+  });
+
+  module.forEachAction(function (action, key) {
+    var type = action.root ? key : namespace + key;
+    var handler = action.handler || action;
+    registerAction(store, type, handler, local);
+  });
+
+  module.forEachGetter(function (getter, key) {
+    var namespacedType = namespace + key;
+    registerGetter(store, namespacedType, getter, local);
+  });
+
+  module.forEachChild(function (child, key) {
+    installModule(store, rootState, path.concat(key), child, hot);
+  });
+}
+
+/**
+ * make localized dispatch, commit, getters and state
+ * if there is no namespace, just use root ones
+ */
+function makeLocalContext (store, namespace, path) {
+  var noNamespace = namespace === '';
+
+  var local = {
+    dispatch: noNamespace ? store.dispatch : function (_type, _payload, _options) {
+      var args = unifyObjectStyle(_type, _payload, _options);
+      var payload = args.payload;
+      var options = args.options;
+      var type = args.type;
+
+      if (!options || !options.root) {
+        type = namespace + type;
+        if ( true && !store._actions[type]) {
+          console.error(("[vuex] unknown local action type: " + (args.type) + ", global type: " + type));
+          return
+        }
+      }
+
+      return store.dispatch(type, payload)
+    },
+
+    commit: noNamespace ? store.commit : function (_type, _payload, _options) {
+      var args = unifyObjectStyle(_type, _payload, _options);
+      var payload = args.payload;
+      var options = args.options;
+      var type = args.type;
+
+      if (!options || !options.root) {
+        type = namespace + type;
+        if ( true && !store._mutations[type]) {
+          console.error(("[vuex] unknown local mutation type: " + (args.type) + ", global type: " + type));
+          return
+        }
+      }
+
+      store.commit(type, payload, options);
+    }
+  };
+
+  // getters and state object must be gotten lazily
+  // because they will be changed by vm update
+  Object.defineProperties(local, {
+    getters: {
+      get: noNamespace
+        ? function () { return store.getters; }
+        : function () { return makeLocalGetters(store, namespace); }
+    },
+    state: {
+      get: function () { return getNestedState(store.state, path); }
+    }
+  });
+
+  return local
+}
+
+function makeLocalGetters (store, namespace) {
+  var gettersProxy = {};
+
+  var splitPos = namespace.length;
+  Object.keys(store.getters).forEach(function (type) {
+    // skip if the target getter is not match this namespace
+    if (type.slice(0, splitPos) !== namespace) { return }
+
+    // extract local getter type
+    var localType = type.slice(splitPos);
+
+    // Add a port to the getters proxy.
+    // Define as getter property because
+    // we do not want to evaluate the getters in this time.
+    Object.defineProperty(gettersProxy, localType, {
+      get: function () { return store.getters[type]; },
+      enumerable: true
+    });
+  });
+
+  return gettersProxy
+}
+
+function registerMutation (store, type, handler, local) {
+  var entry = store._mutations[type] || (store._mutations[type] = []);
+  entry.push(function wrappedMutationHandler (payload) {
+    handler.call(store, local.state, payload);
+  });
+}
+
+function registerAction (store, type, handler, local) {
+  var entry = store._actions[type] || (store._actions[type] = []);
+  entry.push(function wrappedActionHandler (payload, cb) {
+    var res = handler.call(store, {
+      dispatch: local.dispatch,
+      commit: local.commit,
+      getters: local.getters,
+      state: local.state,
+      rootGetters: store.getters,
+      rootState: store.state
+    }, payload, cb);
+    if (!isPromise(res)) {
+      res = Promise.resolve(res);
+    }
+    if (store._devtoolHook) {
+      return res.catch(function (err) {
+        store._devtoolHook.emit('vuex:error', err);
+        throw err
+      })
+    } else {
+      return res
+    }
+  });
+}
+
+function registerGetter (store, type, rawGetter, local) {
+  if (store._wrappedGetters[type]) {
+    if (true) {
+      console.error(("[vuex] duplicate getter key: " + type));
+    }
+    return
+  }
+  store._wrappedGetters[type] = function wrappedGetter (store) {
+    return rawGetter(
+      local.state, // local state
+      local.getters, // local getters
+      store.state, // root state
+      store.getters // root getters
+    )
+  };
+}
+
+function enableStrictMode (store) {
+  store._vm.$watch(function () { return this._data.$$state }, function () {
+    if (true) {
+      assert(store._committing, "Do not mutate vuex store state outside mutation handlers.");
+    }
+  }, { deep: true, sync: true });
+}
+
+function getNestedState (state, path) {
+  return path.length
+    ? path.reduce(function (state, key) { return state[key]; }, state)
+    : state
+}
+
+function unifyObjectStyle (type, payload, options) {
+  if (isObject(type) && type.type) {
+    options = payload;
+    payload = type;
+    type = type.type;
+  }
+
+  if (true) {
+    assert(typeof type === 'string', ("Expects string as the type, but found " + (typeof type) + "."));
+  }
+
+  return { type: type, payload: payload, options: options }
+}
+
+function install (_Vue) {
+  if (Vue && _Vue === Vue) {
+    if (true) {
+      console.error(
+        '[vuex] already installed. Vue.use(Vuex) should be called only once.'
+      );
+    }
+    return
+  }
+  Vue = _Vue;
+  applyMixin(Vue);
+}
+
+var mapState = normalizeNamespace(function (namespace, states) {
+  var res = {};
+  normalizeMap(states).forEach(function (ref) {
+    var key = ref.key;
+    var val = ref.val;
+
+    res[key] = function mappedState () {
+      var state = this.$store.state;
+      var getters = this.$store.getters;
+      if (namespace) {
+        var module = getModuleByNamespace(this.$store, 'mapState', namespace);
+        if (!module) {
+          return
+        }
+        state = module.context.state;
+        getters = module.context.getters;
+      }
+      return typeof val === 'function'
+        ? val.call(this, state, getters)
+        : state[val]
+    };
+    // mark vuex getter for devtools
+    res[key].vuex = true;
+  });
+  return res
+});
+
+var mapMutations = normalizeNamespace(function (namespace, mutations) {
+  var res = {};
+  normalizeMap(mutations).forEach(function (ref) {
+    var key = ref.key;
+    var val = ref.val;
+
+    res[key] = function mappedMutation () {
+      var args = [], len = arguments.length;
+      while ( len-- ) args[ len ] = arguments[ len ];
+
+      var commit = this.$store.commit;
+      if (namespace) {
+        var module = getModuleByNamespace(this.$store, 'mapMutations', namespace);
+        if (!module) {
+          return
+        }
+        commit = module.context.commit;
+      }
+      return typeof val === 'function'
+        ? val.apply(this, [commit].concat(args))
+        : commit.apply(this.$store, [val].concat(args))
+    };
+  });
+  return res
+});
+
+var mapGetters = normalizeNamespace(function (namespace, getters) {
+  var res = {};
+  normalizeMap(getters).forEach(function (ref) {
+    var key = ref.key;
+    var val = ref.val;
+
+    val = namespace + val;
+    res[key] = function mappedGetter () {
+      if (namespace && !getModuleByNamespace(this.$store, 'mapGetters', namespace)) {
+        return
+      }
+      if ( true && !(val in this.$store.getters)) {
+        console.error(("[vuex] unknown getter: " + val));
+        return
+      }
+      return this.$store.getters[val]
+    };
+    // mark vuex getter for devtools
+    res[key].vuex = true;
+  });
+  return res
+});
+
+var mapActions = normalizeNamespace(function (namespace, actions) {
+  var res = {};
+  normalizeMap(actions).forEach(function (ref) {
+    var key = ref.key;
+    var val = ref.val;
+
+    res[key] = function mappedAction () {
+      var args = [], len = arguments.length;
+      while ( len-- ) args[ len ] = arguments[ len ];
+
+      var dispatch = this.$store.dispatch;
+      if (namespace) {
+        var module = getModuleByNamespace(this.$store, 'mapActions', namespace);
+        if (!module) {
+          return
+        }
+        dispatch = module.context.dispatch;
+      }
+      return typeof val === 'function'
+        ? val.apply(this, [dispatch].concat(args))
+        : dispatch.apply(this.$store, [val].concat(args))
+    };
+  });
+  return res
+});
+
+var createNamespacedHelpers = function (namespace) { return ({
+  mapState: mapState.bind(null, namespace),
+  mapGetters: mapGetters.bind(null, namespace),
+  mapMutations: mapMutations.bind(null, namespace),
+  mapActions: mapActions.bind(null, namespace)
+}); };
+
+function normalizeMap (map) {
+  return Array.isArray(map)
+    ? map.map(function (key) { return ({ key: key, val: key }); })
+    : Object.keys(map).map(function (key) { return ({ key: key, val: map[key] }); })
+}
+
+function normalizeNamespace (fn) {
+  return function (namespace, map) {
+    if (typeof namespace !== 'string') {
+      map = namespace;
+      namespace = '';
+    } else if (namespace.charAt(namespace.length - 1) !== '/') {
+      namespace += '/';
+    }
+    return fn(namespace, map)
+  }
+}
+
+function getModuleByNamespace (store, helper, namespace) {
+  var module = store._modulesNamespaceMap[namespace];
+  if ( true && !module) {
+    console.error(("[vuex] module namespace not found in " + helper + "(): " + namespace));
+  }
+  return module
+}
+
+var index_esm = {
+  Store: Store,
+  install: install,
+  version: '3.0.1',
+  mapState: mapState,
+  mapMutations: mapMutations,
+  mapGetters: mapGetters,
+  mapActions: mapActions,
+  createNamespacedHelpers: createNamespacedHelpers
+};
 
 
+/* harmony default export */ __webpack_exports__["default"] = (index_esm);
 
-
-/* normalize component */
-
-var component = Object(_plugins_uniapp_cli_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__["default"])(
-  _mpvueCityPicker_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
-  _mpvueCityPicker_vue_vue_type_template_id_e4d50284___WEBPACK_IMPORTED_MODULE_0__["render"],
-  _mpvueCityPicker_vue_vue_type_template_id_e4d50284___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
-  false,
-  null,
-  null,
-  null
-  
-)
-
-/* hot reload */
-if (false) { var api; }
-component.options.__file = "mobile-app/components/mpvue-citypicker/mpvueCityPicker.vue"
-/* harmony default export */ __webpack_exports__["default"] = (component.exports);
 
 /***/ }),
 
-/***/ "../../mobile-app/components/mpvue-citypicker/mpvueCityPicker.vue?vue&type=script&lang=js&":
-/*!***********************************************************************************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/mpvue-citypicker/mpvueCityPicker.vue?vue&type=script&lang=js& ***!
-  \***********************************************************************************************************************************************/
+/***/ 5:
+/*!*******************************************************!*\
+  !*** ./node_modules/@dcloudio/uni-stat/dist/index.js ***!
+  \*******************************************************/
 /*! no static exports found */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_mpvueCityPicker_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../plugins/uniapp-cli/node_modules/babel-loader/lib!../../../plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--12-1!../../../plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--18-0!../../../plugins/uniapp-cli/node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!../../../plugins/uniapp-cli/node_modules/vue-loader/lib??vue-loader-options!./mpvueCityPicker.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/mpvue-citypicker/mpvueCityPicker.vue?vue&type=script&lang=js&");
-/* harmony import */ var _plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_mpvueCityPicker_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_mpvueCityPicker_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__);
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_mpvueCityPicker_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_mpvueCityPicker_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
- /* harmony default export */ __webpack_exports__["default"] = (_plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_mpvueCityPicker_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0___default.a); 
+/* WEBPACK VAR INJECTION */(function(uni) {var _package = __webpack_require__(/*! ../package.json */ 6);function _possibleConstructorReturn(self, call) {if (call && (typeof call === "object" || typeof call === "function")) {return call;}return _assertThisInitialized(self);}function _assertThisInitialized(self) {if (self === void 0) {throw new ReferenceError("this hasn't been initialised - super() hasn't been called");}return self;}function _getPrototypeOf(o) {_getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {return o.__proto__ || Object.getPrototypeOf(o);};return _getPrototypeOf(o);}function _inherits(subClass, superClass) {if (typeof superClass !== "function" && superClass !== null) {throw new TypeError("Super expression must either be null or a function");}subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } });if (superClass) _setPrototypeOf(subClass, superClass);}function _setPrototypeOf(o, p) {_setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {o.__proto__ = p;return o;};return _setPrototypeOf(o, p);}function _classCallCheck(instance, Constructor) {if (!(instance instanceof Constructor)) {throw new TypeError("Cannot call a class as a function");}}function _defineProperties(target, props) {for (var i = 0; i < props.length; i++) {var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);}}function _createClass(Constructor, protoProps, staticProps) {if (protoProps) _defineProperties(Constructor.prototype, protoProps);if (staticProps) _defineProperties(Constructor, staticProps);return Constructor;}
+
+var STAT_VERSION = _package.version;
+var STAT_URL = 'https://tongji.dcloud.io/uni/stat';
+var STAT_H5_URL = 'https://tongji.dcloud.io/uni/stat.gif';
+var PAGE_PVER_TIME = 1800;
+var APP_PVER_TIME = 300;
+var OPERATING_TIME = 10;
+
+var UUID_KEY = '__DC_STAT_UUID';
+var UUID_VALUE = '__DC_UUID_VALUE';
+
+function getUuid() {
+  var uuid = '';
+  if (getPlatformName() === 'n') {
+    try {
+      uuid = plus.runtime.getDCloudId();
+    } catch (e) {
+      uuid = '';
+    }
+    return uuid;
+  }
+
+  try {
+    uuid = uni.getStorageSync(UUID_KEY);
+  } catch (e) {
+    uuid = UUID_VALUE;
+  }
+
+  if (!uuid) {
+    uuid = Date.now() + '' + Math.floor(Math.random() * 1e7);
+    try {
+      uni.setStorageSync(UUID_KEY, uuid);
+    } catch (e) {
+      uni.setStorageSync(UUID_KEY, UUID_VALUE);
+    }
+  }
+  return uuid;
+}
+
+var getSgin = function getSgin(statData) {
+  var arr = Object.keys(statData);
+  var sortArr = arr.sort();
+  var sgin = {};
+  var sginStr = '';
+  for (var i in sortArr) {
+    sgin[sortArr[i]] = statData[sortArr[i]];
+    sginStr += sortArr[i] + '=' + statData[sortArr[i]] + '&';
+  }
+  // const options = sginStr.substr(0, sginStr.length - 1)
+  // sginStr = sginStr.substr(0, sginStr.length - 1) + '&key=' + STAT_KEY;
+  // const si = crypto.createHash('md5').update(sginStr).digest('hex');
+  return {
+    sign: '',
+    options: sginStr.substr(0, sginStr.length - 1) };
+
+};
+
+var getSplicing = function getSplicing(data) {
+  var str = '';
+  for (var i in data) {
+    str += i + '=' + data[i] + '&';
+  }
+  return str.substr(0, str.length - 1);
+};
+
+var getTime = function getTime() {
+  return parseInt(new Date().getTime() / 1000);
+};
+
+var getPlatformName = function getPlatformName() {
+  var platformList = {
+    'app-plus': 'n',
+    'h5': 'h5',
+    'mp-weixin': 'wx',
+    'mp-alipay': 'ali',
+    'mp-baidu': 'bd',
+    'mp-toutiao': 'tt',
+    'mp-qq': 'qq' };
+
+  return platformList["mp-weixin"];
+};
+
+var getPackName = function getPackName() {
+  var packName = '';
+  if (getPlatformName() === 'wx' || getPlatformName() === 'qq') {
+    // 兼容微信小程序低版本基础库
+    if (uni.canIUse('getAccountInfoSync')) {
+      packName = uni.getAccountInfoSync().miniProgram.appId || '';
+    }
+  }
+  return packName;
+};
+
+var getVersion = function getVersion() {
+  return getPlatformName() === 'n' ? plus.runtime.version : '';
+};
+
+var getChannel = function getChannel() {
+  var platformName = getPlatformName();
+  var channel = '';
+  if (platformName === 'n') {
+    channel = plus.runtime.channel;
+  }
+  return channel;
+};
+
+var getScene = function getScene(options) {
+  var platformName = getPlatformName();
+  var scene = '';
+  if (options) {
+    return options;
+  }
+  if (platformName === 'wx') {
+    scene = uni.getLaunchOptionsSync().scene;
+  }
+  return scene;
+};
+var First__Visit__Time__KEY = 'First__Visit__Time';
+var Last__Visit__Time__KEY = 'Last__Visit__Time';
+
+var getFirstVisitTime = function getFirstVisitTime() {
+  var timeStorge = uni.getStorageSync(First__Visit__Time__KEY);
+  var time = 0;
+  if (timeStorge) {
+    time = timeStorge;
+  } else {
+    time = getTime();
+    uni.setStorageSync(First__Visit__Time__KEY, time);
+    uni.removeStorageSync(Last__Visit__Time__KEY);
+  }
+  return time;
+};
+
+var getLastVisitTime = function getLastVisitTime() {
+  var timeStorge = uni.getStorageSync(Last__Visit__Time__KEY);
+  var time = 0;
+  if (timeStorge) {
+    time = timeStorge;
+  } else {
+    time = '';
+  }
+  uni.setStorageSync(Last__Visit__Time__KEY, getTime());
+  return time;
+};
+
+
+var PAGE_RESIDENCE_TIME = '__page__residence__time';
+var First_Page_residence_time = 0;
+var Last_Page_residence_time = 0;
+
+
+var setPageResidenceTime = function setPageResidenceTime() {
+  First_Page_residence_time = getTime();
+  if (getPlatformName() === 'n') {
+    uni.setStorageSync(PAGE_RESIDENCE_TIME, getTime());
+  }
+  return First_Page_residence_time;
+};
+
+var getPageResidenceTime = function getPageResidenceTime() {
+  Last_Page_residence_time = getTime();
+  if (getPlatformName() === 'n') {
+    First_Page_residence_time = uni.getStorageSync(PAGE_RESIDENCE_TIME);
+  }
+  return Last_Page_residence_time - First_Page_residence_time;
+};
+var TOTAL__VISIT__COUNT = 'Total__Visit__Count';
+var getTotalVisitCount = function getTotalVisitCount() {
+  var timeStorge = uni.getStorageSync(TOTAL__VISIT__COUNT);
+  var count = 1;
+  if (timeStorge) {
+    count = timeStorge;
+    count++;
+  }
+  uni.setStorageSync(TOTAL__VISIT__COUNT, count);
+  return count;
+};
+
+var GetEncodeURIComponentOptions = function GetEncodeURIComponentOptions(statData) {
+  var data = {};
+  for (var prop in statData) {
+    data[prop] = encodeURIComponent(statData[prop]);
+  }
+  return data;
+};
+
+var Set__First__Time = 0;
+var Set__Last__Time = 0;
+
+var getFirstTime = function getFirstTime() {
+  var time = new Date().getTime();
+  Set__First__Time = time;
+  Set__Last__Time = 0;
+  return time;
+};
+
+
+var getLastTime = function getLastTime() {
+  var time = new Date().getTime();
+  Set__Last__Time = time;
+  return time;
+};
+
+
+var getResidenceTime = function getResidenceTime(type) {
+  var residenceTime = 0;
+  if (Set__First__Time !== 0) {
+    residenceTime = Set__Last__Time - Set__First__Time;
+  }
+
+  residenceTime = parseInt(residenceTime / 1000);
+  residenceTime = residenceTime < 1 ? 1 : residenceTime;
+  if (type === 'app') {
+    var overtime = residenceTime > APP_PVER_TIME ? true : false;
+    return {
+      residenceTime: residenceTime,
+      overtime: overtime };
+
+  }
+  if (type === 'page') {
+    var _overtime = residenceTime > PAGE_PVER_TIME ? true : false;
+    return {
+      residenceTime: residenceTime,
+      overtime: _overtime };
+
+  }
+
+  return {
+    residenceTime: residenceTime };
+
+
+};
+
+var getRoute = function getRoute() {
+  var pages = getCurrentPages();
+  var page = pages[pages.length - 1];
+  var _self = page.$vm;
+
+  if (getPlatformName() === 'bd') {
+    return _self.$mp && _self.$mp.page.is;
+  } else {
+    return _self.$scope && _self.$scope.route || _self.$mp && _self.$mp.page.route;
+  }
+};
+
+var getPageRoute = function getPageRoute(self) {
+  var pages = getCurrentPages();
+  var page = pages[pages.length - 1];
+  var _self = page.$vm;
+  var query = self._query;
+  var str = query && JSON.stringify(query) !== '{}' ? '?' + JSON.stringify(query) : '';
+  // clear
+  self._query = '';
+  if (getPlatformName() === 'bd') {
+    return _self.$mp && _self.$mp.page.is + str;
+  } else {
+    return _self.$scope && _self.$scope.route + str || _self.$mp && _self.$mp.page.route + str;
+  }
+};
+
+var getPageTypes = function getPageTypes(self) {
+  if (self.mpType === 'page' || self.$mp && self.$mp.mpType === 'page' || self.$options.mpType === 'page') {
+    return true;
+  }
+  return false;
+};
+
+var calibration = function calibration(eventName, options) {
+  //  login 、 share 、pay_success 、pay_fail 、register 、title
+  if (!eventName) {
+    console.error("uni.report \u7F3A\u5C11 [eventName] \u53C2\u6570");
+    return true;
+  }
+  if (typeof eventName !== 'string') {
+    console.error("uni.report [eventName] \u53C2\u6570\u7C7B\u578B\u9519\u8BEF,\u53EA\u80FD\u4E3A String \u7C7B\u578B");
+    return true;
+  }
+  if (eventName.length > 255) {
+    console.error("uni.report [eventName] \u53C2\u6570\u957F\u5EA6\u4E0D\u80FD\u5927\u4E8E 255");
+    return true;
+  }
+
+  if (typeof options !== 'string' && typeof options !== 'object') {
+    console.error("uni.report [options] \u53C2\u6570\u7C7B\u578B\u9519\u8BEF,\u53EA\u80FD\u4E3A String \u6216 Object \u7C7B\u578B");
+    return true;
+  }
+
+  if (typeof options === 'string' && options.length > 255) {
+    console.error("uni.report [options] \u53C2\u6570\u957F\u5EA6\u4E0D\u80FD\u5927\u4E8E 255");
+    return true;
+  }
+
+  if (eventName === 'title' && typeof options !== 'string') {
+    console.error('uni.report [eventName] 参数为 title 时，[options] 参数只能为 String 类型');
+    return true;
+  }
+};
+
+var PagesJson = __webpack_require__(/*! uni-pages?{"type":"style"} */ 7).default;
+var statConfig = __webpack_require__(/*! uni-stat-config */ 8).default || __webpack_require__(/*! uni-stat-config */ 8);
+
+var resultOptions = uni.getSystemInfoSync();var
+
+Util = /*#__PURE__*/function () {
+  function Util() {_classCallCheck(this, Util);
+    this.self = '';
+    this._retry = 0;
+    this._platform = '';
+    this._query = {};
+    this._navigationBarTitle = {
+      config: '',
+      page: '',
+      report: '',
+      lt: '' };
+
+    this._operatingTime = 0;
+    this._reportingRequestData = {
+      '1': [],
+      '11': [] };
+
+    this.__prevent_triggering = false;
+
+    this.__licationHide = false;
+    this.__licationShow = false;
+    this._lastPageRoute = '';
+    this.statData = {
+      uuid: getUuid(),
+      ut: getPlatformName(),
+      mpn: getPackName(),
+      ak: statConfig.appid,
+      usv: STAT_VERSION,
+      v: getVersion(),
+      ch: getChannel(),
+      cn: '',
+      pn: '',
+      ct: '',
+      t: getTime(),
+      tt: '',
+      p: resultOptions.platform === 'android' ? 'a' : 'i',
+      brand: resultOptions.brand || '',
+      md: resultOptions.model,
+      sv: resultOptions.system.replace(/(Android|iOS)\s/, ''),
+      mpsdk: resultOptions.SDKVersion || '',
+      mpv: resultOptions.version || '',
+      lang: resultOptions.language,
+      pr: resultOptions.pixelRatio,
+      ww: resultOptions.windowWidth,
+      wh: resultOptions.windowHeight,
+      sw: resultOptions.screenWidth,
+      sh: resultOptions.screenHeight };
+
+
+  }_createClass(Util, [{ key: "_applicationShow", value: function _applicationShow()
+
+    {
+      if (this.__licationHide) {
+        getLastTime();
+        var time = getResidenceTime('app');
+        if (time.overtime) {
+          var options = {
+            path: this._lastPageRoute,
+            scene: this.statData.sc };
+
+          this._sendReportRequest(options);
+        }
+        this.__licationHide = false;
+      }
+    } }, { key: "_applicationHide", value: function _applicationHide(
+
+    self, type) {
+
+      this.__licationHide = true;
+      getLastTime();
+      var time = getResidenceTime();
+      getFirstTime();
+      var route = getPageRoute(this);
+      this._sendHideRequest({
+        urlref: route,
+        urlref_ts: time.residenceTime },
+      type);
+    } }, { key: "_pageShow", value: function _pageShow()
+
+    {
+      var route = getPageRoute(this);
+      var routepath = getRoute();
+      this._navigationBarTitle.config = PagesJson &&
+      PagesJson.pages[routepath] &&
+      PagesJson.pages[routepath].titleNView &&
+      PagesJson.pages[routepath].titleNView.titleText ||
+      PagesJson &&
+      PagesJson.pages[routepath] &&
+      PagesJson.pages[routepath].navigationBarTitleText || '';
+
+      if (this.__licationShow) {
+        getFirstTime();
+        this.__licationShow = false;
+        // console.log('这是 onLauch 之后执行的第一次 pageShow ，为下次记录时间做准备');
+        this._lastPageRoute = route;
+        return;
+      }
+
+      getLastTime();
+      this._lastPageRoute = route;
+      var time = getResidenceTime('page');
+      if (time.overtime) {
+        var options = {
+          path: this._lastPageRoute,
+          scene: this.statData.sc };
+
+        this._sendReportRequest(options);
+      }
+      getFirstTime();
+    } }, { key: "_pageHide", value: function _pageHide()
+
+    {
+      if (!this.__licationHide) {
+        getLastTime();
+        var time = getResidenceTime('page');
+        this._sendPageRequest({
+          url: this._lastPageRoute,
+          urlref: this._lastPageRoute,
+          urlref_ts: time.residenceTime });
+
+        this._navigationBarTitle = {
+          config: '',
+          page: '',
+          report: '',
+          lt: '' };
+
+        return;
+      }
+    } }, { key: "_login", value: function _login()
+
+    {
+      this._sendEventRequest({
+        key: 'login' },
+      0);
+    } }, { key: "_share", value: function _share()
+
+    {
+      this._sendEventRequest({
+        key: 'share' },
+      0);
+    } }, { key: "_payment", value: function _payment(
+    key) {
+      this._sendEventRequest({
+        key: key },
+      0);
+    } }, { key: "_sendReportRequest", value: function _sendReportRequest(
+    options) {
+
+      this._navigationBarTitle.lt = '1';
+      var query = options.query && JSON.stringify(options.query) !== '{}' ? '?' + JSON.stringify(options.query) : '';
+      this.statData.lt = '1';
+      this.statData.url = options.path + query || '';
+      this.statData.t = getTime();
+      this.statData.sc = getScene(options.scene);
+      this.statData.fvts = getFirstVisitTime();
+      this.statData.lvts = getLastVisitTime();
+      this.statData.tvc = getTotalVisitCount();
+      if (getPlatformName() === 'n') {
+        this.getProperty();
+      } else {
+        this.getNetworkInfo();
+      }
+    } }, { key: "_sendPageRequest", value: function _sendPageRequest(
+
+    opt) {var
+
+      url =
+
+
+      opt.url,urlref = opt.urlref,urlref_ts = opt.urlref_ts;
+      this._navigationBarTitle.lt = '11';
+      var options = {
+        ak: this.statData.ak,
+        uuid: this.statData.uuid,
+        lt: '11',
+        ut: this.statData.ut,
+        url: url,
+        tt: this.statData.tt,
+        urlref: urlref,
+        urlref_ts: urlref_ts,
+        ch: this.statData.ch,
+        usv: this.statData.usv,
+        t: getTime(),
+        p: this.statData.p };
+
+      this.request(options);
+    } }, { key: "_sendHideRequest", value: function _sendHideRequest(
+
+    opt, type) {var
+
+      urlref =
+
+      opt.urlref,urlref_ts = opt.urlref_ts;
+      var options = {
+        ak: this.statData.ak,
+        uuid: this.statData.uuid,
+        lt: '3',
+        ut: this.statData.ut,
+        urlref: urlref,
+        urlref_ts: urlref_ts,
+        ch: this.statData.ch,
+        usv: this.statData.usv,
+        t: getTime(),
+        p: this.statData.p };
+
+      this.request(options, type);
+    } }, { key: "_sendEventRequest", value: function _sendEventRequest()
+
+
+
+    {var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},_ref$key = _ref.key,key = _ref$key === void 0 ? '' : _ref$key,_ref$value = _ref.value,value = _ref$value === void 0 ? "" : _ref$value;
+      var route = this._lastPageRoute;
+      var options = {
+        ak: this.statData.ak,
+        uuid: this.statData.uuid,
+        lt: '21',
+        ut: this.statData.ut,
+        url: route,
+        ch: this.statData.ch,
+        e_n: key,
+        e_v: typeof value === 'object' ? JSON.stringify(value) : value.toString(),
+        usv: this.statData.usv,
+        t: getTime(),
+        p: this.statData.p };
+
+      this.request(options);
+    } }, { key: "getNetworkInfo", value: function getNetworkInfo()
+
+    {var _this = this;
+      uni.getNetworkType({
+        success: function success(result) {
+          _this.statData.net = result.networkType;
+          _this.getLocation();
+        } });
+
+    } }, { key: "getProperty", value: function getProperty()
+
+    {var _this2 = this;
+      plus.runtime.getProperty(plus.runtime.appid, function (wgtinfo) {
+        _this2.statData.v = wgtinfo.version || '';
+        _this2.getNetworkInfo();
+      });
+    } }, { key: "getLocation", value: function getLocation()
+
+    {var _this3 = this;
+      if (statConfig.getLocation) {
+        uni.getLocation({
+          type: 'wgs84',
+          geocode: true,
+          success: function success(result) {
+            if (result.address) {
+              _this3.statData.cn = result.address.country;
+              _this3.statData.pn = result.address.province;
+              _this3.statData.ct = result.address.city;
+            }
+
+            _this3.statData.lat = result.latitude;
+            _this3.statData.lng = result.longitude;
+            _this3.request(_this3.statData);
+          } });
+
+      } else {
+        this.statData.lat = 0;
+        this.statData.lng = 0;
+        this.request(this.statData);
+      }
+    } }, { key: "request", value: function request(
+
+    data, type) {var _this4 = this;
+      var time = getTime();
+      var title = this._navigationBarTitle;
+      data.ttn = title.page;
+      data.ttpj = title.config;
+      data.ttc = title.report;
+
+      var requestData = this._reportingRequestData;
+      if (getPlatformName() === 'n') {
+        requestData = uni.getStorageSync('__UNI__STAT__DATA') || {};
+      }
+      if (!requestData[data.lt]) {
+        requestData[data.lt] = [];
+      }
+      requestData[data.lt].push(data);
+
+      if (getPlatformName() === 'n') {
+        uni.setStorageSync('__UNI__STAT__DATA', requestData);
+      }
+      if (getPageResidenceTime() < OPERATING_TIME && !type) {
+        return;
+      }
+      var uniStatData = this._reportingRequestData;
+      if (getPlatformName() === 'n') {
+        uniStatData = uni.getStorageSync('__UNI__STAT__DATA');
+      }
+      // 时间超过，重新获取时间戳
+      setPageResidenceTime();
+      var firstArr = [];
+      var contentArr = [];
+      var lastArr = [];var _loop = function _loop(
+
+      i) {
+        var rd = uniStatData[i];
+        rd.forEach(function (elm) {
+          var newData = getSplicing(elm);
+          if (i === 0) {
+            firstArr.push(newData);
+          } else if (i === 3) {
+            lastArr.push(newData);
+          } else {
+            contentArr.push(newData);
+          }
+        });};for (var i in uniStatData) {_loop(i);
+      }
+
+      firstArr.push.apply(firstArr, contentArr.concat(lastArr));
+      var optionsData = {
+        usv: STAT_VERSION, //统计 SDK 版本号
+        t: time, //发送请求时的时间戮
+        requests: JSON.stringify(firstArr) };
+
+
+      this._reportingRequestData = {};
+      if (getPlatformName() === 'n') {
+        uni.removeStorageSync('__UNI__STAT__DATA');
+      }
+
+      if (data.ut === 'h5') {
+        this.imageRequest(optionsData);
+        return;
+      }
+
+      if (getPlatformName() === 'n' && this.statData.p === 'a') {
+        setTimeout(function () {
+          _this4._sendRequest(optionsData);
+        }, 200);
+        return;
+      }
+      this._sendRequest(optionsData);
+    } }, { key: "_sendRequest", value: function _sendRequest(
+    optionsData) {var _this5 = this;
+      uni.request({
+        url: STAT_URL,
+        method: 'POST',
+        // header: {
+        //   'content-type': 'application/json' // 默认值
+        // },
+        data: optionsData,
+        success: function success() {
+          // if (process.env.NODE_ENV === 'development') {
+          //   console.log('stat request success');
+          // }
+        },
+        fail: function fail(e) {
+          if (++_this5._retry < 3) {
+            setTimeout(function () {
+              _this5._sendRequest(optionsData);
+            }, 1000);
+          }
+        } });
+
+    }
+    /**
+       * h5 请求
+       */ }, { key: "imageRequest", value: function imageRequest(
+    data) {
+      var image = new Image();
+      var options = getSgin(GetEncodeURIComponentOptions(data)).options;
+      image.src = STAT_H5_URL + '?' + options;
+    } }, { key: "sendEvent", value: function sendEvent(
+
+    key, value) {
+      // 校验 type 参数
+      if (calibration(key, value)) return;
+
+      if (key === 'title') {
+        this._navigationBarTitle.report = value;
+        return;
+      }
+      this._sendEventRequest({
+        key: key,
+        value: typeof value === 'object' ? JSON.stringify(value) : value },
+      1);
+    } }]);return Util;}();var
+
+
+
+Stat = /*#__PURE__*/function (_Util) {_inherits(Stat, _Util);_createClass(Stat, null, [{ key: "getInstance", value: function getInstance()
+    {
+      if (!this.instance) {
+        this.instance = new Stat();
+      }
+      return this.instance;
+    } }]);
+  function Stat() {var _this6;_classCallCheck(this, Stat);
+    _this6 = _possibleConstructorReturn(this, _getPrototypeOf(Stat).call(this));
+    _this6.instance = null;
+    // 注册拦截器
+    if (typeof uni.addInterceptor === 'function' && "development" !== 'development') {
+      _this6.addInterceptorInit();
+      _this6.interceptLogin();
+      _this6.interceptShare(true);
+      _this6.interceptRequestPayment();
+    }return _this6;
+  }_createClass(Stat, [{ key: "addInterceptorInit", value: function addInterceptorInit()
+
+    {
+      var self = this;
+      uni.addInterceptor('setNavigationBarTitle', {
+        invoke: function invoke(args) {
+          self._navigationBarTitle.page = args.title;
+        } });
+
+    } }, { key: "interceptLogin", value: function interceptLogin()
+
+    {
+      var self = this;
+      uni.addInterceptor('login', {
+        complete: function complete() {
+          self._login();
+        } });
+
+    } }, { key: "interceptShare", value: function interceptShare(
+
+    type) {
+      var self = this;
+      if (!type) {
+        self._share();
+        return;
+      }
+      uni.addInterceptor('share', {
+        success: function success() {
+          self._share();
+        },
+        fail: function fail() {
+          self._share();
+        } });
+
+    } }, { key: "interceptRequestPayment", value: function interceptRequestPayment()
+
+    {
+      var self = this;
+      uni.addInterceptor('requestPayment', {
+        success: function success() {
+          self._payment('pay_success');
+        },
+        fail: function fail() {
+          self._payment('pay_fail');
+        } });
+
+    } }, { key: "report", value: function report(
+
+    options, self) {
+      this.self = self;
+      // if (process.env.NODE_ENV === 'development') {
+      //   console.log('report init');
+      // }
+      setPageResidenceTime();
+      this.__licationShow = true;
+      this._sendReportRequest(options, true);
+    } }, { key: "load", value: function load(
+
+    options, self) {
+      if (!self.$scope && !self.$mp) {
+        var page = getCurrentPages();
+        self.$scope = page[page.length - 1];
+      }
+      this.self = self;
+      this._query = options;
+    } }, { key: "show", value: function show(
+
+    self) {
+      this.self = self;
+      if (getPageTypes(self)) {
+        this._pageShow(self);
+      } else {
+        this._applicationShow(self);
+      }
+    } }, { key: "ready", value: function ready(
+
+    self) {
+      // this.self = self;
+      // if (getPageTypes(self)) {
+      //   this._pageShow(self);
+      // }
+    } }, { key: "hide", value: function hide(
+    self) {
+      this.self = self;
+      if (getPageTypes(self)) {
+        this._pageHide(self);
+      } else {
+        this._applicationHide(self, true);
+      }
+    } }, { key: "error", value: function error(
+    em) {
+      if (this._platform === 'devtools') {
+        if (true) {
+          console.info('当前运行环境为开发者工具，不上报数据。');
+        }
+        // return;
+      }
+      var emVal = '';
+      if (!em.message) {
+        emVal = JSON.stringify(em);
+      } else {
+        emVal = em.stack;
+      }
+      var options = {
+        ak: this.statData.ak,
+        uuid: this.statData.uuid,
+        lt: '31',
+        ut: this.statData.ut,
+        ch: this.statData.ch,
+        mpsdk: this.statData.mpsdk,
+        mpv: this.statData.mpv,
+        v: this.statData.v,
+        em: emVal,
+        usv: this.statData.usv,
+        t: getTime(),
+        p: this.statData.p };
+
+      this.request(options);
+    } }]);return Stat;}(Util);
+
+
+var stat = Stat.getInstance();
+var isHide = false;
+var lifecycle = {
+  onLaunch: function onLaunch(options) {
+    stat.report(options, this);
+  },
+  onReady: function onReady() {
+    stat.ready(this);
+  },
+  onLoad: function onLoad(options) {
+    stat.load(options, this);
+    // 重写分享，获取分享上报事件
+    if (this.$scope && this.$scope.onShareAppMessage) {
+      var oldShareAppMessage = this.$scope.onShareAppMessage;
+      this.$scope.onShareAppMessage = function (options) {
+        stat.interceptShare(false);
+        return oldShareAppMessage.call(this, options);
+      };
+    }
+  },
+  onShow: function onShow() {
+    isHide = false;
+    stat.show(this);
+  },
+  onHide: function onHide() {
+    isHide = true;
+    stat.hide(this);
+  },
+  onUnload: function onUnload() {
+    if (isHide) {
+      isHide = false;
+      return;
+    }
+    stat.hide(this);
+  },
+  onError: function onError(e) {
+    stat.error(e);
+  } };
+
+
+function main() {
+  if (true) {
+    uni.report = function (type, options) {};
+  } else { var Vue; }
+}
+
+main();
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 1)["default"]))
 
 /***/ }),
 
-/***/ "../../mobile-app/components/mpvue-citypicker/mpvueCityPicker.vue?vue&type=style&index=0&lang=css&":
-/*!*******************************************************************************************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/mpvue-citypicker/mpvueCityPicker.vue?vue&type=style&index=0&lang=css& ***!
-  \*******************************************************************************************************************************************************/
+/***/ 56:
+/*!***************************************************************************!*\
+  !*** C:/Users/Administrator/Desktop/mobile-app-git/common/SDK/md5.min.js ***!
+  \***************************************************************************/
 /*! no static exports found */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_mpvueCityPicker_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../plugins/uniapp-cli/node_modules/mini-css-extract-plugin/dist/loader.js??ref--6-oneOf-1-0!../../../plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--6-oneOf-1-1!../../../plugins/uniapp-cli/node_modules/css-loader??ref--6-oneOf-1-2!../../../plugins/uniapp-cli/node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../plugins/uniapp-cli/node_modules/postcss-loader/src??ref--6-oneOf-1-3!../../../plugins/uniapp-cli/node_modules/vue-loader/lib??vue-loader-options!./mpvueCityPicker.vue?vue&type=style&index=0&lang=css& */ "./node_modules/mini-css-extract-plugin/dist/loader.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/mpvue-citypicker/mpvueCityPicker.vue?vue&type=style&index=0&lang=css&");
-/* harmony import */ var _plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_mpvueCityPicker_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_mpvueCityPicker_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__);
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_mpvueCityPicker_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_mpvueCityPicker_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
- /* harmony default export */ __webpack_exports__["default"] = (_plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_mpvueCityPicker_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0___default.a); 
+/* WEBPACK VAR INJECTION */(function(process, global) {var __WEBPACK_AMD_DEFINE_RESULT__; /**
+               * [js-md5]{@link https://github.com/emn178/js-md5}
+               *
+               * @namespace md5
+               * @version 0.7.3
+               * @author Chen, Yi-Cyuan [emn178@gmail.com]
+               * @copyright Chen, Yi-Cyuan 2014-2017
+               * @license MIT
+               */
+!function () {"use strict";function t(t) {if (t) d[0] = d[16] = d[1] = d[2] = d[3] = d[4] = d[5] = d[6] = d[7] = d[8] = d[9] = d[10] = d[11] = d[12] = d[13] = d[14] = d[15] = 0, this.blocks = d, this.buffer8 = l;else if (a) {var r = new ArrayBuffer(68);this.buffer8 = new Uint8Array(r), this.blocks = new Uint32Array(r);} else this.blocks = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];this.h0 = this.h1 = this.h2 = this.h3 = this.start = this.bytes = this.hBytes = 0, this.finalized = this.hashed = !1, this.first = !0;}var r = "input is invalid type",e = "object" == typeof window,i = e ? window : {};i.JS_MD5_NO_WINDOW && (e = !1);var s = !e && "object" == typeof self,h = !i.JS_MD5_NO_NODE_JS && "object" == typeof process && process.versions && process.versions.node;h ? i = global : s && (i = self);var f = !i.JS_MD5_NO_COMMON_JS && "object" == typeof module && module.exports,o =  true && __webpack_require__(/*! !webpack amd options */ 59),a = !i.JS_MD5_NO_ARRAY_BUFFER && "undefined" != typeof ArrayBuffer,n = "0123456789abcdef".split(""),u = [128, 32768, 8388608, -2147483648],y = [0, 8, 16, 24],c = ["hex", "array", "digest", "buffer", "arrayBuffer", "base64"],p = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".split(""),d = [],l;if (a) {var A = new ArrayBuffer(68);l = new Uint8Array(A), d = new Uint32Array(A);}!i.JS_MD5_NO_NODE_JS && Array.isArray || (Array.isArray = function (t) {return "[object Array]" === Object.prototype.toString.call(t);}), !a || !i.JS_MD5_NO_ARRAY_BUFFER_IS_VIEW && ArrayBuffer.isView || (ArrayBuffer.isView = function (t) {return "object" == typeof t && t.buffer && t.buffer.constructor === ArrayBuffer;});var b = function b(r) {return function (e) {return new t(!0).update(e)[r]();};},v = function v() {var r = b("hex");h && (r = w(r)), r.create = function () {return new t();}, r.update = function (t) {return r.create().update(t);};for (var e = 0; e < c.length; ++e) {var i = c[e];r[i] = b(i);}return r;},w = function w(t) {var e = eval("require('crypto')"),i = eval("require('buffer').Buffer"),s = function s(_s) {if ("string" == typeof _s) return e.createHash("md5").update(_s, "utf8").digest("hex");if (null === _s || void 0 === _s) throw r;return _s.constructor === ArrayBuffer && (_s = new Uint8Array(_s)), Array.isArray(_s) || ArrayBuffer.isView(_s) || _s.constructor === i ? e.createHash("md5").update(new i(_s)).digest("hex") : t(_s);};return s;};t.prototype.update = function (t) {if (!this.finalized) {var e,i = typeof t;if ("string" !== i) {if ("object" !== i) throw r;if (null === t) throw r;if (a && t.constructor === ArrayBuffer) t = new Uint8Array(t);else if (!(Array.isArray(t) || a && ArrayBuffer.isView(t))) throw r;e = !0;}for (var s, h, f = 0, o = t.length, n = this.blocks, u = this.buffer8; f < o;) {if (this.hashed && (this.hashed = !1, n[0] = n[16], n[16] = n[1] = n[2] = n[3] = n[4] = n[5] = n[6] = n[7] = n[8] = n[9] = n[10] = n[11] = n[12] = n[13] = n[14] = n[15] = 0), e) {if (a) for (h = this.start; f < o && h < 64; ++f) {u[h++] = t[f];} else for (h = this.start; f < o && h < 64; ++f) {n[h >> 2] |= t[f] << y[3 & h++];}} else if (a) for (h = this.start; f < o && h < 64; ++f) {(s = t.charCodeAt(f)) < 128 ? u[h++] = s : s < 2048 ? (u[h++] = 192 | s >> 6, u[h++] = 128 | 63 & s) : s < 55296 || s >= 57344 ? (u[h++] = 224 | s >> 12, u[h++] = 128 | s >> 6 & 63, u[h++] = 128 | 63 & s) : (s = 65536 + ((1023 & s) << 10 | 1023 & t.charCodeAt(++f)), u[h++] = 240 | s >> 18, u[h++] = 128 | s >> 12 & 63, u[h++] = 128 | s >> 6 & 63, u[h++] = 128 | 63 & s);} else for (h = this.start; f < o && h < 64; ++f) {(s = t.charCodeAt(f)) < 128 ? n[h >> 2] |= s << y[3 & h++] : s < 2048 ? (n[h >> 2] |= (192 | s >> 6) << y[3 & h++], n[h >> 2] |= (128 | 63 & s) << y[3 & h++]) : s < 55296 || s >= 57344 ? (n[h >> 2] |= (224 | s >> 12) << y[3 & h++], n[h >> 2] |= (128 | s >> 6 & 63) << y[3 & h++], n[h >> 2] |= (128 | 63 & s) << y[3 & h++]) : (s = 65536 + ((1023 & s) << 10 | 1023 & t.charCodeAt(++f)), n[h >> 2] |= (240 | s >> 18) << y[3 & h++], n[h >> 2] |= (128 | s >> 12 & 63) << y[3 & h++], n[h >> 2] |= (128 | s >> 6 & 63) << y[3 & h++], n[h >> 2] |= (128 | 63 & s) << y[3 & h++]);}this.lastByteIndex = h, this.bytes += h - this.start, h >= 64 ? (this.start = h - 64, this.hash(), this.hashed = !0) : this.start = h;}return this.bytes > 4294967295 && (this.hBytes += this.bytes / 4294967296 << 0, this.bytes = this.bytes % 4294967296), this;}}, t.prototype.finalize = function () {if (!this.finalized) {this.finalized = !0;var t = this.blocks,r = this.lastByteIndex;t[r >> 2] |= u[3 & r], r >= 56 && (this.hashed || this.hash(), t[0] = t[16], t[16] = t[1] = t[2] = t[3] = t[4] = t[5] = t[6] = t[7] = t[8] = t[9] = t[10] = t[11] = t[12] = t[13] = t[14] = t[15] = 0), t[14] = this.bytes << 3, t[15] = this.hBytes << 3 | this.bytes >>> 29, this.hash();}}, t.prototype.hash = function () {var t,r,e,i,s,h,f = this.blocks;this.first ? r = ((r = ((t = ((t = f[0] - 680876937) << 7 | t >>> 25) - 271733879 << 0) ^ (e = ((e = (-271733879 ^ (i = ((i = (-1732584194 ^ 2004318071 & t) + f[1] - 117830708) << 12 | i >>> 20) + t << 0) & (-271733879 ^ t)) + f[2] - 1126478375) << 17 | e >>> 15) + i << 0) & (i ^ t)) + f[3] - 1316259209) << 22 | r >>> 10) + e << 0 : (t = this.h0, r = this.h1, e = this.h2, r = ((r += ((t = ((t += ((i = this.h3) ^ r & (e ^ i)) + f[0] - 680876936) << 7 | t >>> 25) + r << 0) ^ (e = ((e += (r ^ (i = ((i += (e ^ t & (r ^ e)) + f[1] - 389564586) << 12 | i >>> 20) + t << 0) & (t ^ r)) + f[2] + 606105819) << 17 | e >>> 15) + i << 0) & (i ^ t)) + f[3] - 1044525330) << 22 | r >>> 10) + e << 0), r = ((r += ((t = ((t += (i ^ r & (e ^ i)) + f[4] - 176418897) << 7 | t >>> 25) + r << 0) ^ (e = ((e += (r ^ (i = ((i += (e ^ t & (r ^ e)) + f[5] + 1200080426) << 12 | i >>> 20) + t << 0) & (t ^ r)) + f[6] - 1473231341) << 17 | e >>> 15) + i << 0) & (i ^ t)) + f[7] - 45705983) << 22 | r >>> 10) + e << 0, r = ((r += ((t = ((t += (i ^ r & (e ^ i)) + f[8] + 1770035416) << 7 | t >>> 25) + r << 0) ^ (e = ((e += (r ^ (i = ((i += (e ^ t & (r ^ e)) + f[9] - 1958414417) << 12 | i >>> 20) + t << 0) & (t ^ r)) + f[10] - 42063) << 17 | e >>> 15) + i << 0) & (i ^ t)) + f[11] - 1990404162) << 22 | r >>> 10) + e << 0, r = ((r += ((t = ((t += (i ^ r & (e ^ i)) + f[12] + 1804603682) << 7 | t >>> 25) + r << 0) ^ (e = ((e += (r ^ (i = ((i += (e ^ t & (r ^ e)) + f[13] - 40341101) << 12 | i >>> 20) + t << 0) & (t ^ r)) + f[14] - 1502002290) << 17 | e >>> 15) + i << 0) & (i ^ t)) + f[15] + 1236535329) << 22 | r >>> 10) + e << 0, r = ((r += ((i = ((i += (r ^ e & ((t = ((t += (e ^ i & (r ^ e)) + f[1] - 165796510) << 5 | t >>> 27) + r << 0) ^ r)) + f[6] - 1069501632) << 9 | i >>> 23) + t << 0) ^ t & ((e = ((e += (t ^ r & (i ^ t)) + f[11] + 643717713) << 14 | e >>> 18) + i << 0) ^ i)) + f[0] - 373897302) << 20 | r >>> 12) + e << 0, r = ((r += ((i = ((i += (r ^ e & ((t = ((t += (e ^ i & (r ^ e)) + f[5] - 701558691) << 5 | t >>> 27) + r << 0) ^ r)) + f[10] + 38016083) << 9 | i >>> 23) + t << 0) ^ t & ((e = ((e += (t ^ r & (i ^ t)) + f[15] - 660478335) << 14 | e >>> 18) + i << 0) ^ i)) + f[4] - 405537848) << 20 | r >>> 12) + e << 0, r = ((r += ((i = ((i += (r ^ e & ((t = ((t += (e ^ i & (r ^ e)) + f[9] + 568446438) << 5 | t >>> 27) + r << 0) ^ r)) + f[14] - 1019803690) << 9 | i >>> 23) + t << 0) ^ t & ((e = ((e += (t ^ r & (i ^ t)) + f[3] - 187363961) << 14 | e >>> 18) + i << 0) ^ i)) + f[8] + 1163531501) << 20 | r >>> 12) + e << 0, r = ((r += ((i = ((i += (r ^ e & ((t = ((t += (e ^ i & (r ^ e)) + f[13] - 1444681467) << 5 | t >>> 27) + r << 0) ^ r)) + f[2] - 51403784) << 9 | i >>> 23) + t << 0) ^ t & ((e = ((e += (t ^ r & (i ^ t)) + f[7] + 1735328473) << 14 | e >>> 18) + i << 0) ^ i)) + f[12] - 1926607734) << 20 | r >>> 12) + e << 0, r = ((r += ((h = (i = ((i += ((s = r ^ e) ^ (t = ((t += (s ^ i) + f[5] - 378558) << 4 | t >>> 28) + r << 0)) + f[8] - 2022574463) << 11 | i >>> 21) + t << 0) ^ t) ^ (e = ((e += (h ^ r) + f[11] + 1839030562) << 16 | e >>> 16) + i << 0)) + f[14] - 35309556) << 23 | r >>> 9) + e << 0, r = ((r += ((h = (i = ((i += ((s = r ^ e) ^ (t = ((t += (s ^ i) + f[1] - 1530992060) << 4 | t >>> 28) + r << 0)) + f[4] + 1272893353) << 11 | i >>> 21) + t << 0) ^ t) ^ (e = ((e += (h ^ r) + f[7] - 155497632) << 16 | e >>> 16) + i << 0)) + f[10] - 1094730640) << 23 | r >>> 9) + e << 0, r = ((r += ((h = (i = ((i += ((s = r ^ e) ^ (t = ((t += (s ^ i) + f[13] + 681279174) << 4 | t >>> 28) + r << 0)) + f[0] - 358537222) << 11 | i >>> 21) + t << 0) ^ t) ^ (e = ((e += (h ^ r) + f[3] - 722521979) << 16 | e >>> 16) + i << 0)) + f[6] + 76029189) << 23 | r >>> 9) + e << 0, r = ((r += ((h = (i = ((i += ((s = r ^ e) ^ (t = ((t += (s ^ i) + f[9] - 640364487) << 4 | t >>> 28) + r << 0)) + f[12] - 421815835) << 11 | i >>> 21) + t << 0) ^ t) ^ (e = ((e += (h ^ r) + f[15] + 530742520) << 16 | e >>> 16) + i << 0)) + f[2] - 995338651) << 23 | r >>> 9) + e << 0, r = ((r += ((i = ((i += (r ^ ((t = ((t += (e ^ (r | ~i)) + f[0] - 198630844) << 6 | t >>> 26) + r << 0) | ~e)) + f[7] + 1126891415) << 10 | i >>> 22) + t << 0) ^ ((e = ((e += (t ^ (i | ~r)) + f[14] - 1416354905) << 15 | e >>> 17) + i << 0) | ~t)) + f[5] - 57434055) << 21 | r >>> 11) + e << 0, r = ((r += ((i = ((i += (r ^ ((t = ((t += (e ^ (r | ~i)) + f[12] + 1700485571) << 6 | t >>> 26) + r << 0) | ~e)) + f[3] - 1894986606) << 10 | i >>> 22) + t << 0) ^ ((e = ((e += (t ^ (i | ~r)) + f[10] - 1051523) << 15 | e >>> 17) + i << 0) | ~t)) + f[1] - 2054922799) << 21 | r >>> 11) + e << 0, r = ((r += ((i = ((i += (r ^ ((t = ((t += (e ^ (r | ~i)) + f[8] + 1873313359) << 6 | t >>> 26) + r << 0) | ~e)) + f[15] - 30611744) << 10 | i >>> 22) + t << 0) ^ ((e = ((e += (t ^ (i | ~r)) + f[6] - 1560198380) << 15 | e >>> 17) + i << 0) | ~t)) + f[13] + 1309151649) << 21 | r >>> 11) + e << 0, r = ((r += ((i = ((i += (r ^ ((t = ((t += (e ^ (r | ~i)) + f[4] - 145523070) << 6 | t >>> 26) + r << 0) | ~e)) + f[11] - 1120210379) << 10 | i >>> 22) + t << 0) ^ ((e = ((e += (t ^ (i | ~r)) + f[2] + 718787259) << 15 | e >>> 17) + i << 0) | ~t)) + f[9] - 343485551) << 21 | r >>> 11) + e << 0, this.first ? (this.h0 = t + 1732584193 << 0, this.h1 = r - 271733879 << 0, this.h2 = e - 1732584194 << 0, this.h3 = i + 271733878 << 0, this.first = !1) : (this.h0 = this.h0 + t << 0, this.h1 = this.h1 + r << 0, this.h2 = this.h2 + e << 0, this.h3 = this.h3 + i << 0);}, t.prototype.hex = function () {this.finalize();var t = this.h0,r = this.h1,e = this.h2,i = this.h3;return n[t >> 4 & 15] + n[15 & t] + n[t >> 12 & 15] + n[t >> 8 & 15] + n[t >> 20 & 15] + n[t >> 16 & 15] + n[t >> 28 & 15] + n[t >> 24 & 15] + n[r >> 4 & 15] + n[15 & r] + n[r >> 12 & 15] + n[r >> 8 & 15] + n[r >> 20 & 15] + n[r >> 16 & 15] + n[r >> 28 & 15] + n[r >> 24 & 15] + n[e >> 4 & 15] + n[15 & e] + n[e >> 12 & 15] + n[e >> 8 & 15] + n[e >> 20 & 15] + n[e >> 16 & 15] + n[e >> 28 & 15] + n[e >> 24 & 15] + n[i >> 4 & 15] + n[15 & i] + n[i >> 12 & 15] + n[i >> 8 & 15] + n[i >> 20 & 15] + n[i >> 16 & 15] + n[i >> 28 & 15] + n[i >> 24 & 15];}, t.prototype.toString = t.prototype.hex, t.prototype.digest = function () {this.finalize();var t = this.h0,r = this.h1,e = this.h2,i = this.h3;return [255 & t, t >> 8 & 255, t >> 16 & 255, t >> 24 & 255, 255 & r, r >> 8 & 255, r >> 16 & 255, r >> 24 & 255, 255 & e, e >> 8 & 255, e >> 16 & 255, e >> 24 & 255, 255 & i, i >> 8 & 255, i >> 16 & 255, i >> 24 & 255];}, t.prototype.array = t.prototype.digest, t.prototype.arrayBuffer = function () {this.finalize();var t = new ArrayBuffer(16),r = new Uint32Array(t);return r[0] = this.h0, r[1] = this.h1, r[2] = this.h2, r[3] = this.h3, t;}, t.prototype.buffer = t.prototype.arrayBuffer, t.prototype.base64 = function () {for (var t, r, e, i = "", s = this.array(), h = 0; h < 15;) {t = s[h++], r = s[h++], e = s[h++], i += p[t >>> 2] + p[63 & (t << 4 | r >>> 4)] + p[63 & (r << 2 | e >>> 6)] + p[63 & e];}return t = s[h], i += p[t >>> 2] + p[t << 4 & 63] + "==";};var _ = v();f ? module.exports = _ : (i.md5 = _, o && !(__WEBPACK_AMD_DEFINE_RESULT__ = (function () {return _;}).call(exports, __webpack_require__, exports, module),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__)));}();
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/node-libs-browser/mock/process.js */ 57), __webpack_require__(/*! (webpack)/buildin/global.js */ 3)))
 
 /***/ }),
 
-/***/ "../../mobile-app/components/mpvue-citypicker/mpvueCityPicker.vue?vue&type=template&id=e4d50284&":
-/*!*****************************************************************************************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/mpvue-citypicker/mpvueCityPicker.vue?vue&type=template&id=e4d50284& ***!
-  \*****************************************************************************************************************************************************/
-/*! exports provided: render, staticRenderFns */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_17_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_template_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_mpvueCityPicker_vue_vue_type_template_id_e4d50284___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../plugins/uniapp-cli/node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--17-0!../../../plugins/uniapp-cli/node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!../../../plugins/uniapp-cli/node_modules/vue-loader/lib??vue-loader-options!./mpvueCityPicker.vue?vue&type=template&id=e4d50284& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/mpvue-citypicker/mpvueCityPicker.vue?vue&type=template&id=e4d50284&");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_17_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_template_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_mpvueCityPicker_vue_vue_type_template_id_e4d50284___WEBPACK_IMPORTED_MODULE_0__["render"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_17_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_template_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_mpvueCityPicker_vue_vue_type_template_id_e4d50284___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
-
-
-
-/***/ }),
-
-/***/ "../../mobile-app/components/mpvue-picker/mpvuePicker.vue":
-/*!**************************************************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/mpvue-picker/mpvuePicker.vue ***!
-  \**************************************************************************************************************/
+/***/ 57:
+/*!********************************************************!*\
+  !*** ./node_modules/node-libs-browser/mock/process.js ***!
+  \********************************************************/
 /*! no static exports found */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _mpvuePicker_vue_vue_type_template_id_d1038b70___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./mpvuePicker.vue?vue&type=template&id=d1038b70& */ "../../mobile-app/components/mpvue-picker/mpvuePicker.vue?vue&type=template&id=d1038b70&");
-/* harmony import */ var _mpvuePicker_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./mpvuePicker.vue?vue&type=script&lang=js& */ "../../mobile-app/components/mpvue-picker/mpvuePicker.vue?vue&type=script&lang=js&");
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _mpvuePicker_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _mpvuePicker_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__[key]; }) }(__WEBPACK_IMPORT_KEY__));
-/* harmony import */ var _mpvuePicker_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./mpvuePicker.vue?vue&type=style&index=0&lang=css& */ "../../mobile-app/components/mpvue-picker/mpvuePicker.vue?vue&type=style&index=0&lang=css&");
-/* harmony import */ var _plugins_uniapp_cli_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../plugins/uniapp-cli/node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+exports.nextTick = function nextTick(fn) {
+	setTimeout(fn, 0);
+};
 
+exports.platform = exports.arch = 
+exports.execPath = exports.title = 'browser';
+exports.pid = 1;
+exports.browser = true;
+exports.env = {};
+exports.argv = [];
 
+exports.binding = function (name) {
+	throw new Error('No such module. (Possibly not yet loaded)')
+};
 
+(function () {
+    var cwd = '/';
+    var path;
+    exports.cwd = function () { return cwd };
+    exports.chdir = function (dir) {
+        if (!path) path = __webpack_require__(/*! path */ 58);
+        cwd = path.resolve(dir, cwd);
+    };
+})();
 
+exports.exit = exports.kill = 
+exports.umask = exports.dlopen = 
+exports.uptime = exports.memoryUsage = 
+exports.uvCounters = function() {};
+exports.features = {};
 
-
-/* normalize component */
-
-var component = Object(_plugins_uniapp_cli_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__["default"])(
-  _mpvuePicker_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
-  _mpvuePicker_vue_vue_type_template_id_d1038b70___WEBPACK_IMPORTED_MODULE_0__["render"],
-  _mpvuePicker_vue_vue_type_template_id_d1038b70___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
-  false,
-  null,
-  null,
-  null
-  
-)
-
-/* hot reload */
-if (false) { var api; }
-component.options.__file = "mobile-app/components/mpvue-picker/mpvuePicker.vue"
-/* harmony default export */ __webpack_exports__["default"] = (component.exports);
 
 /***/ }),
 
-/***/ "../../mobile-app/components/mpvue-picker/mpvuePicker.vue?vue&type=script&lang=js&":
-/*!***************************************************************************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/mpvue-picker/mpvuePicker.vue?vue&type=script&lang=js& ***!
-  \***************************************************************************************************************************************/
+/***/ 58:
+/*!***********************************************!*\
+  !*** ./node_modules/path-browserify/index.js ***!
+  \***********************************************/
 /*! no static exports found */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_mpvuePicker_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../plugins/uniapp-cli/node_modules/babel-loader/lib!../../../plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--12-1!../../../plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--18-0!../../../plugins/uniapp-cli/node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!../../../plugins/uniapp-cli/node_modules/vue-loader/lib??vue-loader-options!./mpvuePicker.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/mpvue-picker/mpvuePicker.vue?vue&type=script&lang=js&");
-/* harmony import */ var _plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_mpvuePicker_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_mpvuePicker_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__);
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_mpvuePicker_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_mpvuePicker_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
- /* harmony default export */ __webpack_exports__["default"] = (_plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_mpvuePicker_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0___default.a); 
+/* WEBPACK VAR INJECTION */(function(process) {// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+// resolves . and .. elements in a path array with directory names there
+// must be no slashes, empty elements, or device names (c:\) in the array
+// (so also no leading and trailing slashes - it does not distinguish
+// relative and absolute paths)
+function normalizeArray(parts, allowAboveRoot) {
+  // if the path tries to go above the root, `up` ends up > 0
+  var up = 0;
+  for (var i = parts.length - 1; i >= 0; i--) {
+    var last = parts[i];
+    if (last === '.') {
+      parts.splice(i, 1);
+    } else if (last === '..') {
+      parts.splice(i, 1);
+      up++;
+    } else if (up) {
+      parts.splice(i, 1);
+      up--;
+    }
+  }
+
+  // if the path is allowed to go above the root, restore leading ..s
+  if (allowAboveRoot) {
+    for (; up--; up) {
+      parts.unshift('..');
+    }
+  }
+
+  return parts;
+}
+
+// Split a filename into [root, dir, basename, ext], unix version
+// 'root' is just a slash, or nothing.
+var splitPathRe =
+    /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/;
+var splitPath = function(filename) {
+  return splitPathRe.exec(filename).slice(1);
+};
+
+// path.resolve([from ...], to)
+// posix version
+exports.resolve = function() {
+  var resolvedPath = '',
+      resolvedAbsolute = false;
+
+  for (var i = arguments.length - 1; i >= -1 && !resolvedAbsolute; i--) {
+    var path = (i >= 0) ? arguments[i] : process.cwd();
+
+    // Skip empty and invalid entries
+    if (typeof path !== 'string') {
+      throw new TypeError('Arguments to path.resolve must be strings');
+    } else if (!path) {
+      continue;
+    }
+
+    resolvedPath = path + '/' + resolvedPath;
+    resolvedAbsolute = path.charAt(0) === '/';
+  }
+
+  // At this point the path should be resolved to a full absolute path, but
+  // handle relative paths to be safe (might happen when process.cwd() fails)
+
+  // Normalize the path
+  resolvedPath = normalizeArray(filter(resolvedPath.split('/'), function(p) {
+    return !!p;
+  }), !resolvedAbsolute).join('/');
+
+  return ((resolvedAbsolute ? '/' : '') + resolvedPath) || '.';
+};
+
+// path.normalize(path)
+// posix version
+exports.normalize = function(path) {
+  var isAbsolute = exports.isAbsolute(path),
+      trailingSlash = substr(path, -1) === '/';
+
+  // Normalize the path
+  path = normalizeArray(filter(path.split('/'), function(p) {
+    return !!p;
+  }), !isAbsolute).join('/');
+
+  if (!path && !isAbsolute) {
+    path = '.';
+  }
+  if (path && trailingSlash) {
+    path += '/';
+  }
+
+  return (isAbsolute ? '/' : '') + path;
+};
+
+// posix version
+exports.isAbsolute = function(path) {
+  return path.charAt(0) === '/';
+};
+
+// posix version
+exports.join = function() {
+  var paths = Array.prototype.slice.call(arguments, 0);
+  return exports.normalize(filter(paths, function(p, index) {
+    if (typeof p !== 'string') {
+      throw new TypeError('Arguments to path.join must be strings');
+    }
+    return p;
+  }).join('/'));
+};
+
+
+// path.relative(from, to)
+// posix version
+exports.relative = function(from, to) {
+  from = exports.resolve(from).substr(1);
+  to = exports.resolve(to).substr(1);
+
+  function trim(arr) {
+    var start = 0;
+    for (; start < arr.length; start++) {
+      if (arr[start] !== '') break;
+    }
+
+    var end = arr.length - 1;
+    for (; end >= 0; end--) {
+      if (arr[end] !== '') break;
+    }
+
+    if (start > end) return [];
+    return arr.slice(start, end - start + 1);
+  }
+
+  var fromParts = trim(from.split('/'));
+  var toParts = trim(to.split('/'));
+
+  var length = Math.min(fromParts.length, toParts.length);
+  var samePartsLength = length;
+  for (var i = 0; i < length; i++) {
+    if (fromParts[i] !== toParts[i]) {
+      samePartsLength = i;
+      break;
+    }
+  }
+
+  var outputParts = [];
+  for (var i = samePartsLength; i < fromParts.length; i++) {
+    outputParts.push('..');
+  }
+
+  outputParts = outputParts.concat(toParts.slice(samePartsLength));
+
+  return outputParts.join('/');
+};
+
+exports.sep = '/';
+exports.delimiter = ':';
+
+exports.dirname = function(path) {
+  var result = splitPath(path),
+      root = result[0],
+      dir = result[1];
+
+  if (!root && !dir) {
+    // No dirname whatsoever
+    return '.';
+  }
+
+  if (dir) {
+    // It has a dirname, strip trailing slash
+    dir = dir.substr(0, dir.length - 1);
+  }
+
+  return root + dir;
+};
+
+
+exports.basename = function(path, ext) {
+  var f = splitPath(path)[2];
+  // TODO: make this comparison case-insensitive on windows?
+  if (ext && f.substr(-1 * ext.length) === ext) {
+    f = f.substr(0, f.length - ext.length);
+  }
+  return f;
+};
+
+
+exports.extname = function(path) {
+  return splitPath(path)[3];
+};
+
+function filter (xs, f) {
+    if (xs.filter) return xs.filter(f);
+    var res = [];
+    for (var i = 0; i < xs.length; i++) {
+        if (f(xs[i], i, xs)) res.push(xs[i]);
+    }
+    return res;
+}
+
+// String.prototype.substr - negative index don't work in IE8
+var substr = 'ab'.substr(-1) === 'b'
+    ? function (str, start, len) { return str.substr(start, len) }
+    : function (str, start, len) {
+        if (start < 0) start = str.length + start;
+        return str.substr(start, len);
+    }
+;
+
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../node-libs-browser/mock/process.js */ 57)))
 
 /***/ }),
 
-/***/ "../../mobile-app/components/mpvue-picker/mpvuePicker.vue?vue&type=style&index=0&lang=css&":
-/*!***********************************************************************************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/mpvue-picker/mpvuePicker.vue?vue&type=style&index=0&lang=css& ***!
-  \***********************************************************************************************************************************************/
+/***/ 59:
+/*!****************************************!*\
+  !*** (webpack)/buildin/amd-options.js ***!
+  \****************************************/
 /*! no static exports found */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ (function(module, exports) {
 
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_mpvuePicker_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../plugins/uniapp-cli/node_modules/mini-css-extract-plugin/dist/loader.js??ref--6-oneOf-1-0!../../../plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--6-oneOf-1-1!../../../plugins/uniapp-cli/node_modules/css-loader??ref--6-oneOf-1-2!../../../plugins/uniapp-cli/node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../plugins/uniapp-cli/node_modules/postcss-loader/src??ref--6-oneOf-1-3!../../../plugins/uniapp-cli/node_modules/vue-loader/lib??vue-loader-options!./mpvuePicker.vue?vue&type=style&index=0&lang=css& */ "./node_modules/mini-css-extract-plugin/dist/loader.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/mpvue-picker/mpvuePicker.vue?vue&type=style&index=0&lang=css&");
-/* harmony import */ var _plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_mpvuePicker_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_mpvuePicker_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__);
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_mpvuePicker_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_mpvuePicker_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
- /* harmony default export */ __webpack_exports__["default"] = (_plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_mpvuePicker_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0___default.a); 
+/* WEBPACK VAR INJECTION */(function(__webpack_amd_options__) {/* globals __webpack_amd_options__ */
+module.exports = __webpack_amd_options__;
+
+/* WEBPACK VAR INJECTION */}.call(this, {}))
 
 /***/ }),
 
-/***/ "../../mobile-app/components/mpvue-picker/mpvuePicker.vue?vue&type=template&id=d1038b70&":
-/*!*********************************************************************************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/mpvue-picker/mpvuePicker.vue?vue&type=template&id=d1038b70& ***!
-  \*********************************************************************************************************************************************/
-/*! exports provided: render, staticRenderFns */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ 6:
+/*!******************************************************!*\
+  !*** ./node_modules/@dcloudio/uni-stat/package.json ***!
+  \******************************************************/
+/*! exports provided: _from, _id, _inBundle, _integrity, _location, _phantomChildren, _requested, _requiredBy, _resolved, _shasum, _spec, _where, author, bugs, bundleDependencies, deprecated, description, devDependencies, files, gitHead, homepage, license, main, name, repository, scripts, version, default */
+/***/ (function(module) {
 
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_17_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_template_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_mpvuePicker_vue_vue_type_template_id_d1038b70___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../plugins/uniapp-cli/node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--17-0!../../../plugins/uniapp-cli/node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!../../../plugins/uniapp-cli/node_modules/vue-loader/lib??vue-loader-options!./mpvuePicker.vue?vue&type=template&id=d1038b70& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/mpvue-picker/mpvuePicker.vue?vue&type=template&id=d1038b70&");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_17_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_template_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_mpvuePicker_vue_vue_type_template_id_d1038b70___WEBPACK_IMPORTED_MODULE_0__["render"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_17_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_template_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_mpvuePicker_vue_vue_type_template_id_d1038b70___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
-
-
+module.exports = {"_from":"@dcloudio/uni-stat@next","_id":"@dcloudio/uni-stat@2.0.0-23720191024001","_inBundle":false,"_integrity":"sha512-vJEk493Vdb8KueNzR2otzDi23rfyRcQBo/t1R41MwNGPk+AUB94gh10+HVLo98DRcvMzkuVofz3KXTAfEx24iw==","_location":"/@dcloudio/uni-stat","_phantomChildren":{},"_requested":{"type":"tag","registry":true,"raw":"@dcloudio/uni-stat@next","name":"@dcloudio/uni-stat","escapedName":"@dcloudio%2funi-stat","scope":"@dcloudio","rawSpec":"next","saveSpec":null,"fetchSpec":"next"},"_requiredBy":["#USER","/","/@dcloudio/vue-cli-plugin-uni"],"_resolved":"https://registry.npmjs.org/@dcloudio/uni-stat/-/uni-stat-2.0.0-23720191024001.tgz","_shasum":"18272814446a9bc6053bc92666ec7064a1767588","_spec":"@dcloudio/uni-stat@next","_where":"/Users/fxy/Documents/DCloud/HbuilderX-plugins/release/uniapp-cli","author":"","bugs":{"url":"https://github.com/dcloudio/uni-app/issues"},"bundleDependencies":false,"deprecated":false,"description":"","devDependencies":{"@babel/core":"^7.5.5","@babel/preset-env":"^7.5.5","eslint":"^6.1.0","rollup":"^1.19.3","rollup-plugin-babel":"^4.3.3","rollup-plugin-clear":"^2.0.7","rollup-plugin-commonjs":"^10.0.2","rollup-plugin-copy":"^3.1.0","rollup-plugin-eslint":"^7.0.0","rollup-plugin-json":"^4.0.0","rollup-plugin-node-resolve":"^5.2.0","rollup-plugin-replace":"^2.2.0","rollup-plugin-uglify":"^6.0.2"},"files":["dist","package.json","LICENSE"],"gitHead":"a725c04ef762e5df78a9a69d140c2666e0de05fc","homepage":"https://github.com/dcloudio/uni-app#readme","license":"Apache-2.0","main":"dist/index.js","name":"@dcloudio/uni-stat","repository":{"type":"git","url":"git+https://github.com/dcloudio/uni-app.git","directory":"packages/uni-stat"},"scripts":{"build":"NODE_ENV=production rollup -c rollup.config.js","dev":"NODE_ENV=development rollup -w -c rollup.config.js"},"version":"2.0.0-23720191024001"};
 
 /***/ }),
 
-/***/ "../../mobile-app/components/uni-badge/uni-badge.vue":
-/*!*********************************************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-badge/uni-badge.vue ***!
-  \*********************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _uni_badge_vue_vue_type_template_id_5b8b0742___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./uni-badge.vue?vue&type=template&id=5b8b0742& */ "../../mobile-app/components/uni-badge/uni-badge.vue?vue&type=template&id=5b8b0742&");
-/* harmony import */ var _uni_badge_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./uni-badge.vue?vue&type=script&lang=js& */ "../../mobile-app/components/uni-badge/uni-badge.vue?vue&type=script&lang=js&");
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _uni_badge_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _uni_badge_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__[key]; }) }(__WEBPACK_IMPORT_KEY__));
-/* harmony import */ var _uni_badge_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./uni-badge.vue?vue&type=style&index=0&lang=css& */ "../../mobile-app/components/uni-badge/uni-badge.vue?vue&type=style&index=0&lang=css&");
-/* harmony import */ var _plugins_uniapp_cli_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../plugins/uniapp-cli/node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
-
-
-
-
-
-
-/* normalize component */
-
-var component = Object(_plugins_uniapp_cli_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__["default"])(
-  _uni_badge_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
-  _uni_badge_vue_vue_type_template_id_5b8b0742___WEBPACK_IMPORTED_MODULE_0__["render"],
-  _uni_badge_vue_vue_type_template_id_5b8b0742___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
-  false,
-  null,
-  null,
-  null
-  
-)
-
-/* hot reload */
-if (false) { var api; }
-component.options.__file = "mobile-app/components/uni-badge/uni-badge.vue"
-/* harmony default export */ __webpack_exports__["default"] = (component.exports);
-
-/***/ }),
-
-/***/ "../../mobile-app/components/uni-badge/uni-badge.vue?vue&type=script&lang=js&":
-/*!**********************************************************************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-badge/uni-badge.vue?vue&type=script&lang=js& ***!
-  \**********************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_badge_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../plugins/uniapp-cli/node_modules/babel-loader/lib!../../../plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--12-1!../../../plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--18-0!../../../plugins/uniapp-cli/node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!../../../plugins/uniapp-cli/node_modules/vue-loader/lib??vue-loader-options!./uni-badge.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/uni-badge/uni-badge.vue?vue&type=script&lang=js&");
-/* harmony import */ var _plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_badge_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_badge_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__);
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_badge_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_badge_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
- /* harmony default export */ __webpack_exports__["default"] = (_plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_badge_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0___default.a); 
-
-/***/ }),
-
-/***/ "../../mobile-app/components/uni-badge/uni-badge.vue?vue&type=style&index=0&lang=css&":
-/*!******************************************************************************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-badge/uni-badge.vue?vue&type=style&index=0&lang=css& ***!
-  \******************************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_badge_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../plugins/uniapp-cli/node_modules/mini-css-extract-plugin/dist/loader.js??ref--6-oneOf-1-0!../../../plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--6-oneOf-1-1!../../../plugins/uniapp-cli/node_modules/css-loader??ref--6-oneOf-1-2!../../../plugins/uniapp-cli/node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../plugins/uniapp-cli/node_modules/postcss-loader/src??ref--6-oneOf-1-3!../../../plugins/uniapp-cli/node_modules/vue-loader/lib??vue-loader-options!./uni-badge.vue?vue&type=style&index=0&lang=css& */ "./node_modules/mini-css-extract-plugin/dist/loader.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/uni-badge/uni-badge.vue?vue&type=style&index=0&lang=css&");
-/* harmony import */ var _plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_badge_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_badge_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__);
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_badge_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_badge_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
- /* harmony default export */ __webpack_exports__["default"] = (_plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_badge_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0___default.a); 
-
-/***/ }),
-
-/***/ "../../mobile-app/components/uni-badge/uni-badge.vue?vue&type=template&id=5b8b0742&":
-/*!****************************************************************************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-badge/uni-badge.vue?vue&type=template&id=5b8b0742& ***!
-  \****************************************************************************************************************************************/
-/*! exports provided: render, staticRenderFns */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_17_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_template_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_badge_vue_vue_type_template_id_5b8b0742___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../plugins/uniapp-cli/node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--17-0!../../../plugins/uniapp-cli/node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!../../../plugins/uniapp-cli/node_modules/vue-loader/lib??vue-loader-options!./uni-badge.vue?vue&type=template&id=5b8b0742& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/uni-badge/uni-badge.vue?vue&type=template&id=5b8b0742&");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_17_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_template_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_badge_vue_vue_type_template_id_5b8b0742___WEBPACK_IMPORTED_MODULE_0__["render"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_17_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_template_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_badge_vue_vue_type_template_id_5b8b0742___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
-
-
-
-/***/ }),
-
-/***/ "../../mobile-app/components/uni-collapse-item/uni-collapse-item.vue":
-/*!*************************************************************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-collapse-item/uni-collapse-item.vue ***!
-  \*************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _uni_collapse_item_vue_vue_type_template_id_5e7beb02___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./uni-collapse-item.vue?vue&type=template&id=5e7beb02& */ "../../mobile-app/components/uni-collapse-item/uni-collapse-item.vue?vue&type=template&id=5e7beb02&");
-/* harmony import */ var _uni_collapse_item_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./uni-collapse-item.vue?vue&type=script&lang=js& */ "../../mobile-app/components/uni-collapse-item/uni-collapse-item.vue?vue&type=script&lang=js&");
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _uni_collapse_item_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _uni_collapse_item_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__[key]; }) }(__WEBPACK_IMPORT_KEY__));
-/* harmony import */ var _uni_collapse_item_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./uni-collapse-item.vue?vue&type=style&index=0&lang=css& */ "../../mobile-app/components/uni-collapse-item/uni-collapse-item.vue?vue&type=style&index=0&lang=css&");
-/* harmony import */ var _plugins_uniapp_cli_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../plugins/uniapp-cli/node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
-
-
-
-
-
-
-/* normalize component */
-
-var component = Object(_plugins_uniapp_cli_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__["default"])(
-  _uni_collapse_item_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
-  _uni_collapse_item_vue_vue_type_template_id_5e7beb02___WEBPACK_IMPORTED_MODULE_0__["render"],
-  _uni_collapse_item_vue_vue_type_template_id_5e7beb02___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
-  false,
-  null,
-  null,
-  null
-  
-)
-
-/* hot reload */
-if (false) { var api; }
-component.options.__file = "mobile-app/components/uni-collapse-item/uni-collapse-item.vue"
-/* harmony default export */ __webpack_exports__["default"] = (component.exports);
-
-/***/ }),
-
-/***/ "../../mobile-app/components/uni-collapse-item/uni-collapse-item.vue?vue&type=script&lang=js&":
-/*!**************************************************************************************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-collapse-item/uni-collapse-item.vue?vue&type=script&lang=js& ***!
-  \**************************************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_collapse_item_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../plugins/uniapp-cli/node_modules/babel-loader/lib!../../../plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--12-1!../../../plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--18-0!../../../plugins/uniapp-cli/node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!../../../plugins/uniapp-cli/node_modules/vue-loader/lib??vue-loader-options!./uni-collapse-item.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/uni-collapse-item/uni-collapse-item.vue?vue&type=script&lang=js&");
-/* harmony import */ var _plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_collapse_item_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_collapse_item_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__);
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_collapse_item_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_collapse_item_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
- /* harmony default export */ __webpack_exports__["default"] = (_plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_collapse_item_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0___default.a); 
-
-/***/ }),
-
-/***/ "../../mobile-app/components/uni-collapse-item/uni-collapse-item.vue?vue&type=style&index=0&lang=css&":
-/*!**********************************************************************************************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-collapse-item/uni-collapse-item.vue?vue&type=style&index=0&lang=css& ***!
-  \**********************************************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_collapse_item_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../plugins/uniapp-cli/node_modules/mini-css-extract-plugin/dist/loader.js??ref--6-oneOf-1-0!../../../plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--6-oneOf-1-1!../../../plugins/uniapp-cli/node_modules/css-loader??ref--6-oneOf-1-2!../../../plugins/uniapp-cli/node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../plugins/uniapp-cli/node_modules/postcss-loader/src??ref--6-oneOf-1-3!../../../plugins/uniapp-cli/node_modules/vue-loader/lib??vue-loader-options!./uni-collapse-item.vue?vue&type=style&index=0&lang=css& */ "./node_modules/mini-css-extract-plugin/dist/loader.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/uni-collapse-item/uni-collapse-item.vue?vue&type=style&index=0&lang=css&");
-/* harmony import */ var _plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_collapse_item_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_collapse_item_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__);
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_collapse_item_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_collapse_item_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
- /* harmony default export */ __webpack_exports__["default"] = (_plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_collapse_item_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0___default.a); 
-
-/***/ }),
-
-/***/ "../../mobile-app/components/uni-collapse-item/uni-collapse-item.vue?vue&type=template&id=5e7beb02&":
-/*!********************************************************************************************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-collapse-item/uni-collapse-item.vue?vue&type=template&id=5e7beb02& ***!
-  \********************************************************************************************************************************************************/
-/*! exports provided: render, staticRenderFns */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_17_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_template_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_collapse_item_vue_vue_type_template_id_5e7beb02___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../plugins/uniapp-cli/node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--17-0!../../../plugins/uniapp-cli/node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!../../../plugins/uniapp-cli/node_modules/vue-loader/lib??vue-loader-options!./uni-collapse-item.vue?vue&type=template&id=5e7beb02& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/uni-collapse-item/uni-collapse-item.vue?vue&type=template&id=5e7beb02&");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_17_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_template_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_collapse_item_vue_vue_type_template_id_5e7beb02___WEBPACK_IMPORTED_MODULE_0__["render"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_17_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_template_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_collapse_item_vue_vue_type_template_id_5e7beb02___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
-
-
-
-/***/ }),
-
-/***/ "../../mobile-app/components/uni-collapse/uni-collapse.vue":
-/*!***************************************************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-collapse/uni-collapse.vue ***!
-  \***************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _uni_collapse_vue_vue_type_template_id_719bab91___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./uni-collapse.vue?vue&type=template&id=719bab91& */ "../../mobile-app/components/uni-collapse/uni-collapse.vue?vue&type=template&id=719bab91&");
-/* harmony import */ var _uni_collapse_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./uni-collapse.vue?vue&type=script&lang=js& */ "../../mobile-app/components/uni-collapse/uni-collapse.vue?vue&type=script&lang=js&");
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _uni_collapse_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _uni_collapse_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__[key]; }) }(__WEBPACK_IMPORT_KEY__));
-/* harmony import */ var _uni_collapse_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./uni-collapse.vue?vue&type=style&index=0&lang=css& */ "../../mobile-app/components/uni-collapse/uni-collapse.vue?vue&type=style&index=0&lang=css&");
-/* harmony import */ var _plugins_uniapp_cli_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../plugins/uniapp-cli/node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
-
-
-
-
-
-
-/* normalize component */
-
-var component = Object(_plugins_uniapp_cli_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__["default"])(
-  _uni_collapse_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
-  _uni_collapse_vue_vue_type_template_id_719bab91___WEBPACK_IMPORTED_MODULE_0__["render"],
-  _uni_collapse_vue_vue_type_template_id_719bab91___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
-  false,
-  null,
-  null,
-  null
-  
-)
-
-/* hot reload */
-if (false) { var api; }
-component.options.__file = "mobile-app/components/uni-collapse/uni-collapse.vue"
-/* harmony default export */ __webpack_exports__["default"] = (component.exports);
-
-/***/ }),
-
-/***/ "../../mobile-app/components/uni-collapse/uni-collapse.vue?vue&type=script&lang=js&":
-/*!****************************************************************************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-collapse/uni-collapse.vue?vue&type=script&lang=js& ***!
-  \****************************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_collapse_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../plugins/uniapp-cli/node_modules/babel-loader/lib!../../../plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--12-1!../../../plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--18-0!../../../plugins/uniapp-cli/node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!../../../plugins/uniapp-cli/node_modules/vue-loader/lib??vue-loader-options!./uni-collapse.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/uni-collapse/uni-collapse.vue?vue&type=script&lang=js&");
-/* harmony import */ var _plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_collapse_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_collapse_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__);
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_collapse_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_collapse_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
- /* harmony default export */ __webpack_exports__["default"] = (_plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_collapse_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0___default.a); 
-
-/***/ }),
-
-/***/ "../../mobile-app/components/uni-collapse/uni-collapse.vue?vue&type=style&index=0&lang=css&":
-/*!************************************************************************************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-collapse/uni-collapse.vue?vue&type=style&index=0&lang=css& ***!
-  \************************************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_collapse_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../plugins/uniapp-cli/node_modules/mini-css-extract-plugin/dist/loader.js??ref--6-oneOf-1-0!../../../plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--6-oneOf-1-1!../../../plugins/uniapp-cli/node_modules/css-loader??ref--6-oneOf-1-2!../../../plugins/uniapp-cli/node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../plugins/uniapp-cli/node_modules/postcss-loader/src??ref--6-oneOf-1-3!../../../plugins/uniapp-cli/node_modules/vue-loader/lib??vue-loader-options!./uni-collapse.vue?vue&type=style&index=0&lang=css& */ "./node_modules/mini-css-extract-plugin/dist/loader.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/uni-collapse/uni-collapse.vue?vue&type=style&index=0&lang=css&");
-/* harmony import */ var _plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_collapse_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_collapse_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__);
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_collapse_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_collapse_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
- /* harmony default export */ __webpack_exports__["default"] = (_plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_collapse_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0___default.a); 
-
-/***/ }),
-
-/***/ "../../mobile-app/components/uni-collapse/uni-collapse.vue?vue&type=template&id=719bab91&":
-/*!**********************************************************************************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-collapse/uni-collapse.vue?vue&type=template&id=719bab91& ***!
-  \**********************************************************************************************************************************************/
-/*! exports provided: render, staticRenderFns */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_17_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_template_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_collapse_vue_vue_type_template_id_719bab91___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../plugins/uniapp-cli/node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--17-0!../../../plugins/uniapp-cli/node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!../../../plugins/uniapp-cli/node_modules/vue-loader/lib??vue-loader-options!./uni-collapse.vue?vue&type=template&id=719bab91& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/uni-collapse/uni-collapse.vue?vue&type=template&id=719bab91&");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_17_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_template_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_collapse_vue_vue_type_template_id_719bab91___WEBPACK_IMPORTED_MODULE_0__["render"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_17_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_template_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_collapse_vue_vue_type_template_id_719bab91___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
-
-
-
-/***/ }),
-
-/***/ "../../mobile-app/components/uni-icon/uni-icon.vue":
-/*!*******************************************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-icon/uni-icon.vue ***!
-  \*******************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _uni_icon_vue_vue_type_template_id_18ca1591___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./uni-icon.vue?vue&type=template&id=18ca1591& */ "../../mobile-app/components/uni-icon/uni-icon.vue?vue&type=template&id=18ca1591&");
-/* harmony import */ var _uni_icon_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./uni-icon.vue?vue&type=script&lang=js& */ "../../mobile-app/components/uni-icon/uni-icon.vue?vue&type=script&lang=js&");
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _uni_icon_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _uni_icon_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__[key]; }) }(__WEBPACK_IMPORT_KEY__));
-/* harmony import */ var _uni_icon_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./uni-icon.vue?vue&type=style&index=0&lang=css& */ "../../mobile-app/components/uni-icon/uni-icon.vue?vue&type=style&index=0&lang=css&");
-/* harmony import */ var _plugins_uniapp_cli_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../plugins/uniapp-cli/node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
-
-
-
-
-
-
-/* normalize component */
-
-var component = Object(_plugins_uniapp_cli_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__["default"])(
-  _uni_icon_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
-  _uni_icon_vue_vue_type_template_id_18ca1591___WEBPACK_IMPORTED_MODULE_0__["render"],
-  _uni_icon_vue_vue_type_template_id_18ca1591___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
-  false,
-  null,
-  null,
-  null
-  
-)
-
-/* hot reload */
-if (false) { var api; }
-component.options.__file = "mobile-app/components/uni-icon/uni-icon.vue"
-/* harmony default export */ __webpack_exports__["default"] = (component.exports);
-
-/***/ }),
-
-/***/ "../../mobile-app/components/uni-icon/uni-icon.vue?vue&type=script&lang=js&":
-/*!********************************************************************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-icon/uni-icon.vue?vue&type=script&lang=js& ***!
-  \********************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_icon_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../plugins/uniapp-cli/node_modules/babel-loader/lib!../../../plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--12-1!../../../plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--18-0!../../../plugins/uniapp-cli/node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!../../../plugins/uniapp-cli/node_modules/vue-loader/lib??vue-loader-options!./uni-icon.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/uni-icon/uni-icon.vue?vue&type=script&lang=js&");
-/* harmony import */ var _plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_icon_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_icon_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__);
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_icon_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_icon_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
- /* harmony default export */ __webpack_exports__["default"] = (_plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_icon_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0___default.a); 
-
-/***/ }),
-
-/***/ "../../mobile-app/components/uni-icon/uni-icon.vue?vue&type=style&index=0&lang=css&":
-/*!****************************************************************************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-icon/uni-icon.vue?vue&type=style&index=0&lang=css& ***!
-  \****************************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_icon_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../plugins/uniapp-cli/node_modules/mini-css-extract-plugin/dist/loader.js??ref--6-oneOf-1-0!../../../plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--6-oneOf-1-1!../../../plugins/uniapp-cli/node_modules/css-loader??ref--6-oneOf-1-2!../../../plugins/uniapp-cli/node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../plugins/uniapp-cli/node_modules/postcss-loader/src??ref--6-oneOf-1-3!../../../plugins/uniapp-cli/node_modules/vue-loader/lib??vue-loader-options!./uni-icon.vue?vue&type=style&index=0&lang=css& */ "./node_modules/mini-css-extract-plugin/dist/loader.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/uni-icon/uni-icon.vue?vue&type=style&index=0&lang=css&");
-/* harmony import */ var _plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_icon_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_icon_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__);
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_icon_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_icon_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
- /* harmony default export */ __webpack_exports__["default"] = (_plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_icon_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0___default.a); 
-
-/***/ }),
-
-/***/ "../../mobile-app/components/uni-icon/uni-icon.vue?vue&type=template&id=18ca1591&":
-/*!**************************************************************************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-icon/uni-icon.vue?vue&type=template&id=18ca1591& ***!
-  \**************************************************************************************************************************************/
-/*! exports provided: render, staticRenderFns */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_17_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_template_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_icon_vue_vue_type_template_id_18ca1591___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../plugins/uniapp-cli/node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--17-0!../../../plugins/uniapp-cli/node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!../../../plugins/uniapp-cli/node_modules/vue-loader/lib??vue-loader-options!./uni-icon.vue?vue&type=template&id=18ca1591& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/uni-icon/uni-icon.vue?vue&type=template&id=18ca1591&");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_17_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_template_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_icon_vue_vue_type_template_id_18ca1591___WEBPACK_IMPORTED_MODULE_0__["render"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_17_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_template_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_icon_vue_vue_type_template_id_18ca1591___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
-
-
-
-/***/ }),
-
-/***/ "../../mobile-app/components/uni-list-item/uni-list-item.vue":
-/*!*****************************************************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-list-item/uni-list-item.vue ***!
-  \*****************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _uni_list_item_vue_vue_type_template_id_3dfa491d___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./uni-list-item.vue?vue&type=template&id=3dfa491d& */ "../../mobile-app/components/uni-list-item/uni-list-item.vue?vue&type=template&id=3dfa491d&");
-/* harmony import */ var _uni_list_item_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./uni-list-item.vue?vue&type=script&lang=js& */ "../../mobile-app/components/uni-list-item/uni-list-item.vue?vue&type=script&lang=js&");
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _uni_list_item_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _uni_list_item_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__[key]; }) }(__WEBPACK_IMPORT_KEY__));
-/* harmony import */ var _uni_list_item_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./uni-list-item.vue?vue&type=style&index=0&lang=css& */ "../../mobile-app/components/uni-list-item/uni-list-item.vue?vue&type=style&index=0&lang=css&");
-/* harmony import */ var _plugins_uniapp_cli_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../plugins/uniapp-cli/node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
-
-
-
-
-
-
-/* normalize component */
-
-var component = Object(_plugins_uniapp_cli_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__["default"])(
-  _uni_list_item_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
-  _uni_list_item_vue_vue_type_template_id_3dfa491d___WEBPACK_IMPORTED_MODULE_0__["render"],
-  _uni_list_item_vue_vue_type_template_id_3dfa491d___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
-  false,
-  null,
-  null,
-  null
-  
-)
-
-/* hot reload */
-if (false) { var api; }
-component.options.__file = "mobile-app/components/uni-list-item/uni-list-item.vue"
-/* harmony default export */ __webpack_exports__["default"] = (component.exports);
-
-/***/ }),
-
-/***/ "../../mobile-app/components/uni-list-item/uni-list-item.vue?vue&type=script&lang=js&":
-/*!******************************************************************************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-list-item/uni-list-item.vue?vue&type=script&lang=js& ***!
-  \******************************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_list_item_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../plugins/uniapp-cli/node_modules/babel-loader/lib!../../../plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--12-1!../../../plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--18-0!../../../plugins/uniapp-cli/node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!../../../plugins/uniapp-cli/node_modules/vue-loader/lib??vue-loader-options!./uni-list-item.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/uni-list-item/uni-list-item.vue?vue&type=script&lang=js&");
-/* harmony import */ var _plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_list_item_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_list_item_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__);
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_list_item_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_list_item_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
- /* harmony default export */ __webpack_exports__["default"] = (_plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_list_item_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0___default.a); 
-
-/***/ }),
-
-/***/ "../../mobile-app/components/uni-list-item/uni-list-item.vue?vue&type=style&index=0&lang=css&":
-/*!**************************************************************************************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-list-item/uni-list-item.vue?vue&type=style&index=0&lang=css& ***!
-  \**************************************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_list_item_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../plugins/uniapp-cli/node_modules/mini-css-extract-plugin/dist/loader.js??ref--6-oneOf-1-0!../../../plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--6-oneOf-1-1!../../../plugins/uniapp-cli/node_modules/css-loader??ref--6-oneOf-1-2!../../../plugins/uniapp-cli/node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../plugins/uniapp-cli/node_modules/postcss-loader/src??ref--6-oneOf-1-3!../../../plugins/uniapp-cli/node_modules/vue-loader/lib??vue-loader-options!./uni-list-item.vue?vue&type=style&index=0&lang=css& */ "./node_modules/mini-css-extract-plugin/dist/loader.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/uni-list-item/uni-list-item.vue?vue&type=style&index=0&lang=css&");
-/* harmony import */ var _plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_list_item_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_list_item_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__);
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_list_item_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_list_item_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
- /* harmony default export */ __webpack_exports__["default"] = (_plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_list_item_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0___default.a); 
-
-/***/ }),
-
-/***/ "../../mobile-app/components/uni-list-item/uni-list-item.vue?vue&type=template&id=3dfa491d&":
-/*!************************************************************************************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-list-item/uni-list-item.vue?vue&type=template&id=3dfa491d& ***!
-  \************************************************************************************************************************************************/
-/*! exports provided: render, staticRenderFns */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_17_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_template_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_list_item_vue_vue_type_template_id_3dfa491d___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../plugins/uniapp-cli/node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--17-0!../../../plugins/uniapp-cli/node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!../../../plugins/uniapp-cli/node_modules/vue-loader/lib??vue-loader-options!./uni-list-item.vue?vue&type=template&id=3dfa491d& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/uni-list-item/uni-list-item.vue?vue&type=template&id=3dfa491d&");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_17_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_template_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_list_item_vue_vue_type_template_id_3dfa491d___WEBPACK_IMPORTED_MODULE_0__["render"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_17_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_template_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_list_item_vue_vue_type_template_id_3dfa491d___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
-
-
-
-/***/ }),
-
-/***/ "../../mobile-app/components/uni-list/uni-list.vue":
-/*!*******************************************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-list/uni-list.vue ***!
-  \*******************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _uni_list_vue_vue_type_template_id_f9f7c19e___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./uni-list.vue?vue&type=template&id=f9f7c19e& */ "../../mobile-app/components/uni-list/uni-list.vue?vue&type=template&id=f9f7c19e&");
-/* harmony import */ var _uni_list_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./uni-list.vue?vue&type=script&lang=js& */ "../../mobile-app/components/uni-list/uni-list.vue?vue&type=script&lang=js&");
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _uni_list_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _uni_list_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__[key]; }) }(__WEBPACK_IMPORT_KEY__));
-/* harmony import */ var _uni_list_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./uni-list.vue?vue&type=style&index=0&lang=css& */ "../../mobile-app/components/uni-list/uni-list.vue?vue&type=style&index=0&lang=css&");
-/* harmony import */ var _plugins_uniapp_cli_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../plugins/uniapp-cli/node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
-
-
-
-
-
-
-/* normalize component */
-
-var component = Object(_plugins_uniapp_cli_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__["default"])(
-  _uni_list_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
-  _uni_list_vue_vue_type_template_id_f9f7c19e___WEBPACK_IMPORTED_MODULE_0__["render"],
-  _uni_list_vue_vue_type_template_id_f9f7c19e___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
-  false,
-  null,
-  null,
-  null
-  
-)
-
-/* hot reload */
-if (false) { var api; }
-component.options.__file = "mobile-app/components/uni-list/uni-list.vue"
-/* harmony default export */ __webpack_exports__["default"] = (component.exports);
-
-/***/ }),
-
-/***/ "../../mobile-app/components/uni-list/uni-list.vue?vue&type=script&lang=js&":
-/*!********************************************************************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-list/uni-list.vue?vue&type=script&lang=js& ***!
-  \********************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_list_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../plugins/uniapp-cli/node_modules/babel-loader/lib!../../../plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--12-1!../../../plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--18-0!../../../plugins/uniapp-cli/node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!../../../plugins/uniapp-cli/node_modules/vue-loader/lib??vue-loader-options!./uni-list.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/uni-list/uni-list.vue?vue&type=script&lang=js&");
-/* harmony import */ var _plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_list_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_list_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__);
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_list_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_list_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
- /* harmony default export */ __webpack_exports__["default"] = (_plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_list_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0___default.a); 
-
-/***/ }),
-
-/***/ "../../mobile-app/components/uni-list/uni-list.vue?vue&type=style&index=0&lang=css&":
-/*!****************************************************************************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-list/uni-list.vue?vue&type=style&index=0&lang=css& ***!
-  \****************************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_list_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../plugins/uniapp-cli/node_modules/mini-css-extract-plugin/dist/loader.js??ref--6-oneOf-1-0!../../../plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--6-oneOf-1-1!../../../plugins/uniapp-cli/node_modules/css-loader??ref--6-oneOf-1-2!../../../plugins/uniapp-cli/node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../plugins/uniapp-cli/node_modules/postcss-loader/src??ref--6-oneOf-1-3!../../../plugins/uniapp-cli/node_modules/vue-loader/lib??vue-loader-options!./uni-list.vue?vue&type=style&index=0&lang=css& */ "./node_modules/mini-css-extract-plugin/dist/loader.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/uni-list/uni-list.vue?vue&type=style&index=0&lang=css&");
-/* harmony import */ var _plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_list_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_list_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__);
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_list_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_list_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
- /* harmony default export */ __webpack_exports__["default"] = (_plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_list_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0___default.a); 
-
-/***/ }),
-
-/***/ "../../mobile-app/components/uni-list/uni-list.vue?vue&type=template&id=f9f7c19e&":
-/*!**************************************************************************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-list/uni-list.vue?vue&type=template&id=f9f7c19e& ***!
-  \**************************************************************************************************************************************/
-/*! exports provided: render, staticRenderFns */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_17_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_template_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_list_vue_vue_type_template_id_f9f7c19e___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../plugins/uniapp-cli/node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--17-0!../../../plugins/uniapp-cli/node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!../../../plugins/uniapp-cli/node_modules/vue-loader/lib??vue-loader-options!./uni-list.vue?vue&type=template&id=f9f7c19e& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/uni-list/uni-list.vue?vue&type=template&id=f9f7c19e&");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_17_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_template_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_list_vue_vue_type_template_id_f9f7c19e___WEBPACK_IMPORTED_MODULE_0__["render"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_17_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_template_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_list_vue_vue_type_template_id_f9f7c19e___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
-
-
-
-/***/ }),
-
-/***/ "../../mobile-app/components/uni-popup/uni-popup.vue":
-/*!*********************************************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-popup/uni-popup.vue ***!
-  \*********************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _uni_popup_vue_vue_type_template_id_293c7631___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./uni-popup.vue?vue&type=template&id=293c7631& */ "../../mobile-app/components/uni-popup/uni-popup.vue?vue&type=template&id=293c7631&");
-/* harmony import */ var _uni_popup_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./uni-popup.vue?vue&type=script&lang=js& */ "../../mobile-app/components/uni-popup/uni-popup.vue?vue&type=script&lang=js&");
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _uni_popup_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _uni_popup_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__[key]; }) }(__WEBPACK_IMPORT_KEY__));
-/* harmony import */ var _uni_popup_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./uni-popup.vue?vue&type=style&index=0&lang=css& */ "../../mobile-app/components/uni-popup/uni-popup.vue?vue&type=style&index=0&lang=css&");
-/* harmony import */ var _plugins_uniapp_cli_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../plugins/uniapp-cli/node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
-
-
-
-
-
-
-/* normalize component */
-
-var component = Object(_plugins_uniapp_cli_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__["default"])(
-  _uni_popup_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
-  _uni_popup_vue_vue_type_template_id_293c7631___WEBPACK_IMPORTED_MODULE_0__["render"],
-  _uni_popup_vue_vue_type_template_id_293c7631___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
-  false,
-  null,
-  null,
-  null
-  
-)
-
-/* hot reload */
-if (false) { var api; }
-component.options.__file = "mobile-app/components/uni-popup/uni-popup.vue"
-/* harmony default export */ __webpack_exports__["default"] = (component.exports);
-
-/***/ }),
-
-/***/ "../../mobile-app/components/uni-popup/uni-popup.vue?vue&type=script&lang=js&":
-/*!**********************************************************************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-popup/uni-popup.vue?vue&type=script&lang=js& ***!
-  \**********************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_popup_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../plugins/uniapp-cli/node_modules/babel-loader/lib!../../../plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--12-1!../../../plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--18-0!../../../plugins/uniapp-cli/node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!../../../plugins/uniapp-cli/node_modules/vue-loader/lib??vue-loader-options!./uni-popup.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/uni-popup/uni-popup.vue?vue&type=script&lang=js&");
-/* harmony import */ var _plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_popup_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_popup_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__);
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_popup_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_popup_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
- /* harmony default export */ __webpack_exports__["default"] = (_plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_popup_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0___default.a); 
-
-/***/ }),
-
-/***/ "../../mobile-app/components/uni-popup/uni-popup.vue?vue&type=style&index=0&lang=css&":
-/*!******************************************************************************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-popup/uni-popup.vue?vue&type=style&index=0&lang=css& ***!
-  \******************************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_popup_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../plugins/uniapp-cli/node_modules/mini-css-extract-plugin/dist/loader.js??ref--6-oneOf-1-0!../../../plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--6-oneOf-1-1!../../../plugins/uniapp-cli/node_modules/css-loader??ref--6-oneOf-1-2!../../../plugins/uniapp-cli/node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../plugins/uniapp-cli/node_modules/postcss-loader/src??ref--6-oneOf-1-3!../../../plugins/uniapp-cli/node_modules/vue-loader/lib??vue-loader-options!./uni-popup.vue?vue&type=style&index=0&lang=css& */ "./node_modules/mini-css-extract-plugin/dist/loader.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/uni-popup/uni-popup.vue?vue&type=style&index=0&lang=css&");
-/* harmony import */ var _plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_popup_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_popup_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__);
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_popup_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_popup_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
- /* harmony default export */ __webpack_exports__["default"] = (_plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_popup_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0___default.a); 
-
-/***/ }),
-
-/***/ "../../mobile-app/components/uni-popup/uni-popup.vue?vue&type=template&id=293c7631&":
-/*!****************************************************************************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-popup/uni-popup.vue?vue&type=template&id=293c7631& ***!
-  \****************************************************************************************************************************************/
-/*! exports provided: render, staticRenderFns */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_17_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_template_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_popup_vue_vue_type_template_id_293c7631___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../plugins/uniapp-cli/node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--17-0!../../../plugins/uniapp-cli/node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!../../../plugins/uniapp-cli/node_modules/vue-loader/lib??vue-loader-options!./uni-popup.vue?vue&type=template&id=293c7631& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/uni-popup/uni-popup.vue?vue&type=template&id=293c7631&");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_17_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_template_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_popup_vue_vue_type_template_id_293c7631___WEBPACK_IMPORTED_MODULE_0__["render"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_17_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_template_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_uni_popup_vue_vue_type_template_id_293c7631___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
-
-
-
-/***/ }),
-
-/***/ "../../mobile-app/components/zz-prompt/index.vue":
-/*!*****************************************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/zz-prompt/index.vue ***!
-  \*****************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _index_vue_vue_type_template_id_2980bd14_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./index.vue?vue&type=template&id=2980bd14&scoped=true& */ "../../mobile-app/components/zz-prompt/index.vue?vue&type=template&id=2980bd14&scoped=true&");
-/* harmony import */ var _index_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./index.vue?vue&type=script&lang=js& */ "../../mobile-app/components/zz-prompt/index.vue?vue&type=script&lang=js&");
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _index_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _index_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__[key]; }) }(__WEBPACK_IMPORT_KEY__));
-/* harmony import */ var _index_vue_vue_type_style_index_0_id_2980bd14_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./index.vue?vue&type=style&index=0&id=2980bd14&scoped=true&lang=css& */ "../../mobile-app/components/zz-prompt/index.vue?vue&type=style&index=0&id=2980bd14&scoped=true&lang=css&");
-/* harmony import */ var _plugins_uniapp_cli_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../plugins/uniapp-cli/node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
-
-
-
-
-
-
-/* normalize component */
-
-var component = Object(_plugins_uniapp_cli_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__["default"])(
-  _index_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
-  _index_vue_vue_type_template_id_2980bd14_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"],
-  _index_vue_vue_type_template_id_2980bd14_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
-  false,
-  null,
-  "2980bd14",
-  null
-  
-)
-
-/* hot reload */
-if (false) { var api; }
-component.options.__file = "mobile-app/components/zz-prompt/index.vue"
-/* harmony default export */ __webpack_exports__["default"] = (component.exports);
-
-/***/ }),
-
-/***/ "../../mobile-app/components/zz-prompt/index.vue?vue&type=script&lang=js&":
-/*!******************************************************************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/zz-prompt/index.vue?vue&type=script&lang=js& ***!
-  \******************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_index_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../plugins/uniapp-cli/node_modules/babel-loader/lib!../../../plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--12-1!../../../plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--18-0!../../../plugins/uniapp-cli/node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!../../../plugins/uniapp-cli/node_modules/vue-loader/lib??vue-loader-options!./index.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/zz-prompt/index.vue?vue&type=script&lang=js&");
-/* harmony import */ var _plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_index_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_index_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__);
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_index_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_index_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
- /* harmony default export */ __webpack_exports__["default"] = (_plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_12_1_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_18_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_index_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0___default.a); 
-
-/***/ }),
-
-/***/ "../../mobile-app/components/zz-prompt/index.vue?vue&type=style&index=0&id=2980bd14&scoped=true&lang=css&":
-/*!**************************************************************************************************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/zz-prompt/index.vue?vue&type=style&index=0&id=2980bd14&scoped=true&lang=css& ***!
-  \**************************************************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_index_vue_vue_type_style_index_0_id_2980bd14_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../plugins/uniapp-cli/node_modules/mini-css-extract-plugin/dist/loader.js??ref--6-oneOf-1-0!../../../plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--6-oneOf-1-1!../../../plugins/uniapp-cli/node_modules/css-loader??ref--6-oneOf-1-2!../../../plugins/uniapp-cli/node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../plugins/uniapp-cli/node_modules/postcss-loader/src??ref--6-oneOf-1-3!../../../plugins/uniapp-cli/node_modules/vue-loader/lib??vue-loader-options!./index.vue?vue&type=style&index=0&id=2980bd14&scoped=true&lang=css& */ "./node_modules/mini-css-extract-plugin/dist/loader.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/zz-prompt/index.vue?vue&type=style&index=0&id=2980bd14&scoped=true&lang=css&");
-/* harmony import */ var _plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_index_vue_vue_type_style_index_0_id_2980bd14_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_index_vue_vue_type_style_index_0_id_2980bd14_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__);
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_index_vue_vue_type_style_index_0_id_2980bd14_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_index_vue_vue_type_style_index_0_id_2980bd14_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
- /* harmony default export */ __webpack_exports__["default"] = (_plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_1_plugins_uniapp_cli_node_modules_css_loader_index_js_ref_6_oneOf_1_2_plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_stylePostLoader_js_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_index_vue_vue_type_style_index_0_id_2980bd14_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0___default.a); 
-
-/***/ }),
-
-/***/ "../../mobile-app/components/zz-prompt/index.vue?vue&type=template&id=2980bd14&scoped=true&":
-/*!************************************************************************************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/zz-prompt/index.vue?vue&type=template&id=2980bd14&scoped=true& ***!
-  \************************************************************************************************************************************************/
-/*! exports provided: render, staticRenderFns */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_17_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_template_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_index_vue_vue_type_template_id_2980bd14_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../plugins/uniapp-cli/node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--17-0!../../../plugins/uniapp-cli/node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!../../../plugins/uniapp-cli/node_modules/vue-loader/lib??vue-loader-options!./index.vue?vue&type=template&id=2980bd14&scoped=true& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/zz-prompt/index.vue?vue&type=template&id=2980bd14&scoped=true&");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_17_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_template_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_index_vue_vue_type_template_id_2980bd14_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _plugins_uniapp_cli_node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_17_0_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_template_js_plugins_uniapp_cli_node_modules_vue_loader_lib_index_js_vue_loader_options_index_vue_vue_type_template_id_2980bd14_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
-
-
-
-/***/ }),
-
-/***/ "../../mobile-app/pages.json":
+/***/ 7:
 /*!*********************************************************************************!*\
-  !*** D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/pages.json ***!
+  !*** C:/Users/Administrator/Desktop/mobile-app-git/pages.json?{"type":"style"} ***!
   \*********************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var _default = { "pages": { "pages/index/index": { "navigationBarTitleText": "印客宝-广告行业电商平台", "usingComponents": { "i-price": "/components/i-price/i-price", "copyright": "/components/customize/copyright", "tar-bar": "/components/customize/tarBar" } }, "pages/order/progress": { "navigationBarTitleText": "明细流程", "usingComponents": { "uni-steps": "/components/uni-steps/uni-steps-progress" } }, "pages/user/edit": { "navigationBarTitleText": "编辑地址", "usingComponents": { "mpvue-city-picker": "/components/mpvue-citypicker/mpvueCityPicker", "mpvue-picker": "/components/mpvue-picker/mpvuePicker", "city-data": "/common/city.data" } }, "pages/order/balance": { "navigationBarTitleText": "余额支付", "usingComponents": { "uni-popup": "/components/uni-popup/uni-popup" } }, "pages/index/login": { "navigationBarTitleText": "登录", "usingComponents": { "copyright": "/components/customize/copyright", "loginheader": "/components/customize/loginheader" } }, "pages/index/search": { "navigationBarTitleText": "搜索页", "enablePullDownRefresh": true, "usingComponents": {} }, "pages/product/productinfo": { "navigationBarTitleText": "产品页", "navigationBarBackgroundColor": "#f1f1f1", "onReachBottomDistance": 50, "usingComponents": { "uni-popup": "/components/uni-popup/uni-popup", "shop-car-animation": "/components/fly-in-cart/fly-in-cart", "uni-makings": "/components/uni-makings/uni-makings", "native-share": "/common/NativeShare" } }, "pages/order/orderpageinfo": { "navigationBarTitleText": "订单信息", "enablePullDownRefresh": true, "usingComponents": {} }, "pages/order/csOrder": { "navigationBarTitleText": "线下订单", "enablePullDownRefresh": true, "onReachBottomDistance": 500, "usingComponents": { "uni-badge": "/components/uni-badge/uni-badge", "uni-load-more": "/components/uni-load-more/uni-load-more" } }, "pages/order/delivery": { "navigationBarTitleText": "物流跟踪", "usingComponents": { "uni-steps": "/components/uni-steps/uni-steps", "uni-icon": "/components/uni-icon/uni-icon" } }, "pages/order/csDetails": { "navigationBarTitleText": "线下订单详情", "usingComponents": {} }, "pages/user/addressNew": { "navigationBarTitleText": "新增地址", "usingComponents": { "mpvue-city-picker": "/components/mpvue-citypicker/mpvueCityPicker", "mpvue-picker": "/components/mpvue-picker/mpvuePicker" } }, "pages/user/useraddress": { "navigationBarTitleText": "收货地址", "usingComponents": { "uni-address": "/components/uni-address/uni-address", "uni-popup": "/components/uni-popup/uni-popup", "uni-icon": "/components/uni-icon/uni-icon" } }, "pages/product/product": { "navigationBarTitleText": "商品类别", "usingComponents": { "tar-bar": "/components/customize/tarBar" } }, "pages/user/subaccount": { "navigationBarTitleText": "子账号管理", "usingComponents": { "uni-icon": "/components/uni-icon/uni-icon", "uni-popup": "/components/uni-popup/uni-popup" } }, "pages/user/subaccountNew": { "navigationBarTitleText": "子账号注册", "usingComponents": { "copyright": "/components/customize/copyright", "loginheader": "/components/customize/loginheader" } }, "pages/shopping/shopping": { "navigationBarTitleText": "购物车", "onReachBottomDistance": 100, "usingComponents": { "uni-nav-bar": "/components/uni-nav-bar/uni-nav-bar", "uni-icon": "/components/uni-icon/uni-icon", "uni-number-box": "/components/uni-number-box/uni-number-box", "uni-makings": "/components/uni-makings/uni-makings", "tar-bar": "/components/customize/tarBar" } }, "pages/user/change_password": { "navigationBarTitleText": "修改登录密码", "usingComponents": { "copyright": "/components/customize/copyright", "loginheader": "/components/customize/loginheader" } }, "pages/user/change_payment": { "navigationBarTitleText": "修改支付密码", "usingComponents": { "uni-popup": "/components/uni-popup/uni-popupPayResults" } }, "pages/user/personalInfo": { "navigationBarTitleText": "个人信息", "usingComponents": { "prompt": "/components/zz-prompt/index", "uni-popup": "/components/uni-popup/uni-popup" } }, "pages/user/companyInfo": { "navigationBarTitleText": "公司信息", "usingComponents": { "prompt": "/components/zz-prompt/index" } }, "pages/user/bill": { "navigationBarTitleText": "资金流水", "enablePullDownRefresh": true, "usingComponents": {} }, "pages/user/recharge_center": { "navigationBarTitleText": "充值中心", "usingComponents": {} }, "pages/order/details": { "navigationBarTitleText": "订单详情", "usingComponents": {} }, "pages/order/payment": { "navigationBarTitleText": "", "usingComponents": { "uni-address": "/components/uni-address/uni-address", "mpvue-city-picker": "/components/mpvue-citypicker/mpvueCityPicker", "mpvue-picker": "/components/mpvue-picker/mpvuePicker", "mpvie-picker": "/components/mpvue-picker/mpvuePicker", "uni-icon": "/components/uni-icon/uni-icon", "uni-popup": "/components/uni-popup/uni-popup", "city-data": "/common/city.data" } }, "pages/user/safety": { "navigationBarTitleText": "安全中心", "usingComponents": { "uni-icon": "/components/uni-icon/uni-icon" } }, "pages/index/register": { "navigationBarTitleText": "注册", "usingComponents": { "copyright": "/components/customize/copyright", "loginheader": "/components/customize/loginheader" } }, "pages/user/user": { "navigationBarTitleText": "个人中心", "usingComponents": { "prompt": "/components/zz-prompt/index", "uni-icon": "/components/uni-icon/uni-icon", "tar-bar": "/components/customize/tarBar" } }, "pages/index/retrievepwd": { "navigationBarTitleText": "找回登陆密码", "usingComponents": { "copyright": "/components/customize/copyright", "loginheader": "/components/customize/loginheader" } }, "pages/user/change_phone": { "navigationBarTitleText": "更改绑定手机", "usingComponents": { "copyright": "/components/customize/copyright", "loginheader": "/components/customize/loginheader" } }, "pages/order/receiving": { "navigationBarTitleText": "地址", "usingComponents": { "uni-icon": "/components/uni-icon/uni-icon", "uni-collapse": "/components/uni-collapse/uni-collapse", "uni-collapse-item": "/components/uni-collapse-item/uni-collapse-item", "uni-list": "/components/uni-list/uni-list", "uni-list-item": "/components/uni-list-item/uni-list-item", "uni-popup": "/components/uni-popup/uni-popup" } }, "pages/user/weChat": { "navigationBarTitleText": "充值结果", "navigationStyle": "custom", "usingComponents": { "uni-icon": "/components/uni-icon/uni-icon" } }, "pages/order/invoiceDetails": { "navigationBarTitleText": "发票明细", "usingComponents": {} }, "pages/order/payResults": { "navigationBarTitleText": "支付结果", "navigationStyle": "custom", "usingComponents": { "uni-popup": "/components/uni-popup/uni-popupPayResults" } }, "pages/user/certificates": { "navigationBarTitleText": "认证资料", "usingComponents": { "uni-steps": "/components/uni-steps/uni-steps" } }, "pages/order/invoice": { "navigationBarTitleText": "发票", "usingComponents": { "uni-list": "/components/uni-list/uni-list", "uni-list-item": "/components/uni-list-item/uni-list-item", "uni-collapse": "/components/uni-collapse/uni-collapse", "uni-collapse-item": "/components/uni-collapse-item/uni-collapse-item" } } }, "globalStyle": { "navigationBarTextStyle": "black", "navigationBarTitleText": "uni-app", "navigationBarBackgroundColor": "#F8F8F8", "backgroundColor": "#F8F8F8" } };exports.default = _default;
+
+/***/ }),
+
+/***/ 76:
+/*!**********************************************************!*\
+  !*** ./node_modules/@babel/runtime/regenerator/index.js ***!
+  \**********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(/*! regenerator-runtime */ 77);
 
 
 /***/ }),
 
-/***/ "./node_modules/@dcloudio/uni-mp-weixin/dist/index.js":
+/***/ 77:
 /*!************************************************************!*\
-  !*** ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js ***!
+  !*** ./node_modules/regenerator-runtime/runtime-module.js ***!
   \************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });exports.createApp = createApp;exports.createPage = createPage;exports.createComponent = createComponent;exports.default = void 0;var _vue = _interopRequireDefault(__webpack_require__(/*! vue */ "./node_modules/@dcloudio/vue-cli-plugin-uni/packages/mpvue/index.js"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}function _defineProperty(obj, key, value) {if (key in obj) {Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true });} else {obj[key] = value;}return obj;}
-
-var _toString = Object.prototype.toString;
-var hasOwnProperty = Object.prototype.hasOwnProperty;
-
-function isFn(fn) {
-  return typeof fn === 'function';
-}
-
-function isStr(str) {
-  return typeof str === 'string';
-}
-
-function isPlainObject(obj) {
-  return _toString.call(obj) === '[object Object]';
-}
-
-function hasOwn(obj, key) {
-  return hasOwnProperty.call(obj, key);
-}
-
-function noop() {}
-
 /**
-                    * Create a cached version of a pure function.
-                    */
-function cached(fn) {
-  var cache = Object.create(null);
-  return function cachedFn(str) {
-    var hit = cache[str];
-    return hit || (cache[str] = fn(str));
-  };
-}
-
-/**
-   * Camelize a hyphen-delimited string.
-   */
-var camelizeRE = /-(\w)/g;
-var camelize = cached(function (str) {
-  return str.replace(camelizeRE, function (_, c) {return c ? c.toUpperCase() : '';});
-});
-
-var SYNC_API_RE = /requireNativePlugin|upx2px|hideKeyboard|canIUse|^create|Sync$|Manager$/;
-
-var CONTEXT_API_RE = /^create|Manager$/;
-
-var CALLBACK_API_RE = /^on/;
-
-function isContextApi(name) {
-  return CONTEXT_API_RE.test(name);
-}
-function isSyncApi(name) {
-  return SYNC_API_RE.test(name);
-}
-
-function isCallbackApi(name) {
-  return CALLBACK_API_RE.test(name);
-}
-
-function handlePromise(promise) {
-  return promise.then(function (data) {
-    return [null, data];
-  }).
-  catch(function (err) {return [err];});
-}
-
-function shouldPromise(name) {
-  if (
-  isContextApi(name) ||
-  isSyncApi(name) ||
-  isCallbackApi(name))
-  {
-    return false;
-  }
-  return true;
-}
-
-function promisify(name, api) {
-  if (!shouldPromise(name)) {
-    return api;
-  }
-  return function promiseApi() {var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};for (var _len = arguments.length, params = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {params[_key - 1] = arguments[_key];}
-    if (isFn(options.success) || isFn(options.fail) || isFn(options.complete)) {
-      return api.apply(void 0, [options].concat(params));
-    }
-    return handlePromise(new Promise(function (resolve, reject) {
-      api.apply(void 0, [Object.assign({}, options, {
-        success: resolve,
-        fail: reject })].concat(
-      params));
-      /* eslint-disable no-extend-native */
-      Promise.prototype.finally = function (callback) {
-        var promise = this.constructor;
-        return this.then(
-        function (value) {return promise.resolve(callback()).then(function () {return value;});},
-        function (reason) {return promise.resolve(callback()).then(function () {
-            throw reason;
-          });});
-
-      };
-    }));
-  };
-}
-
-var EPS = 1e-4;
-var BASE_DEVICE_WIDTH = 750;
-var isIOS = false;
-var deviceWidth = 0;
-var deviceDPR = 0;
-
-function checkDeviceWidth() {var _wx$getSystemInfoSync =
-
-
-
-
-  wx.getSystemInfoSync(),platform = _wx$getSystemInfoSync.platform,pixelRatio = _wx$getSystemInfoSync.pixelRatio,windowWidth = _wx$getSystemInfoSync.windowWidth; // uni=>wx runtime 编译目标是 uni 对象，内部不允许直接使用 uni
-
-  deviceWidth = windowWidth;
-  deviceDPR = pixelRatio;
-  isIOS = platform === 'ios';
-}
-
-function upx2px(number, newDeviceWidth) {
-  if (deviceWidth === 0) {
-    checkDeviceWidth();
-  }
-
-  number = Number(number);
-  if (number === 0) {
-    return 0;
-  }
-  var result = number / BASE_DEVICE_WIDTH * (newDeviceWidth || deviceWidth);
-  if (result < 0) {
-    result = -result;
-  }
-  result = Math.floor(result + EPS);
-  if (result === 0) {
-    if (deviceDPR === 1 || !isIOS) {
-      return 1;
-    } else {
-      return 0.5;
-    }
-  }
-  return number < 0 ? -result : result;
-}
-
-var protocols = {};
-
-var CALLBACKS = ['success', 'fail', 'cancel', 'complete'];
-
-function processCallback(methodName, method, returnValue) {
-  return function (res) {
-    return method(processReturnValue(methodName, res, returnValue));
-  };
-}
-
-function processArgs(methodName, fromArgs) {var argsOption = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};var returnValue = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};var keepFromArgs = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
-  if (isPlainObject(fromArgs)) {// 一般 api 的参数解析
-    var toArgs = keepFromArgs === true ? fromArgs : {}; // returnValue 为 false 时，说明是格式化返回值，直接在返回值对象上修改赋值
-    if (isFn(argsOption)) {
-      argsOption = argsOption(fromArgs, toArgs) || {};
-    }
-    for (var key in fromArgs) {
-      if (hasOwn(argsOption, key)) {
-        var keyOption = argsOption[key];
-        if (isFn(keyOption)) {
-          keyOption = keyOption(fromArgs[key], fromArgs, toArgs);
-        }
-        if (!keyOption) {// 不支持的参数
-          console.warn("\u5FAE\u4FE1\u5C0F\u7A0B\u5E8F ".concat(methodName, "\u6682\u4E0D\u652F\u6301").concat(key));
-        } else if (isStr(keyOption)) {// 重写参数 key
-          toArgs[keyOption] = fromArgs[key];
-        } else if (isPlainObject(keyOption)) {// {name:newName,value:value}可重新指定参数 key:value
-          toArgs[keyOption.name ? keyOption.name : key] = keyOption.value;
-        }
-      } else if (CALLBACKS.includes(key)) {
-        toArgs[key] = processCallback(methodName, fromArgs[key], returnValue);
-      } else {
-        if (!keepFromArgs) {
-          toArgs[key] = fromArgs[key];
-        }
-      }
-    }
-    return toArgs;
-  } else if (isFn(fromArgs)) {
-    fromArgs = processCallback(methodName, fromArgs, returnValue);
-  }
-  return fromArgs;
-}
-
-function processReturnValue(methodName, res, returnValue) {var keepReturnValue = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
-  if (isFn(protocols.returnValue)) {// 处理通用 returnValue
-    res = protocols.returnValue(methodName, res);
-  }
-  return processArgs(methodName, res, returnValue, {}, keepReturnValue);
-}
-
-function wrapper(methodName, method) {
-  if (hasOwn(protocols, methodName)) {
-    var protocol = protocols[methodName];
-    if (!protocol) {// 暂不支持的 api
-      return function () {
-        console.error("\u5FAE\u4FE1\u5C0F\u7A0B\u5E8F \u6682\u4E0D\u652F\u6301".concat(methodName));
-      };
-    }
-    return function (arg1, arg2) {// 目前 api 最多两个参数
-      var options = protocol;
-      if (isFn(protocol)) {
-        options = protocol(arg1);
-      }
-
-      arg1 = processArgs(methodName, arg1, options.args, options.returnValue);
-
-      var returnValue = wx[options.name || methodName](arg1, arg2);
-      if (isSyncApi(methodName)) {// 同步 api
-        return processReturnValue(methodName, returnValue, options.returnValue, isContextApi(methodName));
-      }
-      return returnValue;
-    };
-  }
-  return method;
-}
-
-var todoApis = Object.create(null);
-
-var TODOS = [
-'subscribePush',
-'unsubscribePush',
-'onPush',
-'offPush',
-'share'];
-
-
-function createTodoApi(name) {
-  return function todoApi(_ref)
-
-
-  {var fail = _ref.fail,complete = _ref.complete;
-    var res = {
-      errMsg: "".concat(name, ":fail:\u6682\u4E0D\u652F\u6301 ").concat(name, " \u65B9\u6CD5") };
-
-    isFn(fail) && fail(res);
-    isFn(complete) && complete(res);
-  };
-}
-
-TODOS.forEach(function (name) {
-  todoApis[name] = createTodoApi(name);
-});
-
-var providers = {
-  oauth: ['weixin'],
-  share: ['weixin'],
-  payment: ['wxpay'],
-  push: ['weixin'] };
-
-
-function getProvider(_ref2)
-
-
-
-
-{var service = _ref2.service,success = _ref2.success,fail = _ref2.fail,complete = _ref2.complete;
-  var res = false;
-  if (providers[service]) {
-    res = {
-      errMsg: 'getProvider:ok',
-      service: service,
-      provider: providers[service] };
-
-    isFn(success) && success(res);
-  } else {
-    res = {
-      errMsg: 'getProvider:fail:服务[' + service + ']不存在' };
-
-    isFn(fail) && fail(res);
-  }
-  isFn(complete) && complete(res);
-}
-
-var extraApi = /*#__PURE__*/Object.freeze({
-  getProvider: getProvider });
-
-
-
-
-var api = /*#__PURE__*/Object.freeze({});
-
-
-
-var MPPage = Page;
-var MPComponent = Component;
-
-var customizeRE = /:/g;
-
-var customize = cached(function (str) {
-  return camelize(str.replace(customizeRE, '-'));
-});
-
-function initTriggerEvent(mpInstance) {
-  {
-    if (!wx.canIUse('nextTick')) {
-      return;
-    }
-  }
-  var oldTriggerEvent = mpInstance.triggerEvent;
-  mpInstance.triggerEvent = function (event) {for (var _len2 = arguments.length, args = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {args[_key2 - 1] = arguments[_key2];}
-    return oldTriggerEvent.apply(mpInstance, [customize(event)].concat(args));
-  };
-}
-
-Page = function Page() {var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-  var name = 'onLoad';
-  var oldHook = options[name];
-  if (!oldHook) {
-    options[name] = function () {
-      initTriggerEvent(this);
-    };
-  } else {
-    options[name] = function () {
-      initTriggerEvent(this);for (var _len3 = arguments.length, args = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {args[_key3] = arguments[_key3];}
-      return oldHook.apply(this, args);
-    };
-  }
-  return MPPage(options);
-};
-
-var behavior = Behavior({
-  created: function created() {
-    initTriggerEvent(this);
-  } });
-
-
-Component = function Component() {var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-  (options.behaviors || (options.behaviors = [])).unshift(behavior);
-  return MPComponent(options);
-};
-
-var MOCKS = ['__route__', '__wxExparserNodeId__', '__wxWebviewId__', '__webviewId__'];
-
-function initMocks(vm) {
-  var mpInstance = vm.$mp[vm.mpType];
-  MOCKS.forEach(function (mock) {
-    if (hasOwn(mpInstance, mock)) {
-      vm[mock] = mpInstance[mock];
-    }
-  });
-}
-
-function initHooks(mpOptions, hooks) {
-  hooks.forEach(function (hook) {
-    mpOptions[hook] = function (args) {
-      return this.$vm.__call_hook(hook, args);
-    };
-  });
-}
-
-function getData(vueOptions, context) {
-  var data = vueOptions.data || {};
-  var methods = vueOptions.methods || {};
-
-  if (typeof data === 'function') {
-    try {
-      data = data.call(context); // 支持 Vue.prototype 上挂的数据
-    } catch (e) {
-      if (Object({"VUE_APP_PLATFORM":"mp-weixin","NODE_ENV":"development","BASE_URL":"/"}).VUE_APP_DEBUG) {
-        console.warn('根据 Vue 的 data 函数初始化小程序 data 失败，请尽量确保 data 函数中不访问 vm 对象，否则可能影响首次数据渲染速度。', data);
-      }
-    }
-  } else {
-    try {
-      // 对 data 格式化
-      data = JSON.parse(JSON.stringify(data));
-    } catch (e) {}
-  }
-
-  Object.keys(methods).forEach(function (methodName) {
-    if (context.__lifecycle_hooks__.indexOf(methodName) === -1 && !hasOwn(data, methodName)) {
-      data[methodName] = methods[methodName];
-    }
-  });
-
-  return data;
-}
-
-var PROP_TYPES = [String, Number, Boolean, Object, Array, null];
-
-function createObserver(name) {
-  return function observer(newVal, oldVal) {
-    if (this.$vm) {
-      this.$vm[name] = newVal; // 为了触发其他非 render watcher
-    }
-  };
-}
-
-function getProperties(props) {
-  var properties = {
-    vueSlots: { // 小程序不能直接定义 $slots 的 props，所以通过 vueSlots 转换到 $slots
-      type: null,
-      value: [],
-      observer: function observer(newVal, oldVal) {
-        var $slots = Object.create(null);
-        newVal.forEach(function (slotName) {
-          $slots[slotName] = true;
-        });
-        this.setData({
-          $slots: $slots });
-
-      } } };
-
-
-  if (Array.isArray(props)) {// ['title']
-    props.forEach(function (key) {
-      properties[key] = {
-        type: null,
-        observer: createObserver(key) };
-
-    });
-  } else if (isPlainObject(props)) {// {title:{type:String,default:''},content:String}
-    Object.keys(props).forEach(function (key) {
-      var opts = props[key];
-      if (isPlainObject(opts)) {// title:{type:String,default:''}
-        var value = opts['default'];
-        if (isFn(value)) {
-          value = value();
-        }
-        properties[key] = {
-          type: PROP_TYPES.includes(opts.type) ? opts.type : null,
-          value: value,
-          observer: createObserver(key) };
-
-      } else {// content:String
-        properties[key] = {
-          type: PROP_TYPES.includes(opts) ? opts : null,
-          observer: createObserver(key) };
-
-      }
-    });
-  }
-  return properties;
-}
-
-function wrapper$1(event) {
-  event.stopPropagation = noop;
-  event.preventDefault = noop;
-
-  event.target = event.target || {};
-
-  if (!hasOwn(event, 'detail')) {
-    event.detail = {};
-  }
-
-  // TODO 又得兼容 mpvue 的 mp 对象
-  event.mp = event;
-
-  if (isPlainObject(event.detail)) {
-    event.target = Object.assign({}, event.target, event.detail);
-  }
-
-  return event;
-}
-
-function getExtraValue(vm, dataPathsArray) {
-  var context = vm;
-  dataPathsArray.forEach(function (dataPathArray) {
-    var dataPath = dataPathArray[0];
-    var value = dataPathArray[2];
-    if (dataPath || typeof value !== 'undefined') {// ['','',index,'disable']
-      var propPath = dataPathArray[1];
-      var valuePath = dataPathArray[3];
-
-      var vFor = dataPath ? vm.__get_value(dataPath, context) : context;
-
-      if (Number.isInteger(vFor)) {
-        context = value;
-      } else if (!propPath) {
-        context = vFor[value];
-      } else {
-        if (Array.isArray(vFor)) {
-          context = vFor.find(function (vForItem) {
-            return vm.__get_value(propPath, vForItem) === value;
-          });
-        } else if (isPlainObject(vFor)) {
-          context = Object.keys(vFor).find(function (vForKey) {
-            return vm.__get_value(propPath, vFor[vForKey]) === value;
-          });
-        } else {
-          console.error('v-for 暂不支持循环数据：', vFor);
-        }
-      }
-
-      if (valuePath) {
-        context = vm.__get_value(valuePath, context);
-      }
-    }
-  });
-  return context;
-}
-
-function processEventExtra(vm, extra) {
-  var extraObj = {};
-
-  if (Array.isArray(extra) && extra.length) {
-    /**
-                                                  *[
-                                                  *    ['data.items', 'data.id', item.data.id],
-                                                  *    ['metas', 'id', meta.id]
-                                                  *],
-                                                  *[
-                                                  *    ['data.items', 'data.id', item.data.id],
-                                                  *    ['metas', 'id', meta.id]
-                                                  *],
-                                                  *'test'
-                                                  */
-    extra.forEach(function (dataPath, index) {
-      if (typeof dataPath === 'string') {
-        if (!dataPath) {// model,prop.sync
-          extraObj['$' + index] = vm;
-        } else {
-          extraObj['$' + index] = vm.__get_value(dataPath);
-        }
-      } else {
-        extraObj['$' + index] = getExtraValue(vm, dataPath);
-      }
-    });
-  }
-
-  return extraObj;
-}
-
-function getObjByArray(arr) {
-  var obj = {};
-  for (var i = 1; i < arr.length; i++) {
-    var element = arr[i];
-    obj[element[0]] = element[1];
-  }
-  return obj;
-}
-
-function processEventArgs(vm, event) {var args = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];var extra = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : [];var isCustom = arguments.length > 4 ? arguments[4] : undefined;var methodName = arguments.length > 5 ? arguments[5] : undefined;
-  var isCustomMPEvent = false; // wxcomponent 组件，传递原始 event 对象
-  if (isCustom) {// 自定义事件
-    isCustomMPEvent = event.currentTarget &&
-    event.currentTarget.dataset &&
-    event.currentTarget.dataset.comType === 'wx';
-    if (!args.length) {// 无参数，直接传入 event 或 detail 数组
-      if (isCustomMPEvent) {
-        return [event];
-      }
-      return event.detail.__args__ || event.detail;
-    }
-  }
-
-  var extraObj = processEventExtra(vm, extra);
-
-  var ret = [];
-  args.forEach(function (arg) {
-    if (arg === '$event') {
-      if (methodName === '__set_model' && !isCustom) {// input v-model value
-        ret.push(event.target.value);
-      } else {
-        if (isCustom && !isCustomMPEvent) {
-          ret.push(event.detail.__args__[0]);
-        } else {// wxcomponent 组件或内置组件
-          ret.push(event);
-        }
-      }
-    } else {
-      if (Array.isArray(arg) && arg[0] === 'o') {
-        ret.push(getObjByArray(arg));
-      } else if (typeof arg === 'string' && hasOwn(extraObj, arg)) {
-        ret.push(extraObj[arg]);
-      } else {
-        ret.push(arg);
-      }
-    }
-  });
-
-  return ret;
-}
-
-var ONCE = '~';
-var CUSTOM = '^';
-
-function handleEvent(event) {var _this = this;
-  event = wrapper$1(event);
-
-  // [['tap',[['handle',[1,2,a]],['handle1',[1,2,a]]]]]
-  var eventOpts = (event.currentTarget || event.target).dataset.eventOpts;
-  if (!eventOpts) {
-    return console.warn("\u4E8B\u4EF6\u4FE1\u606F\u4E0D\u5B58\u5728");
-  }
-
-  // [['handle',[1,2,a]],['handle1',[1,2,a]]]
-  var eventType = event.type;
-  eventOpts.forEach(function (eventOpt) {
-    var type = eventOpt[0];
-    var eventsArray = eventOpt[1];
-
-    var isCustom = type.charAt(0) === CUSTOM;
-    type = isCustom ? type.slice(1) : type;
-    var isOnce = type.charAt(0) === ONCE;
-    type = isOnce ? type.slice(1) : type;
-
-    if (eventsArray && eventType === type) {
-      eventsArray.forEach(function (eventArray) {
-        var methodName = eventArray[0];
-        if (methodName) {
-          var handler = _this.$vm[methodName];
-          if (!isFn(handler)) {
-            throw new Error(" _vm.".concat(methodName, " is not a function"));
-          }
-          if (isOnce) {
-            if (handler.once) {
-              return;
-            }
-            handler.once = true;
-          }
-          handler.apply(_this.$vm, processEventArgs(
-          _this.$vm,
-          event,
-          eventArray[1],
-          eventArray[2],
-          isCustom,
-          methodName));
-
-        }
-      });
-    }
-  });
-}
-
-function initRefs(vm) {
-  var mpInstance = vm.$mp[vm.mpType];
-  Object.defineProperty(vm, '$refs', {
-    get: function get() {
-      var $refs = {};
-      var components = mpInstance.selectAllComponents('.vue-ref');
-      components.forEach(function (component) {
-        var ref = component.dataset.ref;
-        $refs[ref] = component.$vm || component;
-      });
-      var forComponents = mpInstance.selectAllComponents('.vue-ref-in-for');
-      forComponents.forEach(function (component) {
-        var ref = component.dataset.ref;
-        if (!$refs[ref]) {
-          $refs[ref] = [];
-        }
-        $refs[ref].push(component.$vm || component);
-      });
-      return $refs;
-    } });
-
-}
-
-var hooks = [
-'onHide',
-'onError',
-'onPageNotFound',
-'onUniNViewMessage'];
-
-
-function initVm(vm) {
-  if (this.$vm) {// 百度竟然 onShow 在 onLaunch 之前？
-    return;
-  }
-  {
-    if (!wx.canIUse('nextTick')) {// 事实 上2.2.3 即可，简单使用 2.3.0 的 nextTick 判断
-      console.error('当前微信基础库版本过低，请将 微信开发者工具-详情-项目设置-调试基础库版本 更换为`2.3.0`以上');
-    }
-  }
-
-  this.$vm = vm;
-
-  this.$vm.$mp = {
-    app: this };
-
-}
-
-function createApp(vm) {
-  // 外部初始化时 Vue 还未初始化，放到 createApp 内部初始化 mixin
-  _vue.default.mixin({
-    beforeCreate: function beforeCreate() {
-      if (!this.$options.mpType) {
-        return;
-      }
-      this.mpType = this.$options.mpType;
-      this.$mp = _defineProperty({
-        data: {} },
-      this.mpType, this.$options.mpInstance);
-
-      delete this.$options.mpType;
-      delete this.$options.mpInstance;
-
-      if (this.mpType !== 'app') {
-        {// 头条的 selectComponent 竟然是异步的
-          initRefs(this);
-        }
-        initMocks(this);
-      }
-    },
-    created: function created() {// 处理 injections
-      this.__init_injections(this);
-      this.__init_provide(this);
-    } });
-
-
-  var appOptions = {
-    onLaunch: function onLaunch(args) {
-      initVm.call(this, vm);
-
-      this.$vm._isMounted = true;
-      this.$vm.__call_hook('mounted');
-
-      this.$vm.__call_hook('onLaunch', args);
-    },
-    onShow: function onShow(args) {
-      initVm.call(this, vm);
-
-      this.$vm.__call_hook('onShow', args);
-    } };
-
-
-  // 兼容旧版本 globalData
-  appOptions.globalData = vm.$options.globalData || {};
-
-  initHooks(appOptions, hooks); // 延迟执行，因为 App 的注册在 main.js 之前，可能导致生命周期内 Vue 原型上开发者注册的属性无法访问
-
-  App(appOptions);
-
-  return vm;
-}
-
-function triggerLink(mpInstance, vueOptions) {
-  mpInstance.triggerEvent('__l', mpInstance.$vm || vueOptions, {
-    bubbles: true,
-    composed: true });
-
-}
-
-function handleLink(event) {
-  if (event.detail.$mp) {// vm
-    if (!event.detail.$parent) {
-      event.detail.$parent = this.$vm;
-      event.detail.$parent.$children.push(event.detail);
-
-      event.detail.$root = this.$vm.$root;
-    }
-  } else {// vueOptions
-    if (!event.detail.parent) {
-      event.detail.parent = this.$vm;
-    }
-  }
-}
-
-var hooks$1 = [
-'onShow',
-'onHide',
-'onPullDownRefresh',
-'onReachBottom',
-'onShareAppMessage',
-'onPageScroll',
-'onResize',
-'onTabItemTap',
-'onBackPress',
-'onNavigationBarButtonTap',
-'onNavigationBarSearchInputChanged',
-'onNavigationBarSearchInputConfirmed',
-'onNavigationBarSearchInputClicked'];
-
-
-function initVm$1(VueComponent) {// 百度的 onLoad 触发在 attached 之前
-  if (this.$vm) {
-    return;
-  }
-
-  this.$vm = new VueComponent({
-    mpType: 'page',
-    mpInstance: this });
-
-
-  this.$vm.__call_hook('created');
-  this.$vm.$mount();
-}
-
-function createPage(vueOptions) {
-  vueOptions = vueOptions.default || vueOptions;
-  var VueComponent;
-  if (isFn(vueOptions)) {
-    VueComponent = vueOptions;
-    vueOptions = VueComponent.extendOptions;
-  } else {
-    VueComponent = _vue.default.extend(vueOptions);
-  }
-  var pageOptions = {
-    options: {
-      multipleSlots: true,
-      addGlobalClass: true },
-
-    data: getData(vueOptions, _vue.default.prototype),
-    lifetimes: { // 当页面作为组件时
-      attached: function attached() {
-        initVm$1.call(this, VueComponent);
-      },
-      ready: function ready() {
-        this.$vm.__call_hook('beforeMount');
-        this.$vm._isMounted = true;
-        this.$vm.__call_hook('mounted');
-        this.$vm.__call_hook('onReady');
-      },
-      detached: function detached() {
-        this.$vm.$destroy();
-      } },
-
-    methods: { // 作为页面时
-      onLoad: function onLoad(args) {
-        initVm$1.call(this, VueComponent);
-        this.$vm.$mp.query = args; // 又要兼容 mpvue
-        this.$vm.__call_hook('onLoad', args); // 开发者可能会在 onLoad 时赋值，提前到 mount 之前
-      },
-      onUnload: function onUnload() {
-        this.$vm.__call_hook('onUnload');
-      },
-      __e: handleEvent,
-      __l: handleLink } };
-
-
-
-  initHooks(pageOptions.methods, hooks$1);
-
-  return Component(pageOptions);
-}
-
-function initVm$2(VueComponent) {
-  if (this.$vm) {
-    return;
-  }
-
-  var options = {
-    mpType: 'component',
-    mpInstance: this,
-    propsData: this.properties };
-
-  // 初始化 vue 实例
-  this.$vm = new VueComponent(options);
-
-  // 处理$slots,$scopedSlots（暂不支持动态变化$slots）
-  var vueSlots = this.properties.vueSlots;
-  if (Array.isArray(vueSlots) && vueSlots.length) {
-    var $slots = Object.create(null);
-    vueSlots.forEach(function (slotName) {
-      $slots[slotName] = true;
-    });
-    this.$vm.$scopedSlots = this.$vm.$slots = $slots;
-  }
-  // 性能优先，mount 提前到 attached 中，保证组件首次渲染数据被合并
-  // 导致与标准 Vue 的差异，data 和 computed 中不能使用$parent，provide等组件属性
-  this.$vm.$mount();
-}
-
-function createComponent(vueOptions) {
-  vueOptions = vueOptions.default || vueOptions;
-
-  var properties = getProperties(vueOptions.props);
-
-  var VueComponent = _vue.default.extend(vueOptions);
-
-  var componentOptions = {
-    options: {
-      multipleSlots: true,
-      addGlobalClass: true },
-
-    data: getData(vueOptions, _vue.default.prototype),
-    properties: properties,
-    lifetimes: {
-      attached: function attached() {
-        initVm$2.call(this, VueComponent);
-      },
-      ready: function ready() {
-        initVm$2.call(this, VueComponent); // 目前发现部分情况小程序 attached 不触发
-        triggerLink(this); // 处理 parent,children
-
-        // 补充生命周期
-        this.$vm.__call_hook('created');
-        this.$vm.__call_hook('beforeMount');
-        this.$vm._isMounted = true;
-        this.$vm.__call_hook('mounted');
-        this.$vm.__call_hook('onReady');
-      },
-      detached: function detached() {
-        this.$vm.$destroy();
-      } },
-
-    pageLifetimes: {
-      show: function show(args) {
-        this.$vm.__call_hook('onPageShow', args);
-      },
-      hide: function hide() {
-        this.$vm && this.$vm.__call_hook('onPageHide');
-      },
-      resize: function resize(size) {
-        this.$vm && this.$vm.__call_hook('onPageResize', size);
-      } },
-
-    methods: {
-      __e: handleEvent,
-      __l: handleLink } };
-
-
-
-  return Component(componentOptions);
-}
-
-var uni = {};
-
-if (typeof Proxy !== 'undefined') {
-  uni = new Proxy({}, {
-    get: function get(target, name) {
-      if (name === 'upx2px') {
-        return upx2px;
-      }
-      if (api[name]) {
-        return promisify(name, api[name]);
-      }
-      {
-        if (extraApi[name]) {
-          return promisify(name, extraApi[name]);
-        }
-        if (todoApis[name]) {
-          return promisify(name, todoApis[name]);
-        }
-      }
-      if (!hasOwn(wx, name) && !hasOwn(protocols, name)) {
-        return;
-      }
-      return promisify(name, wrapper(name, wx[name]));
-    } });
-
+ * Copyright (c) 2014-present, Facebook, Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+// This method of obtaining a reference to the global object needs to be
+// kept identical to the way it is obtained in runtime.js
+var g = (function() {
+  return this || (typeof self === "object" && self);
+})() || Function("return this")();
+
+// Use `getOwnPropertyNames` because not all browsers support calling
+// `hasOwnProperty` on the global `self` object in a worker. See #183.
+var hadRuntime = g.regeneratorRuntime &&
+  Object.getOwnPropertyNames(g).indexOf("regeneratorRuntime") >= 0;
+
+// Save the old regeneratorRuntime in case it needs to be restored later.
+var oldRuntime = hadRuntime && g.regeneratorRuntime;
+
+// Force reevalutation of runtime.js.
+g.regeneratorRuntime = undefined;
+
+module.exports = __webpack_require__(/*! ./runtime */ 78);
+
+if (hadRuntime) {
+  // Restore the original runtime.
+  g.regeneratorRuntime = oldRuntime;
 } else {
-  uni.upx2px = upx2px;
-
-  {
-    Object.keys(todoApis).forEach(function (name) {
-      uni[name] = promisify(name, todoApis[name]);
-    });
-    Object.keys(extraApi).forEach(function (name) {
-      uni[name] = promisify(name, todoApis[name]);
-    });
-  }
-
-  Object.keys(api).forEach(function (name) {
-    uni[name] = promisify(name, api[name]);
-  });
-
-  Object.keys(wx).forEach(function (name) {
-    if (hasOwn(wx, name) || hasOwn(protocols, name)) {
-      uni[name] = promisify(name, wrapper(name, wx[name]));
-    }
-  });
-}
-
-var uni$1 = uni;var _default =
-
-uni$1;exports.default = _default;
-
-/***/ }),
-
-/***/ "./node_modules/@dcloudio/vue-cli-plugin-uni/packages/mpvue-page-factory/index.js":
-/*!****************************************************************************************!*\
-  !*** ./node_modules/@dcloudio/vue-cli-plugin-uni/packages/mpvue-page-factory/index.js ***!
-  \****************************************************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ "./node_modules/@dcloudio/vue-cli-plugin-uni/packages/mpvue/index.js");
-/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(vue__WEBPACK_IMPORTED_MODULE_0__);
-
-
-function callHook$1(vm, hook, params) {
-  var handlers = vm.$options[hook];
-  if (hook === 'onError' && handlers) {
-    handlers = [handlers];
-  }
-  if(typeof handlers === 'function'){
-    handlers = [handlers]
-  }
-
-  var ret;
-  if (handlers) {
-    for (var i = 0, j = handlers.length; i < j; i++) {
-//      try {
-        ret = handlers[i].call(vm, params);
-//       } catch (e) {//fixed by xxxxxx
-//         handleError(e, vm, (hook + " hook"));
-//       }
-    }
-  }
-  if (vm._hasHookEvent) {
-    vm.$emit('hook:' + hook);
-  }
-
-  // for child
-  if (vm.$children.length) {
-    vm.$children.forEach(function (v) {
-      return callHook$1(v, hook, params);
-    });
-  }
-
-  return ret
-}
-
-function getRootVueVm(page) {
-  return page.$vm.$root;
-}
-
-/* harmony default export */ __webpack_exports__["default"] = (function (App) {
-  return {
-    // 页面的初始数据
-    data: {
-      $root: {}
-    },
-
-    // mp lifecycle for vue
-    // 生命周期函数--监听页面加载
-    onLoad:function onLoad(query) {
-      //页面加载的时候
-      var app = new vue__WEBPACK_IMPORTED_MODULE_0___default.a(App);
-      // 挂载Vue对象到page上
-      this.$vm = app;
-      var rootVueVM = app.$root;
-      rootVueVM.__wxExparserNodeId__ = this.__wxExparserNodeId__//fixed by xxxxxx(createIntersectionObserver)
-      rootVueVM.__wxWebviewId__ = this.__wxWebviewId__//fixed by xxxxxx(createIntersectionObserver)
-      
-      //初始化mp对象
-      if (!rootVueVM.$mp) {
-        rootVueVM.$mp = {};
-      }
-      var mp = rootVueVM.$mp;
-      mp.mpType = 'page';
-      mp.page = this;
-      mp.query = query;
-      mp.status = 'load';
-      //mount 要在 mp.status = 'load';赋值之后，不然mount方法会重复添加微信Page
-      //具体原因参考mpvue核心库源码，_initMP方法
-      app.$mount();
-    },
-
-    handleProxy: function handleProxy(e) {
-      var rootVueVM = getRootVueVm(this);
-      return rootVueVM.$handleProxyWithVue(e)
-    },
-
-    // 生命周期函数--监听页面显示
-    onShow:function onShow() {
-      var rootVueVM = getRootVueVm(this);
-      var mp = rootVueVM.$mp;
-      mp.status = 'show';
-      callHook$1(rootVueVM, 'onShow');
-      //   // 只有页面需要 setData
-      rootVueVM.$nextTick(function () {
-        rootVueVM._initDataToMP();
-      });
-    },
-
-    // 生命周期函数--监听页面初次渲染完成
-    onReady:function onReady() {
-      var rootVueVM = getRootVueVm(this);
-      var mp = rootVueVM.$mp;
-      mp.status = 'ready';
-      callHook$1(rootVueVM, 'onReady');
-    },
-
-    // 生命周期函数--监听页面隐藏
-    onHide: function onHide() {
-      var rootVueVM = getRootVueVm(this);
-      var mp = rootVueVM.$mp;
-      mp.status = 'hide';
-      callHook$1(rootVueVM, 'onHide');
-    },
-
-    // 生命周期函数--监听页面卸载
-    onUnload: function onUnload() {
-      var rootVueVM = getRootVueVm(this);
-      callHook$1(rootVueVM, 'onUnload');
-      rootVueVM.$destroy();
-    },
-
-    // 页面相关事件处理函数--监听用户下拉动作
-    onPullDownRefresh: function onPullDownRefresh() {
-      var rootVueVM = getRootVueVm(this);
-      callHook$1(rootVueVM, 'onPullDownRefresh');
-    },
-
-    // 页面上拉触底事件的处理函数
-    onReachBottom: function onReachBottom() {
-      var rootVueVM = getRootVueVm(this);
-      callHook$1(rootVueVM, 'onReachBottom');
-    },
-
-    // Do something when page scroll
-    onPageScroll: function onPageScroll(options) {
-      var rootVueVM = getRootVueVm(this);
-      callHook$1(rootVueVM, 'onPageScroll', options);
-    },
-
-    // 当前是 tab 页时，点击 tab 时触发
-    onTabItemTap: function onTabItemTap(options) {
-      var rootVueVM = getRootVueVm(this);
-      callHook$1(rootVueVM, 'onTabItemTap', options);
-    },
-		
-    // // 用户点击右上角分享
-    onShareAppMessage: App.onShareAppMessage ?
-      function (options) {
-        var rootVueVM = getRootVueVm(this);
-        return callHook$1(rootVueVM, 'onShareAppMessage', options);
-      } : null,
-
-    //fixed by xxxxxx
-    onNavigationBarButtonTap: function onNavigationBarButtonTap(options) {
-        var rootVueVM = getRootVueVm(this);
-    		callHook$1(rootVueVM, "onNavigationBarButtonTap", options)
-    },
-    onNavigationBarSearchInputChanged: function onNavigationBarSearchInputChanged(options) {
-        var rootVueVM = getRootVueVm(this);
-    		callHook$1(rootVueVM, "onNavigationBarSearchInputChanged", options)
-    },
-    onNavigationBarSearchInputConfirmed: function onNavigationBarSearchInputConfirmed(options) {
-        var rootVueVM = getRootVueVm(this);
-    		callHook$1(rootVueVM, "onNavigationBarSearchInputConfirmed", options)
-    },
-    onNavigationBarSearchInputClicked: function onNavigationBarSearchInputClicked(options) {
-        var rootVueVM = getRootVueVm(this);
-    		callHook$1(rootVueVM, "onNavigationBarSearchInputClicked", options)
-    },
-    onBackPress: function onBackPress(options) {
-        var rootVueVM = getRootVueVm(this);
-    		return callHook$1(rootVueVM, "onBackPress",options)
-    },
-		$getAppWebview:function (e) {
-				return plus.webview.getWebviewById('' + this.__wxWebviewId__)
-		}
-  };
-});
-
-
-/***/ }),
-
-/***/ "./node_modules/@dcloudio/vue-cli-plugin-uni/packages/mpvue/index.js":
-/*!***************************************************************************!*\
-  !*** ./node_modules/@dcloudio/vue-cli-plugin-uni/packages/mpvue/index.js ***!
-  \***************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(global) {// fix env
-try {
-    if (!global) global = {}
-    global.process = global.process || {}
-    global.process.env = global.process.env || {}
-    global.App = global.App || App
-    global.Page = global.Page || Page
-    global.Component = global.Component || Component
-    global.getApp = global.getApp || getApp
-} catch (e) {}
-
-;(function(global, factory) {
-     true
-        ? (module.exports = factory())
-        : undefined
-})(this, function() {
-    "use strict"
-
-    //fixed by xxxxxx
-    function calcDiff(holder, key, newObj, oldObj) {
-        if (newObj === oldObj || newObj === undefined) {
-            return
-        }
-
-        if (newObj == null || oldObj == null || typeof newObj !== typeof oldObj) {
-            holder[key] = newObj
-        } else if (Array.isArray(newObj) && Array.isArray(oldObj)) {
-            if (newObj.length === oldObj.length) {
-                for (var i = 0, len = newObj.length; i < len; ++i) {
-                    calcDiff(holder, key + "[" + i + "]", newObj[i], oldObj[i])
-                }
-            } else {
-                holder[key] = newObj
-            }
-        } else if (typeof newObj === "object" && typeof oldObj === "object") {
-            var newKeys = Object.keys(newObj)
-            var oldKeys = Object.keys(oldObj)
-
-            if (newKeys.length !== oldKeys.length) {
-                holder[key] = newObj
-            } else {
-                var allKeysSet = Object.create(null)
-                for (var i = 0, len = newKeys.length; i < len; ++i) {
-                    allKeysSet[newKeys[i]] = true
-                    allKeysSet[oldKeys[i]] = true
-                }
-                if (Object.keys(allKeysSet).length !== newKeys.length) {
-                    holder[key] = newObj
-                } else {
-                    for (var i = 0, len = newKeys.length; i < len; ++i) {
-                        var k = newKeys[i]
-                        calcDiff(holder, key + "." + k, newObj[k], oldObj[k])
-                    }
-                }
-            }
-        } else if (newObj !== oldObj) {
-            holder[key] = newObj
-        }
-    }
-
-    function diff(newObj, oldObj) {
-        var keys = Object.keys(newObj)
-        var diffResult = {}
-        for (var i = 0, len = keys.length; i < len; ++i) {
-            var k = keys[i]
-            var oldKeyPath = k.split(".")
-            var oldValue = oldObj[oldKeyPath[0]]
-            for (var j = 1, jlen = oldKeyPath.length; j < jlen && oldValue !== undefined; ++j) {
-                oldValue = oldValue[oldKeyPath[j]]
-            }
-            calcDiff(diffResult, k, newObj[k], oldValue)
-        }
-        return diffResult
-    }
-
-    /*  */
-
-    // these helpers produces better vm code in JS engines due to their
-    // explicitness and function inlining
-    function isUndef(v) {
-        return v === undefined || v === null
-    }
-
-    function isDef(v) {
-        return v !== undefined && v !== null
-    }
-
-    function isTrue(v) {
-        return v === true
-    }
-
-    function isFalse(v) {
-        return v === false
-    }
-
-    /**
-     * Check if value is primitive
-     */
-    function isPrimitive(value) {
-        return typeof value === "string" || typeof value === "number"
-    }
-
-    /**
-     * Quick object check - this is primarily used to tell
-     * Objects from primitive values when we know the value
-     * is a JSON-compliant type.
-     */
-    function isObject(obj) {
-        return obj !== null && typeof obj === "object"
-    }
-
-    var _toString = Object.prototype.toString
-
-    /**
-     * Strict object type check. Only returns true
-     * for plain JavaScript objects.
-     */
-    function isPlainObject(obj) {
-        return _toString.call(obj) === "[object Object]"
-    }
-
-    function isRegExp(v) {
-        return _toString.call(v) === "[object RegExp]"
-    }
-
-    /**
-     * Check if val is a valid array index.
-     */
-    function isValidArrayIndex(val) {
-        var n = parseFloat(val)
-        return n >= 0 && Math.floor(n) === n && isFinite(val)
-    }
-
-    /**
-     * Convert a value to a string that is actually rendered.
-     */
-    function toString(val) {
-        return val == null
-            ? ""
-            : typeof val === "object"
-                ? JSON.stringify(val, null, 2)
-                : String(val)
-    }
-
-    /**
-     * Convert a input value to a number for persistence.
-     * If the conversion fails, return original string.
-     */
-    function toNumber(val) {
-        var n = parseFloat(val)
-        return isNaN(n) ? val : n
-    }
-
-    /**
-     * Make a map and return a function for checking if a key
-     * is in that map.
-     */
-    function makeMap(str, expectsLowerCase) {
-        var map = Object.create(null)
-        var list = str.split(",")
-        for (var i = 0; i < list.length; i++) {
-            map[list[i]] = true
-        }
-        return expectsLowerCase
-            ? function(val) {
-                  return map[val.toLowerCase()]
-              }
-            : function(val) {
-                  return map[val]
-              }
-    }
-
-    /**
-     * Check if a tag is a built-in tag.
-     */
-    var isBuiltInTag = makeMap("slot,component", true)
-
-    /**
-     * Check if a attribute is a reserved attribute.
-     */
-    var isReservedAttribute = makeMap("key,ref,slot,is")
-
-    /**
-     * Remove an item from an array
-     */
-    function remove(arr, item) {
-        if (arr.length) {
-            var index = arr.indexOf(item)
-            if (index > -1) {
-                return arr.splice(index, 1)
-            }
-        }
-    }
-
-    /**
-     * Check whether the object has the property.
-     */
-    var hasOwnProperty = Object.prototype.hasOwnProperty
-
-    function hasOwn(obj, key) {
-        return hasOwnProperty.call(obj, key)
-    }
-
-    /**
-     * Create a cached version of a pure function.
-     */
-    function cached(fn) {
-        var cache = Object.create(null)
-        return function cachedFn(str) {
-            var hit = cache[str]
-            return hit || (cache[str] = fn(str))
-        }
-    }
-
-    /**
-     * Camelize a hyphen-delimited string.
-     */
-    var camelizeRE = /-(\w)/g
-    var camelize = cached(function(str) {
-        return str.replace(camelizeRE, function(_, c) {
-            return c ? c.toUpperCase() : ""
-        })
-    })
-
-    /**
-     * Capitalize a string.
-     */
-    var capitalize = cached(function(str) {
-        return str.charAt(0).toUpperCase() + str.slice(1)
-    })
-
-    /**
-     * Hyphenate a camelCase string.
-     */
-    var hyphenateRE = /([^-])([A-Z])/g
-    var hyphenate = cached(function(str) {
-        return str
-            .replace(hyphenateRE, "$1-$2")
-            .replace(hyphenateRE, "$1-$2")
-            .toLowerCase()
-    })
-
-    /**
-     * Simple bind, faster than native
-     */
-    function bind(fn, ctx) {
-        function boundFn(a) {
-            var l = arguments.length
-            return l ? (l > 1 ? fn.apply(ctx, arguments) : fn.call(ctx, a)) : fn.call(ctx)
-        }
-        // record original fn length
-        boundFn._length = fn.length
-        return boundFn
-    }
-
-    /**
-     * Convert an Array-like object to a real Array.
-     */
-    function toArray(list, start) {
-        start = start || 0
-        var i = list.length - start
-        var ret = new Array(i)
-        while (i--) {
-            ret[i] = list[i + start]
-        }
-        return ret
-    }
-
-    /**
-     * Mix properties into target object.
-     */
-    function extend(to, _from) {
-        for (var key in _from) {
-            to[key] = _from[key]
-        }
-        return to
-    }
-
-    /**
-     * Merge an Array of Objects into a single Object.
-     */
-    function toObject(arr) {
-        var res = {}
-        for (var i = 0; i < arr.length; i++) {
-            if (arr[i]) {
-                extend(res, arr[i])
-            }
-        }
-        return res
-    }
-
-    /**
-     * Perform no operation.
-     * Stubbing args to make Flow happy without leaving useless transpiled code
-     * with ...rest (https://flow.org/blog/2017/05/07/Strict-Function-Call-Arity/)
-     */
-    function noop(a, b, c) {}
-
-    /**
-     * Always return false.
-     */
-    var no = function(a, b, c) {
-        return false
-    }
-
-    /**
-     * Return same value
-     */
-    var identity = function(_) {
-        return _
-    }
-
-    /**
-     * Generate a static keys string from compiler modules.
-     */
-
-    /**
-     * Check if two values are loosely equal - that is,
-     * if they are plain objects, do they have the same shape?
-     */
-    function looseEqual(a, b) {
-        var isObjectA = isObject(a)
-        var isObjectB = isObject(b)
-        if (isObjectA && isObjectB) {
-            try {
-                return JSON.stringify(a) === JSON.stringify(b)
-            } catch (e) {
-                // possible circular reference
-                return a === b
-            }
-        } else if (!isObjectA && !isObjectB) {
-            return String(a) === String(b)
-        } else {
-            return false
-        }
-    }
-
-    function looseIndexOf(arr, val) {
-        for (var i = 0; i < arr.length; i++) {
-            if (looseEqual(arr[i], val)) {
-                return i
-            }
-        }
-        return -1
-    }
-
-    /**
-     * Ensure a function is called only once.
-     */
-    function once(fn) {
-        var called = false
-        return function() {
-            if (!called) {
-                called = true
-                fn.apply(this, arguments)
-            }
-        }
-    }
-
-    var SSR_ATTR = "data-server-rendered"
-
-    var ASSET_TYPES = ["component", "directive", "filter"]
-
-    var LIFECYCLE_HOOKS = [
-        "beforeCreate",
-        "created",
-        "beforeMount",
-        "mounted",
-        "beforeUpdate",
-        "updated",
-        "beforeDestroy",
-        "destroyed",
-        "activated",
-        "deactivated",
-        "onLaunch",
-        "onLoad",
-        "onShow",
-        "onReady",
-        "onHide",
-        "onUnload",
-        "onPullDownRefresh",
-        "onReachBottom",
-        "onShareAppMessage",
-        "onPageScroll",
-        "onTabItemTap",
-        "attached",
-        "ready",
-        "moved",
-        "detached",
-        "onUniNViewMessage", //fixed by xxxxxx
-        "onNavigationBarButtonTap", //fixed by xxxxxx
-        "onBackPress",//fixed by xxxxxx
-    ]
-
-    /*  */
-
-    var config = {
-        /**
-         * Option merge strategies (used in core/util/options)
-         */
-        optionMergeStrategies: Object.create(null),
-
-        /**
-         * Whether to suppress warnings.
-         */
-        silent: false,
-
-        /**
-         * Show production mode tip message on boot?
-         */
-        productionTip: "production" !== "production",
-
-        /**
-         * Whether to enable devtools
-         */
-        devtools: "production" !== "production",
-
-        /**
-         * Whether to record perf
-         */
-        performance: false,
-
-        /**
-         * Error handler for watcher errors
-         */
-        errorHandler: null,
-
-        /**
-         * Warn handler for watcher warns
-         */
-        warnHandler: null,
-
-        /**
-         * Ignore certain custom elements
-         */
-        ignoredElements: [],
-
-        /**
-         * Custom user key aliases for v-on
-         */
-        keyCodes: Object.create(null),
-
-        /**
-         * Check if a tag is reserved so that it cannot be registered as a
-         * component. This is platform-dependent and may be overwritten.
-         */
-        isReservedTag: no,
-
-        /**
-         * Check if an attribute is reserved so that it cannot be used as a component
-         * prop. This is platform-dependent and may be overwritten.
-         */
-        isReservedAttr: no,
-
-        /**
-         * Check if a tag is an unknown element.
-         * Platform-dependent.
-         */
-        isUnknownElement: no,
-
-        /**
-         * Get the namespace of an element
-         */
-        getTagNamespace: noop,
-
-        /**
-         * Parse the real tag name for the specific platform.
-         */
-        parsePlatformTagName: identity,
-
-        /**
-         * Check if an attribute must be bound using property, e.g. value
-         * Platform-dependent.
-         */
-        mustUseProp: no,
-
-        /**
-         * Exposed for legacy reasons
-         */
-        _lifecycleHooks: LIFECYCLE_HOOKS
-    }
-
-    /*  */
-
-    var emptyObject = Object.freeze({})
-
-    /**
-     * Check if a string starts with $ or _
-     */
-    function isReserved(str) {
-        var c = (str + "").charCodeAt(0)
-        return c === 0x24 || c === 0x5f
-    }
-
-    /**
-     * Define a property.
-     */
-    function def(obj, key, val, enumerable) {
-        Object.defineProperty(obj, key, {
-            value: val,
-            enumerable: !!enumerable,
-            writable: true,
-            configurable: true
-        })
-    }
-
-    /**
-     * Parse simple path.
-     */
-    var bailRE = /[^\w.$]/
-
-    function parsePath(path) {
-        if (bailRE.test(path)) {
-            return
-        }
-        var segments = path.split(".")
-        return function(obj) {
-            for (var i = 0; i < segments.length; i++) {
-                if (!obj) {
-                    return
-                }
-                obj = obj[segments[i]]
-            }
-            return obj
-        }
-    }
-
-    /*  */
-
-    var warn = noop
-
-    var formatComponentName = null // work around flow check
-
-    /*  */
-
-    function handleError(err, vm, info) {
-        if (config.errorHandler) {
-            config.errorHandler.call(null, err, vm, info)
-        } else {
-            if (inBrowser && typeof console !== "undefined") {
-                console.error(err)
-            } else {
-                throw err
-            }
-        }
-    }
-
-    /*  */
-
-    // can we use __proto__?
-    var hasProto = "__proto__" in {}
-
-    // Browser environment sniffing
-    var inBrowser = typeof window !== "undefined"
-    var UA = ["mpvue-runtime"].join()
-    var isIE = UA && /msie|trident/.test(UA)
-    var isIE9 = UA && UA.indexOf("msie 9.0") > 0
-    var isEdge = UA && UA.indexOf("edge/") > 0
-    var isAndroid = UA && UA.indexOf("android") > 0
-    var isIOS = UA && /iphone|ipad|ipod|ios/.test(UA)
-    var isChrome = UA && /chrome\/\d+/.test(UA) && !isEdge
-
-    // Firefix has a "watch" function on Object.prototype...
-    var nativeWatch = {}.watch
-
-    var supportsPassive = false
-    if (inBrowser) {
-        try {
-            var opts = {}
-            Object.defineProperty(opts, "passive", {
-                get: function get() {
-                    /* istanbul ignore next */
-                    supportsPassive = true
-                }
-            }) // https://github.com/facebook/flow/issues/285
-            window.addEventListener("test-passive", null, opts)
-        } catch (e) {}
-    }
-
-    // this needs to be lazy-evaled because vue may be required before
-    // vue-server-renderer can set VUE_ENV
-    var _isServer
-    var isServerRendering = function() {
-        if (_isServer === undefined) {
-            /* istanbul ignore if */
-            if (!inBrowser && typeof global !== "undefined") {
-                // detect presence of vue-server-renderer and avoid
-                // Webpack shimming the process
-                _isServer = global["process"].env.VUE_ENV === "server"
-            } else {
-                _isServer = false
-            }
-        }
-        return _isServer
-    }
-
-    // detect devtools
-    var devtools = inBrowser && window.__VUE_DEVTOOLS_GLOBAL_HOOK__
-
-    /* istanbul ignore next */
-    function isNative(Ctor) {
-        return typeof Ctor === "function" && /native code/.test(Ctor.toString())
-    }
-
-    var hasSymbol =
-        typeof Symbol !== "undefined" &&
-        isNative(Symbol) &&
-        typeof Reflect !== "undefined" &&
-        isNative(Reflect.ownKeys)
-
-    /**
-     * Defer a task to execute it asynchronously.
-     */
-    var nextTick = (function() {
-        var callbacks = []
-        var pending = false
-        var timerFunc
-
-        function nextTickHandler() {
-            pending = false
-            var copies = callbacks.slice(0)
-            callbacks.length = 0
-            for (var i = 0; i < copies.length; i++) {
-                copies[i]()
-            }
-        }
-
-        // the nextTick behavior leverages the microtask queue, which can be accessed
-        // via either native Promise.then or MutationObserver.
-        // MutationObserver has wider support, however it is seriously bugged in
-        // UIWebView in iOS >= 9.3.3 when triggered in touch event handlers. It
-        // completely stops working after triggering a few times... so, if native
-        // Promise is available, we will use it:
-        /* istanbul ignore if */
-        if (typeof Promise !== "undefined" && isNative(Promise)) {
-            var p = Promise.resolve()
-            var logError = function(err) {
-                console.error(err)
-            }
-            timerFunc = function() {
-                p.then(nextTickHandler).catch(logError)
-                // in problematic UIWebViews, Promise.then doesn't completely break, but
-                // it can get stuck in a weird state where callbacks are pushed into the
-                // microtask queue but the queue isn't being flushed, until the browser
-                // needs to do some other work, e.g. handle a timer. Therefore we can
-                // "force" the microtask queue to be flushed by adding an empty timer.
-                if (isIOS) {
-                    setTimeout(noop)
-                }
-            }
-            // } else if (typeof MutationObserver !== 'undefined' && (
-            //   isNative(MutationObserver) ||
-            //   // PhantomJS and iOS 7.x
-            //   MutationObserver.toString() === '[object MutationObserverConstructor]'
-            // )) {
-            //   // use MutationObserver where native Promise is not available,
-            //   // e.g. PhantomJS IE11, iOS7, Android 4.4
-            //   var counter = 1
-            //   var observer = new MutationObserver(nextTickHandler)
-            //   var textNode = document.createTextNode(String(counter))
-            //   observer.observe(textNode, {
-            //     characterData: true
-            //   })
-            //   timerFunc = () => {
-            //     counter = (counter + 1) % 2
-            //     textNode.data = String(counter)
-            //   }
-        } else {
-            // fallback to setTimeout
-            /* istanbul ignore next */
-            timerFunc = function() {
-                setTimeout(nextTickHandler, 0)
-            }
-        }
-
-        return function queueNextTick(cb, ctx) {
-            var _resolve
-            callbacks.push(function() {
-                if (cb) {
-                    try {
-                        cb.call(ctx)
-                    } catch (e) {
-                        handleError(e, ctx, "nextTick")
-                    }
-                } else if (_resolve) {
-                    _resolve(ctx)
-                }
-            })
-            if (!pending) {
-                pending = true
-                timerFunc()
-            }
-            if (!cb && typeof Promise !== "undefined") {
-                return new Promise(function(resolve, reject) {
-                    _resolve = resolve
-                })
-            }
-        }
-    })()
-
-    var _Set
-    /* istanbul ignore if */
-    if (typeof Set !== "undefined" && isNative(Set)) {
-        // use native Set when available.
-        _Set = Set
-    } else {
-        // a non-standard Set polyfill that only works with primitive keys.
-        _Set = (function() {
-            function Set() {
-                this.set = Object.create(null)
-            }
-            Set.prototype.has = function has(key) {
-                return this.set[key] === true
-            }
-            Set.prototype.add = function add(key) {
-                this.set[key] = true
-            }
-            Set.prototype.clear = function clear() {
-                this.set = Object.create(null)
-            }
-
-            return Set
-        })()
-    }
-
-    /*  */
-
-    var uid$1 = 0
-
-    /**
-     * A dep is an observable that can have multiple
-     * directives subscribing to it.
-     */
-    var Dep = function Dep() {
-        this.id = uid$1++
-        this.subs = []
-    }
-
-    Dep.prototype.addSub = function addSub(sub) {
-        this.subs.push(sub)
-    }
-
-    Dep.prototype.removeSub = function removeSub(sub) {
-        remove(this.subs, sub)
-    }
-
-    Dep.prototype.depend = function depend() {
-        if (Dep.target) {
-            Dep.target.addDep(this)
-        }
-    }
-
-    Dep.prototype.notify = function notify() {
-        // stabilize the subscriber list first
-        var subs = this.subs.slice()
-        for (var i = 0, l = subs.length; i < l; i++) {
-            subs[i].update()
-        }
-    }
-
-    // the current target watcher being evaluated.
-    // this is globally unique because there could be only one
-    // watcher being evaluated at any time.
-    Dep.target = null
-    var targetStack = []
-
-    function pushTarget(_target) {
-        if (Dep.target) {
-            targetStack.push(Dep.target)
-        }
-        Dep.target = _target
-    }
-
-    function popTarget() {
-        Dep.target = targetStack.pop()
-    }
-
-    /*
-     * not type checking this file because flow doesn't play well with
-     * dynamically accessing methods on Array prototype
-     */
-
-    var arrayProto = Array.prototype
-    var arrayMethods = Object.create(arrayProto)
-    ;["push", "pop", "shift", "unshift", "splice", "sort", "reverse"].forEach(function(method) {
-        // cache original method
-        var original = arrayProto[method]
-        def(arrayMethods, method, function mutator() {
-            var args = [],
-                len = arguments.length
-            while (len--) args[len] = arguments[len]
-
-            var result = original.apply(this, args)
-            var ob = this.__ob__
-            var inserted
-            switch (method) {
-                case "push":
-                case "unshift":
-                    inserted = args
-                    break
-                case "splice":
-                    inserted = args.slice(2)
-                    break
-            }
-            if (inserted) {
-                ob.observeArray(inserted)
-            }
-            // notify change
-            ob.dep.notify()
-            return result
-        })
-    })
-
-    /*  */
-
-    var arrayKeys = Object.getOwnPropertyNames(arrayMethods)
-
-    /**
-     * By default, when a reactive property is set, the new value is
-     * also converted to become reactive. However when passing down props,
-     * we don't want to force conversion because the value may be a nested value
-     * under a frozen data structure. Converting it would defeat the optimization.
-     */
-    var observerState = {
-        shouldConvert: true
-    }
-
-    /**
-     * Observer class that are attached to each observed
-     * object. Once attached, the observer converts target
-     * object's property keys into getter/setters that
-     * collect dependencies and dispatches updates.
-     */
-    var Observer = function Observer(value) {
-        this.value = value
-        this.dep = new Dep()
-        this.vmCount = 0
-        def(value, "__ob__", this)
-        if (Array.isArray(value)) {
-            var augment = hasProto ? protoAugment : copyAugment
-            augment(value, arrayMethods, arrayKeys)
-            this.observeArray(value)
-        } else {
-            this.walk(value)
-        }
-    }
-
-    /**
-     * Walk through each property and convert them into
-     * getter/setters. This method should only be called when
-     * value type is Object.
-     */
-    Observer.prototype.walk = function walk(obj) {
-        var keys = Object.keys(obj)
-        for (var i = 0; i < keys.length; i++) {
-            defineReactive$$1(obj, keys[i], obj[keys[i]])
-        }
-    }
-
-    /**
-     * Observe a list of Array items.
-     */
-    Observer.prototype.observeArray = function observeArray(items) {
-        for (var i = 0, l = items.length; i < l; i++) {
-            observe(items[i])
-        }
-    }
-
-    // helpers
-
-    /**
-     * Augment an target Object or Array by intercepting
-     * the prototype chain using __proto__
-     */
-    function protoAugment(target, src, keys) {
-        /* eslint-disable no-proto */
-        target.__proto__ = src
-        /* eslint-enable no-proto */
-    }
-
-    /**
-     * Augment an target Object or Array by defining
-     * hidden properties.
-     */
-    /* istanbul ignore next */
-    function copyAugment(target, src, keys) {
-        for (var i = 0, l = keys.length; i < l; i++) {
-            var key = keys[i]
-            def(target, key, src[key])
-        }
-    }
-
-    /**
-     * Attempt to create an observer instance for a value,
-     * returns the new observer if successfully observed,
-     * or the existing observer if the value already has one.
-     */
-    function observe(value, asRootData) {
-        if (!isObject(value)) {
-            return
-        }
-        var ob
-        if (hasOwn(value, "__ob__") && value.__ob__ instanceof Observer) {
-            ob = value.__ob__
-        } else if (
-            observerState.shouldConvert &&
-            !isServerRendering() &&
-            (Array.isArray(value) || isPlainObject(value)) &&
-            Object.isExtensible(value) &&
-            !value._isVue
-        ) {
-            ob = new Observer(value)
-        }
-        if (asRootData && ob) {
-            ob.vmCount++
-        }
-        return ob
-    }
-
-    /**
-     * Define a reactive property on an Object.
-     */
-    function defineReactive$$1(obj, key, val, customSetter, shallow) {
-        var dep = new Dep()
-
-        var property = Object.getOwnPropertyDescriptor(obj, key)
-        if (property && property.configurable === false) {
-            return
-        }
-
-        // cater for pre-defined getter/setters
-        var getter = property && property.get
-        var setter = property && property.set
-
-        var childOb = !shallow && observe(val)
-        Object.defineProperty(obj, key, {
-            enumerable: true,
-            configurable: true,
-            get: function reactiveGetter() {
-                var value = getter ? getter.call(obj) : val
-                if (Dep.target) {
-                    dep.depend()
-                    if (childOb) {
-                        childOb.dep.depend()
-                    }
-                    if (Array.isArray(value)) {
-                        dependArray(value)
-                    }
-                }
-                return value
-            },
-            set: function reactiveSetter(newVal) {
-                var value = getter ? getter.call(obj) : val
-                /* eslint-disable no-self-compare */
-                if (newVal === value || (newVal !== newVal && value !== value)) {
-                    return
-                }
-                /* eslint-enable no-self-compare */
-                if (false) {}
-                if (setter) {
-                    setter.call(obj, newVal)
-                } else {
-                    val = newVal
-                }
-                childOb = !shallow && observe(newVal)
-                dep.notify()
-            }
-        })
-    }
-
-    /**
-     * Set a property on an object. Adds the new property and
-     * triggers change notification if the property doesn't
-     * already exist.
-     */
-    function set(target, key, val) {
-        if (Array.isArray(target) && isValidArrayIndex(key)) {
-            target.length = Math.max(target.length, key)
-            target.splice(key, 1, val)
-            return val
-        }
-        if (hasOwn(target, key)) {
-            target[key] = val
-            return val
-        }
-        var ob = target.__ob__
-        if (target._isVue || (ob && ob.vmCount)) {
-             false &&
-                false
-            return val
-        }
-        if (!ob) {
-            target[key] = val
-            return val
-        }
-        defineReactive$$1(ob.value, key, val)
-        ob.dep.notify()
-        return val
-    }
-
-    /**
-     * Delete a property and trigger change if necessary.
-     */
-    function del(target, key) {
-        if (Array.isArray(target) && isValidArrayIndex(key)) {
-            target.splice(key, 1)
-            return
-        }
-        var ob = target.__ob__
-        if (target._isVue || (ob && ob.vmCount)) {
-             false &&
-                false
-            return
-        }
-        if (!hasOwn(target, key)) {
-            return
-        }
-        delete target[key]
-        if (!ob) {
-            return
-        }
-        ob.dep.notify()
-    }
-
-    /**
-     * Collect dependencies on array elements when the array is touched, since
-     * we cannot intercept array element access like property getters.
-     */
-    function dependArray(value) {
-        for (var e = void 0, i = 0, l = value.length; i < l; i++) {
-            e = value[i]
-            e && e.__ob__ && e.__ob__.dep.depend()
-            if (Array.isArray(e)) {
-                dependArray(e)
-            }
-        }
-    }
-
-    /*  */
-
-    /**
-     * Option overwriting strategies are functions that handle
-     * how to merge a parent option value and a child option
-     * value into the final value.
-     */
-    var strats = config.optionMergeStrategies
-
-    /**
-     * Options with restrictions
-     */
-    /**
-     * Helper that recursively merges two data objects together.
-     */
-    function mergeData(to, from) {
-        if (!from) {
-            return to
-        }
-        var key, toVal, fromVal
-        var keys = Object.keys(from)
-        for (var i = 0; i < keys.length; i++) {
-            key = keys[i]
-            toVal = to[key]
-            fromVal = from[key]
-            if (!hasOwn(to, key)) {
-                set(to, key, fromVal)
-            } else if (isPlainObject(toVal) && isPlainObject(fromVal)) {
-                mergeData(toVal, fromVal)
-            }
-        }
-        return to
-    }
-
-    /**
-     * Data
-     */
-    function mergeDataOrFn(parentVal, childVal, vm) {
-        if (!vm) {
-            // in a Vue.extend merge, both should be functions
-            if (!childVal) {
-                return parentVal
-            }
-            if (!parentVal) {
-                return childVal
-            }
-            // when parentVal & childVal are both present,
-            // we need to return a function that returns the
-            // merged result of both functions... no need to
-            // check if parentVal is a function here because
-            // it has to be a function to pass previous merges.
-            return function mergedDataFn() {
-                return mergeData(
-                    typeof childVal === "function" ? childVal.call(this) : childVal,
-                    parentVal.call(this)
-                )
-            }
-        } else if (parentVal || childVal) {
-            return function mergedInstanceDataFn() {
-                // instance merge
-                var instanceData = typeof childVal === "function" ? childVal.call(vm) : childVal
-                var defaultData = typeof parentVal === "function" ? parentVal.call(vm) : undefined
-                if (instanceData) {
-                    return mergeData(instanceData, defaultData)
-                } else {
-                    return defaultData
-                }
-            }
-        }
-    }
-
-    strats.data = function(parentVal, childVal, vm) {
-        if (!vm) {
-            if (childVal && typeof childVal !== "function") {
-                 false &&
-                    false
-
-                return parentVal
-            }
-            return mergeDataOrFn.call(this, parentVal, childVal)
-        }
-
-        return mergeDataOrFn(parentVal, childVal, vm)
-    }
-
-    /**
-     * Hooks and props are merged as arrays.
-     */
-    function mergeHook(parentVal, childVal) {
-        return childVal
-            ? parentVal
-                ? parentVal.concat(childVal)
-                : Array.isArray(childVal)
-                    ? childVal
-                    : [childVal]
-            : parentVal
-    }
-
-    LIFECYCLE_HOOKS.forEach(function(hook) {
-        strats[hook] = mergeHook
-    })
-
-    /**
-     * Assets
-     *
-     * When a vm is present (instance creation), we need to do
-     * a three-way merge between constructor options, instance
-     * options and parent options.
-     */
-    function mergeAssets(parentVal, childVal) {
-        var res = Object.create(parentVal || null)
-        return childVal ? extend(res, childVal) : res
-    }
-
-    ASSET_TYPES.forEach(function(type) {
-        strats[type + "s"] = mergeAssets
-    })
-
-    /**
-     * Watchers.
-     *
-     * Watchers hashes should not overwrite one
-     * another, so we merge them as arrays.
-     */
-    strats.watch = function(parentVal, childVal) {
-        // work around Firefox's Object.prototype.watch...
-        if (parentVal === nativeWatch) {
-            parentVal = undefined
-        }
-        if (childVal === nativeWatch) {
-            childVal = undefined
-        }
-        /* istanbul ignore if */
-        if (!childVal) {
-            return Object.create(parentVal || null)
-        }
-        if (!parentVal) {
-            return childVal
-        }
-        var ret = {}
-        extend(ret, parentVal)
-        for (var key in childVal) {
-            var parent = ret[key]
-            var child = childVal[key]
-            if (parent && !Array.isArray(parent)) {
-                parent = [parent]
-            }
-            ret[key] = parent ? parent.concat(child) : Array.isArray(child) ? child : [child]
-        }
-        return ret
-    }
-
-    /**
-     * Other object hashes.
-     */
-    strats.props = strats.methods = strats.inject = strats.computed = function(
-        parentVal,
-        childVal
-    ) {
-        if (!childVal) {
-            return Object.create(parentVal || null)
-        }
-        if (!parentVal) {
-            return childVal
-        }
-        var ret = Object.create(null)
-        extend(ret, parentVal)
-        extend(ret, childVal)
-        return ret
-    }
-    strats.provide = mergeDataOrFn
-
-    /**
-     * Default strategy.
-     */
-    var defaultStrat = function(parentVal, childVal) {
-        return childVal === undefined ? parentVal : childVal
-    }
-
-    /**
-     * Ensure all props option syntax are normalized into the
-     * Object-based format.
-     */
-    function normalizeProps(options) {
-        var props = options.props
-        if (!props) {
-            return
-        }
-        var res = {}
-        var i, val, name
-        if (Array.isArray(props)) {
-            i = props.length
-            while (i--) {
-                val = props[i]
-                if (typeof val === "string") {
-                    name = camelize(val)
-                    res[name] = {
-                        type: null
-                    }
-                } else {
-                }
-            }
-        } else if (isPlainObject(props)) {
-            for (var key in props) {
-                val = props[key]
-                name = camelize(key)
-                res[name] = isPlainObject(val)
-                    ? val
-                    : {
-                          type: val
-                      }
-            }
-        }
-        options.props = res
-    }
-
-    /**
-     * Normalize all injections into Object-based format
-     */
-    function normalizeInject(options) {
-        var inject = options.inject
-        if (Array.isArray(inject)) {
-            var normalized = (options.inject = {})
-            for (var i = 0; i < inject.length; i++) {
-                normalized[inject[i]] = inject[i]
-            }
-        }
-    }
-
-    /**
-     * Normalize raw function directives into object format.
-     */
-    function normalizeDirectives(options) {
-        var dirs = options.directives
-        if (dirs) {
-            for (var key in dirs) {
-                var def = dirs[key]
-                if (typeof def === "function") {
-                    dirs[key] = {
-                        bind: def,
-                        update: def
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Merge two option objects into a new one.
-     * Core utility used in both instantiation and inheritance.
-     */
-    function mergeOptions(parent, child, vm) {
-        if (typeof child === "function") {
-            child = child.options
-        }
-
-        normalizeProps(child)
-        normalizeInject(child)
-        normalizeDirectives(child)
-        var extendsFrom = child.extends
-        if (extendsFrom) {
-            parent = mergeOptions(parent, extendsFrom, vm)
-        }
-        if (child.mixins) {
-            for (var i = 0, l = child.mixins.length; i < l; i++) {
-                parent = mergeOptions(parent, child.mixins[i], vm)
-            }
-        }
-        var options = {}
-        var key
-        for (key in parent) {
-            mergeField(key)
-        }
-        for (key in child) {
-            if (!hasOwn(parent, key)) {
-                mergeField(key)
-            }
-        }
-
-        function mergeField(key) {
-            var strat = strats[key] || defaultStrat
-            options[key] = strat(parent[key], child[key], vm, key)
-        }
-        return options
-    }
-
-    /**
-     * Resolve an asset.
-     * This function is used because child instances need access
-     * to assets defined in its ancestor chain.
-     */
-    function resolveAsset(options, type, id, warnMissing) {
-        /* istanbul ignore if */
-        if (typeof id !== "string") {
-            return
-        }
-        var assets = options[type]
-        // check local registration variations first
-        if (hasOwn(assets, id)) {
-            return assets[id]
-        }
-        var camelizedId = camelize(id)
-        if (hasOwn(assets, camelizedId)) {
-            return assets[camelizedId]
-        }
-        var PascalCaseId = capitalize(camelizedId)
-        if (hasOwn(assets, PascalCaseId)) {
-            return assets[PascalCaseId]
-        }
-        // fallback to prototype chain
-        var res = assets[id] || assets[camelizedId] || assets[PascalCaseId]
-        if (false) {}
-        return res
-    }
-
-    /*  */
-
-    function validateProp(key, propOptions, propsData, vm) {
-        var prop = propOptions[key]
-        var absent = !hasOwn(propsData, key)
-        var value = propsData[key]
-        // handle boolean props
-        if (isType(Boolean, prop.type)) {
-            if (absent && !hasOwn(prop, "default")) {
-                value = false
-            } else if (!isType(String, prop.type) && (value === "" || value === hyphenate(key))) {
-                value = true
-            }
-        }
-        // check default value
-        if (value === undefined) {
-            value = getPropDefaultValue(vm, prop, key)
-            // since the default value is a fresh copy,
-            // make sure to observe it.
-            var prevShouldConvert = observerState.shouldConvert
-            observerState.shouldConvert = true
-            observe(value)
-            observerState.shouldConvert = prevShouldConvert
-        }
-        return value
-    }
-
-    /**
-     * Get the default value of a prop.
-     */
-    function getPropDefaultValue(vm, prop, key) {
-        // no default, return undefined
-        if (!hasOwn(prop, "default")) {
-            return undefined
-        }
-        var def = prop.default
-        // warn against non-factory defaults for Object & Array
-        if (false) {}
-        // the raw prop value was also undefined from previous render,
-        // return previous default value to avoid unnecessary watcher trigger
-        if (
-            vm &&
-            vm.$options.propsData &&
-            vm.$options.propsData[key] === undefined &&
-            vm._props[key] !== undefined
-        ) {
-            return vm._props[key]
-        }
-        // call factory function for non-Function types
-        // a value is Function if its prototype is function even across different execution context
-        return typeof def === "function" && getType(prop.type) !== "Function" ? def.call(vm) : def
-    }
-
-    /**
-     * Use function string name to check built-in types,
-     * because a simple equality check will fail when running
-     * across different vms / iframes.
-     */
-    function getType(fn) {
-        var match = fn && fn.toString().match(/^\s*function (\w+)/)
-        return match ? match[1] : ""
-    }
-
-    function isType(type, fn) {
-        if (!Array.isArray(fn)) {
-            return getType(fn) === getType(type)
-        }
-        for (var i = 0, len = fn.length; i < len; i++) {
-            if (getType(fn[i]) === getType(type)) {
-                return true
-            }
-        }
-        /* istanbul ignore next */
-        return false
-    }
-
-    /*  */
-
-    /* not type checking this file because flow doesn't play well with Proxy */
-
-    var mark
-    var measure
-
-    /*  */
-
-    var VNode = function VNode(
-        tag,
-        data,
-        children,
-        text,
-        elm,
-        context,
-        componentOptions,
-        asyncFactory
-    ) {
-        this.tag = tag
-        this.data = data
-        this.children = children
-        this.text = text
-        this.elm = elm
-        this.ns = undefined
-        this.context = context
-        this.functionalContext = undefined
-        this.key = data && data.key
-        this.componentOptions = componentOptions
-        this.componentInstance = undefined
-        this.parent = undefined
-        this.raw = false
-        this.isStatic = false
-        this.isRootInsert = true
-        this.isComment = false
-        this.isCloned = false
-        this.isOnce = false
-        this.asyncFactory = asyncFactory
-        this.asyncMeta = undefined
-        this.isAsyncPlaceholder = false
-    }
-
-    var prototypeAccessors = {
-        child: {}
-    }
-
-    // DEPRECATED: alias for componentInstance for backwards compat.
-    /* istanbul ignore next */
-    prototypeAccessors.child.get = function() {
-        return this.componentInstance
-    }
-
-    Object.defineProperties(VNode.prototype, prototypeAccessors)
-
-    var createEmptyVNode = function(text) {
-        if (text === void 0) text = ""
-
-        var node = new VNode()
-        node.text = text
-        node.isComment = true
-        return node
-    }
-
-    function createTextVNode(val) {
-        return new VNode(undefined, undefined, undefined, String(val))
-    }
-
-    // optimized shallow clone
-    // used for static nodes and slot nodes because they may be reused across
-    // multiple renders, cloning them avoids errors when DOM manipulations rely
-    // on their elm reference.
-    function cloneVNode(vnode) {
-        var cloned = new VNode(
-            vnode.tag,
-            vnode.data,
-            vnode.children,
-            vnode.text,
-            vnode.elm,
-            vnode.context,
-            vnode.componentOptions,
-            vnode.asyncFactory
-        )
-        cloned.ns = vnode.ns
-        cloned.isStatic = vnode.isStatic
-        cloned.key = vnode.key
-        cloned.isComment = vnode.isComment
-        cloned.isCloned = true
-        return cloned
-    }
-
-    function cloneVNodes(vnodes) {
-        var len = vnodes.length
-        var res = new Array(len)
-        for (var i = 0; i < len; i++) {
-            res[i] = cloneVNode(vnodes[i])
-        }
-        return res
-    }
-
-    /*  */
-
-    var normalizeEvent = cached(function(name) {
-        var passive = name.charAt(0) === "&"
-        name = passive ? name.slice(1) : name
-        var once$$1 = name.charAt(0) === "~" // Prefixed last, checked first
-        name = once$$1 ? name.slice(1) : name
-        var capture = name.charAt(0) === "!"
-        name = capture ? name.slice(1) : name
-        return {
-            name: name,
-            once: once$$1,
-            capture: capture,
-            passive: passive
-        }
-    })
-
-    function createFnInvoker(fns) {
-        function invoker() {
-            var arguments$1 = arguments
-
-            var fns = invoker.fns
-            if (Array.isArray(fns)) {
-                var cloned = fns.slice()
-                for (var i = 0; i < cloned.length; i++) {
-                    cloned[i].apply(null, arguments$1)
-                }
-            } else {
-                // return handler return value for single handlers
-                return fns.apply(null, arguments)
-            }
-        }
-        invoker.fns = fns
-        return invoker
-    }
-
-    function updateListeners(on, oldOn, add, remove$$1, vm) {
-        var name, cur, old, event
-        for (name in on) {
-            cur = on[name]
-            old = oldOn[name]
-            event = normalizeEvent(name)
-            if (isUndef(cur)) {
-                 false &&
-                    false
-            } else if (isUndef(old)) {
-                if (isUndef(cur.fns)) {
-                    cur = on[name] = createFnInvoker(cur)
-                }
-                add(event.name, cur, event.once, event.capture, event.passive)
-            } else if (cur !== old) {
-                old.fns = cur
-                on[name] = old
-            }
-        }
-        for (name in oldOn) {
-            if (isUndef(on[name])) {
-                event = normalizeEvent(name)
-                remove$$1(event.name, oldOn[name], event.capture)
-            }
-        }
-    }
-
-    /*  */
-
-    /*  */
-
-    function extractPropsFromVNodeData(data, Ctor, tag) {
-        // we are only extracting raw values here.
-        // validation and default values are handled in the child
-        // component itself.
-        var propOptions = Ctor.options.props
-        if (isUndef(propOptions)) {
-            return
-        }
-        var res = {}
-        var attrs = data.attrs
-        var props = data.props
-        if (isDef(attrs) || isDef(props)) {
-            for (var key in propOptions) {
-                var altKey = hyphenate(key)
-                checkProp(res, props, key, altKey, true) ||
-                    checkProp(res, attrs, key, altKey, false)
-            }
-        }
-        return res
-    }
-
-    function checkProp(res, hash, key, altKey, preserve) {
-        if (isDef(hash)) {
-            if (hasOwn(hash, key)) {
-                res[key] = hash[key]
-                if (!preserve) {
-                    delete hash[key]
-                }
-                return true
-            } else if (hasOwn(hash, altKey)) {
-                res[key] = hash[altKey]
-                if (!preserve) {
-                    delete hash[altKey]
-                }
-                return true
-            }
-        }
-        return false
-    }
-
-    /*  */
-
-    // The template compiler attempts to minimize the need for normalization by
-    // statically analyzing the template at compile time.
-    //
-    // For plain HTML markup, normalization can be completely skipped because the
-    // generated render function is guaranteed to return Array<VNode>. There are
-    // two cases where extra normalization is needed:
-
-    // 1. When the children contains components - because a functional component
-    // may return an Array instead of a single root. In this case, just a simple
-    // normalization is needed - if any child is an Array, we flatten the whole
-    // thing with Array.prototype.concat. It is guaranteed to be only 1-level deep
-    // because functional components already normalize their own children.
-    function simpleNormalizeChildren(children) {
-        for (var i = 0; i < children.length; i++) {
-            if (Array.isArray(children[i])) {
-                return Array.prototype.concat.apply([], children)
-            }
-        }
-        return children
-    }
-
-    // 2. When the children contains constructs that always generated nested Arrays,
-    // e.g. <template>, <slot>, v-for, or when the children is provided by user
-    // with hand-written render functions / JSX. In such cases a full normalization
-    // is needed to cater to all possible types of children values.
-    function normalizeChildren(children) {
-        return isPrimitive(children)
-            ? [createTextVNode(children)]
-            : Array.isArray(children)
-                ? normalizeArrayChildren(children)
-                : undefined
-    }
-
-    function isTextNode(node) {
-        return isDef(node) && isDef(node.text) && isFalse(node.isComment)
-    }
-
-    function normalizeArrayChildren(children, nestedIndex) {
-        var res = []
-        var i, c, last
-        for (i = 0; i < children.length; i++) {
-            c = children[i]
-            if (isUndef(c) || typeof c === "boolean") {
-                continue
-            }
-            last = res[res.length - 1]
-            //  nested
-            if (Array.isArray(c)) {
-                res.push.apply(res, normalizeArrayChildren(c, (nestedIndex || "") + "_" + i))
-            } else if (isPrimitive(c)) {
-                if (isTextNode(last)) {
-                    // merge adjacent text nodes
-                    // this is necessary for SSR hydration because text nodes are
-                    // essentially merged when rendered to HTML strings
-                    last.text += String(c)
-                } else if (c !== "") {
-                    // convert primitive to vnode
-                    res.push(createTextVNode(c))
-                }
-            } else {
-                if (isTextNode(c) && isTextNode(last)) {
-                    // merge adjacent text nodes
-                    res[res.length - 1] = createTextVNode(last.text + c.text)
-                } else {
-                    // default key for nested array children (likely generated by v-for)
-                    if (
-                        isTrue(children._isVList) &&
-                        isDef(c.tag) &&
-                        isUndef(c.key) &&
-                        isDef(nestedIndex)
-                    ) {
-                        c.key = "__vlist" + nestedIndex + "_" + i + "__"
-                    }
-                    res.push(c)
-                }
-            }
-        }
-        return res
-    }
-
-    /*  */
-
-    function ensureCtor(comp, base) {
-        if (comp.__esModule && comp.default) {
-            comp = comp.default
-        }
-        return isObject(comp) ? base.extend(comp) : comp
-    }
-
-    function createAsyncPlaceholder(factory, data, context, children, tag) {
-        var node = createEmptyVNode()
-        node.asyncFactory = factory
-        node.asyncMeta = {
-            data: data,
-            context: context,
-            children: children,
-            tag: tag
-        }
-        return node
-    }
-
-    function resolveAsyncComponent(factory, baseCtor, context) {
-        if (isTrue(factory.error) && isDef(factory.errorComp)) {
-            return factory.errorComp
-        }
-
-        if (isDef(factory.resolved)) {
-            return factory.resolved
-        }
-
-        if (isTrue(factory.loading) && isDef(factory.loadingComp)) {
-            return factory.loadingComp
-        }
-
-        if (isDef(factory.contexts)) {
-            // already pending
-            factory.contexts.push(context)
-        } else {
-            var contexts = (factory.contexts = [context])
-            var sync = true
-
-            var forceRender = function() {
-                for (var i = 0, l = contexts.length; i < l; i++) {
-                    contexts[i].$forceUpdate()
-                }
-            }
-
-            var resolve = once(function(res) {
-                // cache resolved
-                factory.resolved = ensureCtor(res, baseCtor)
-                // invoke callbacks only if this is not a synchronous resolve
-                // (async resolves are shimmed as synchronous during SSR)
-                if (!sync) {
-                    forceRender()
-                }
-            })
-
-            var reject = once(function(reason) {
-                 false &&
-                    false
-                if (isDef(factory.errorComp)) {
-                    factory.error = true
-                    forceRender()
-                }
-            })
-
-            var res = factory(resolve, reject)
-
-            if (isObject(res)) {
-                if (typeof res.then === "function") {
-                    // () => Promise
-                    if (isUndef(factory.resolved)) {
-                        res.then(resolve, reject)
-                    }
-                } else if (isDef(res.component) && typeof res.component.then === "function") {
-                    res.component.then(resolve, reject)
-
-                    if (isDef(res.error)) {
-                        factory.errorComp = ensureCtor(res.error, baseCtor)
-                    }
-
-                    if (isDef(res.loading)) {
-                        factory.loadingComp = ensureCtor(res.loading, baseCtor)
-                        if (res.delay === 0) {
-                            factory.loading = true
-                        } else {
-                            setTimeout(function() {
-                                if (isUndef(factory.resolved) && isUndef(factory.error)) {
-                                    factory.loading = true
-                                    forceRender()
-                                }
-                            }, res.delay || 200)
-                        }
-                    }
-
-                    if (isDef(res.timeout)) {
-                        setTimeout(function() {
-                            if (isUndef(factory.resolved)) {
-                                reject(null)
-                            }
-                        }, res.timeout)
-                    }
-                }
-            }
-
-            sync = false
-            // return in case resolved synchronously
-            return factory.loading ? factory.loadingComp : factory.resolved
-        }
-    }
-
-    /*  */
-
-    function getFirstComponentChild(children) {
-        if (Array.isArray(children)) {
-            for (var i = 0; i < children.length; i++) {
-                var c = children[i]
-                if (isDef(c) && isDef(c.componentOptions)) {
-                    return c
-                }
-            }
-        }
-    }
-
-    /*  */
-
-    /*  */
-
-    function initEvents(vm) {
-        vm._events = Object.create(null)
-        vm._hasHookEvent = false
-        // init parent attached events
-        var listeners = vm.$options._parentListeners
-        if (listeners) {
-            updateComponentListeners(vm, listeners)
-        }
-    }
-
-    var target
-
-    function add(event, fn, once$$1) {
-        if (once$$1) {
-            target.$once(event, fn)
-        } else {
-            target.$on(event, fn)
-        }
-    }
-
-    function remove$1(event, fn) {
-        target.$off(event, fn)
-    }
-
-    function updateComponentListeners(vm, listeners, oldListeners) {
-        target = vm
-        updateListeners(listeners, oldListeners || {}, add, remove$1, vm)
-    }
-
-    function eventsMixin(Vue) {
-        var hookRE = /^hook:/
-        Vue.prototype.$on = function(event, fn) {
-            var this$1 = this
-
-            var vm = this
-            if (Array.isArray(event)) {
-                for (var i = 0, l = event.length; i < l; i++) {
-                    this$1.$on(event[i], fn)
-                }
-            } else {
-                ;(vm._events[event] || (vm._events[event] = [])).push(fn)
-                // optimize hook:event cost by using a boolean flag marked at registration
-                // instead of a hash lookup
-                if (hookRE.test(event)) {
-                    vm._hasHookEvent = true
-                }
-            }
-            return vm
-        }
-
-        Vue.prototype.$once = function(event, fn) {
-            var vm = this
-
-            function on() {
-                vm.$off(event, on)
-                fn.apply(vm, arguments)
-            }
-            on.fn = fn
-            vm.$on(event, on)
-            return vm
-        }
-
-        Vue.prototype.$off = function(event, fn) {
-            var this$1 = this
-
-            var vm = this
-            // all
-            if (!arguments.length) {
-                vm._events = Object.create(null)
-                return vm
-            }
-            // array of events
-            if (Array.isArray(event)) {
-                for (var i$1 = 0, l = event.length; i$1 < l; i$1++) {
-                    this$1.$off(event[i$1], fn)
-                }
-                return vm
-            }
-            // specific event
-            var cbs = vm._events[event]
-            if (!cbs) {
-                return vm
-            }
-            if (arguments.length === 1) {
-                vm._events[event] = null
-                return vm
-            }
-            // specific handler
-            var cb
-            var i = cbs.length
-            while (i--) {
-                cb = cbs[i]
-                if (cb === fn || cb.fn === fn) {
-                    cbs.splice(i, 1)
-                    break
-                }
-            }
-            return vm
-        }
-
-        Vue.prototype.$emit = function(event) {
-            var vm = this
-            var cbs = vm._events[event]
-            if (cbs) {
-                cbs = cbs.length > 1 ? toArray(cbs) : cbs
-                var args = toArray(arguments, 1)
-                for (var i = 0, l = cbs.length; i < l; i++) {
-                    try {
-                        cbs[i].apply(vm, args)
-                    } catch (e) {
-                        handleError(e, vm, 'event handler for "' + event + '"')
-                    }
-                }
-            }
-            return vm
-        }
-    }
-
-    /*  */
-
-    /**
-     * Runtime helper for resolving raw children VNodes into a slot object.
-     */
-    function resolveSlots(children, context) {
-        var slots = {}
-        if (!children) {
-            return slots
-        }
-        var defaultSlot = []
-        for (var i = 0, l = children.length; i < l; i++) {
-            var child = children[i]
-            // named slots should only be respected if the vnode was rendered in the
-            // same context.
-            if (
-                (child.context === context || child.functionalContext === context) &&
-                child.data &&
-                child.data.slot != null
-            ) {
-                var name = child.data.slot
-                var slot = slots[name] || (slots[name] = [])
-                if (child.tag === "template") {
-                    slot.push.apply(slot, child.children)
-                } else {
-                    slot.push(child)
-                }
-            } else {
-                defaultSlot.push(child)
-            }
-        }
-        // ignore whitespace
-        if (!defaultSlot.every(isWhitespace)) {
-            slots.default = defaultSlot
-        }
-        return slots
-    }
-
-    function isWhitespace(node) {
-        return node.isComment || node.text === " "
-    }
-
-    function resolveScopedSlots(
-        fns, // see flow/vnode
-        res
-    ) {
-        res = res || {}
-        for (var i = 0; i < fns.length; i++) {
-            if (Array.isArray(fns[i])) {
-                resolveScopedSlots(fns[i], res)
-            } else {
-                res[fns[i].key] = fns[i].fn
-            }
-        }
-        return res
-    }
-
-    /*  */
-
-    var activeInstance = null
-
-    function initLifecycle(vm) {
-        var options = vm.$options
-
-        // locate first non-abstract parent
-        var parent = options.parent
-        if (parent && !options.abstract) {
-            while (parent.$options.abstract && parent.$parent) {
-                parent = parent.$parent
-            }
-            parent.$children.push(vm)
-        }
-
-        vm.$parent = parent
-        vm.$root = parent ? parent.$root : vm
-
-        vm.$children = []
-        vm.$refs = {}
-
-        vm._watcher = null
-        vm._inactive = null
-        vm._directInactive = false
-        vm._isMounted = false
-        vm._isDestroyed = false
-        vm._isBeingDestroyed = false
-    }
-
-    function lifecycleMixin(Vue) {
-        Vue.prototype._update = function(vnode, hydrating) {
-            var vm = this
-            if (vm._isMounted) {
-                callHook(vm, "beforeUpdate")
-            }
-            var prevEl = vm.$el
-            var prevVnode = vm._vnode
-            var prevActiveInstance = activeInstance
-            activeInstance = vm
-            vm._vnode = vnode
-            // Vue.prototype.__patch__ is injected in entry points
-            // based on the rendering backend used.
-            if (!prevVnode) {
-                // initial render
-                vm.$el = vm.__patch__(
-                    vm.$el,
-                    vnode,
-                    hydrating,
-                    false /* removeOnly */,
-                    vm.$options._parentElm,
-                    vm.$options._refElm
-                )
-                // no need for the ref nodes after initial patch
-                // this prevents keeping a detached DOM tree in memory (#5851)
-                vm.$options._parentElm = vm.$options._refElm = null
-            } else {
-                // updates
-                vm.$el = vm.__patch__(prevVnode, vnode)
-            }
-            activeInstance = prevActiveInstance
-            // update __vue__ reference
-            if (prevEl) {
-                prevEl.__vue__ = null
-            }
-            if (vm.$el) {
-                vm.$el.__vue__ = vm
-            }
-            // if parent is an HOC, update its $el as well
-            if (vm.$vnode && vm.$parent && vm.$vnode === vm.$parent._vnode) {
-                vm.$parent.$el = vm.$el
-            }
-            // updated hook is called by the scheduler to ensure that children are
-            // updated in a parent's updated hook.
-        }
-
-        Vue.prototype.$forceUpdate = function() {
-            var vm = this
-            if (vm._watcher) {
-                vm._watcher.update()
-            }
-        }
-
-        Vue.prototype.$destroy = function() {
-            var vm = this
-            if (vm._isBeingDestroyed) {
-                return
-            }
-            callHook(vm, "beforeDestroy")
-            vm._isBeingDestroyed = true
-            // remove self from parent
-            var parent = vm.$parent
-            if (parent && !parent._isBeingDestroyed && !vm.$options.abstract) {
-                remove(parent.$children, vm)
-            }
-            // teardown watchers
-            if (vm._watcher) {
-                vm._watcher.teardown()
-            }
-            var i = vm._watchers.length
-            while (i--) {
-                vm._watchers[i].teardown()
-            }
-            // remove reference from data ob
-            // frozen object may not have observer.
-            if (vm._data.__ob__) {
-                vm._data.__ob__.vmCount--
-            }
-            // call the last hook...
-            vm._isDestroyed = true
-            // invoke destroy hooks on current rendered tree
-            vm.__patch__(vm._vnode, null)
-            // fire destroyed hook
-            callHook(vm, "destroyed")
-            // turn off all instance listeners.
-            vm.$off()
-            // remove __vue__ reference
-            if (vm.$el) {
-                vm.$el.__vue__ = null
-            }
-        }
-    }
-
-    function mountComponent(vm, el, hydrating) {
-        vm.$el = el
-        if (!vm.$options.render) {
-            vm.$options.render = createEmptyVNode
-        }
-        callHook(vm, "beforeMount")
-
-        var updateComponent
-        /* istanbul ignore if */
-        if (false) {} else {
-            updateComponent = function() {
-                vm._update(vm._render(), hydrating)
-            }
-        }
-
-        vm._watcher = new Watcher(vm, updateComponent, noop)
-        hydrating = false
-
-        // manually mounted instance, call mounted on self
-        // mounted is called for render-created child components in its inserted hook
-        if (vm.$vnode == null) {
-            vm._isMounted = true
-            callHook(vm, "mounted")
-        }
-        return vm
-    }
-
-    function updateChildComponent(vm, propsData, listeners, parentVnode, renderChildren) {
-        var hasChildren = !!(
-            renderChildren || // has new static slots
-            vm.$options._renderChildren || // has old static slots
-            parentVnode.data.scopedSlots || // has new scoped slots
-            vm.$scopedSlots !== emptyObject
-        ) // has old scoped slots
-
-        vm.$options._parentVnode = parentVnode
-        vm.$vnode = parentVnode // update vm's placeholder node without re-render
-
-        if (vm._vnode) {
-            // update child tree's parent
-            vm._vnode.parent = parentVnode
-        }
-        vm.$options._renderChildren = renderChildren
-
-        // update $attrs and $listensers hash
-        // these are also reactive so they may trigger child update if the child
-        // used them during render
-        vm.$attrs = parentVnode.data && parentVnode.data.attrs
-        vm.$listeners = listeners
-
-        // update props
-        if (propsData && vm.$options.props) {
-            observerState.shouldConvert = false
-            var props = vm._props
-            var propKeys = vm.$options._propKeys || []
-            for (var i = 0; i < propKeys.length; i++) {
-                var key = propKeys[i]
-                props[key] = validateProp(key, vm.$options.props, propsData, vm)
-            }
-            observerState.shouldConvert = true
-            // keep a copy of raw propsData
-            vm.$options.propsData = propsData
-        }
-
-        // update listeners
-        if (listeners) {
-            var oldListeners = vm.$options._parentListeners
-            vm.$options._parentListeners = listeners
-            updateComponentListeners(vm, listeners, oldListeners)
-        }
-        // resolve slots + force update if has children
-        if (hasChildren) {
-            vm.$slots = resolveSlots(renderChildren, parentVnode.context)
-            vm.$forceUpdate()
-        }
-    }
-
-    function isInInactiveTree(vm) {
-        while (vm && (vm = vm.$parent)) {
-            if (vm._inactive) {
-                return true
-            }
-        }
-        return false
-    }
-
-    function activateChildComponent(vm, direct) {
-        if (direct) {
-            vm._directInactive = false
-            if (isInInactiveTree(vm)) {
-                return
-            }
-        } else if (vm._directInactive) {
-            return
-        }
-        if (vm._inactive || vm._inactive === null) {
-            vm._inactive = false
-            for (var i = 0; i < vm.$children.length; i++) {
-                activateChildComponent(vm.$children[i])
-            }
-            callHook(vm, "activated")
-        }
-    }
-
-    function deactivateChildComponent(vm, direct) {
-        if (direct) {
-            vm._directInactive = true
-            if (isInInactiveTree(vm)) {
-                return
-            }
-        }
-        if (!vm._inactive) {
-            vm._inactive = true
-            for (var i = 0; i < vm.$children.length; i++) {
-                deactivateChildComponent(vm.$children[i])
-            }
-            callHook(vm, "deactivated")
-        }
-    }
-
-    function callHook(vm, hook) {
-        var handlers = vm.$options[hook]
-        if (handlers) {
-            for (var i = 0, j = handlers.length; i < j; i++) {
-                try {
-                    handlers[i].call(vm)
-                } catch (e) {
-                    handleError(e, vm, hook + " hook")
-                }
-            }
-        }
-        if (vm._hasHookEvent) {
-            vm.$emit("hook:" + hook)
-        }
-    }
-
-    /*  */
-
-    var MAX_UPDATE_COUNT = 100
-
-    var queue = []
-    var activatedChildren = []
-    var has = {}
-    var circular = {}
-    var waiting = false
-    var flushing = false
-    var index = 0
-
-    /**
-     * Reset the scheduler's state.
-     */
-    function resetSchedulerState() {
-        index = queue.length = activatedChildren.length = 0
-        has = {}
-        waiting = flushing = false
-    }
-
-    /**
-     * Flush both queues and run the watchers.
-     */
-    function flushSchedulerQueue() {
-        flushing = true
-        var watcher, id
-
-        // Sort queue before flush.
-        // This ensures that:
-        // 1. Components are updated from parent to child. (because parent is always
-        //    created before the child)
-        // 2. A component's user watchers are run before its render watcher (because
-        //    user watchers are created before the render watcher)
-        // 3. If a component is destroyed during a parent component's watcher run,
-        //    its watchers can be skipped.
-        queue.sort(function(a, b) {
-            return a.id - b.id
-        })
-
-        // do not cache length because more watchers might be pushed
-        // as we run existing watchers
-        for (index = 0; index < queue.length; index++) {
-            watcher = queue[index]
-            id = watcher.id
-            has[id] = null
-            watcher.run()
-            // in dev build, check and stop circular updates.
-            if (false) {}
-        }
-
-        // keep copies of post queues before resetting state
-        var activatedQueue = activatedChildren.slice()
-        var updatedQueue = queue.slice()
-
-        resetSchedulerState()
-
-        // call component updated and activated hooks
-        callActivatedHooks(activatedQueue)
-        callUpdatedHooks(updatedQueue)
-
-        // devtool hook
-        /* istanbul ignore if */
-        if (devtools && config.devtools) {
-            devtools.emit("flush")
-        }
-    }
-
-    function callUpdatedHooks(queue) {
-        var i = queue.length
-        while (i--) {
-            var watcher = queue[i]
-            var vm = watcher.vm
-            if (vm._watcher === watcher && vm._isMounted) {
-                callHook(vm, "updated")
-            }
-        }
-    }
-
-    /**
-     * Queue a kept-alive component that was activated during patch.
-     * The queue will be processed after the entire tree has been patched.
-     */
-    function queueActivatedComponent(vm) {
-        // setting _inactive to false here so that a render function can
-        // rely on checking whether it's in an inactive tree (e.g. router-view)
-        vm._inactive = false
-        activatedChildren.push(vm)
-    }
-
-    function callActivatedHooks(queue) {
-        for (var i = 0; i < queue.length; i++) {
-            queue[i]._inactive = true
-            activateChildComponent(queue[i], true /* true */)
-        }
-    }
-
-    /**
-     * Push a watcher into the watcher queue.
-     * Jobs with duplicate IDs will be skipped unless it's
-     * pushed when the queue is being flushed.
-     */
-    function queueWatcher(watcher) {
-        var id = watcher.id
-        if (has[id] == null) {
-            has[id] = true
-            if (!flushing) {
-                queue.push(watcher)
-            } else {
-                // if already flushing, splice the watcher based on its id
-                // if already past its id, it will be run next immediately.
-                var i = queue.length - 1
-                while (i > index && queue[i].id > watcher.id) {
-                    i--
-                }
-                queue.splice(i + 1, 0, watcher)
-            }
-            // queue the flush
-            if (!waiting) {
-                waiting = true
-                nextTick(flushSchedulerQueue)
-            }
-        }
-    }
-
-    /*  */
-
-    var uid$2 = 0
-
-    /**
-     * A watcher parses an expression, collects dependencies,
-     * and fires callback when the expression value changes.
-     * This is used for both the $watch() api and directives.
-     */
-    var Watcher = function Watcher(vm, expOrFn, cb, options) {
-        this.vm = vm
-        vm._watchers.push(this)
-        // options
-        if (options) {
-            this.deep = !!options.deep
-            this.user = !!options.user
-            this.lazy = !!options.lazy
-            this.sync = !!options.sync
-        } else {
-            this.deep = this.user = this.lazy = this.sync = false
-        }
-        this.cb = cb
-        this.id = ++uid$2 // uid for batching
-        this.active = true
-        this.dirty = this.lazy // for lazy watchers
-        this.deps = []
-        this.newDeps = []
-        this.depIds = new _Set()
-        this.newDepIds = new _Set()
-        this.expression = ""
-        // parse expression for getter
-        if (typeof expOrFn === "function") {
-            this.getter = expOrFn
-        } else {
-            this.getter = parsePath(expOrFn)
-            if (!this.getter) {
-                this.getter = function() {}
-                 false &&
-                    false
-            }
-        }
-        this.value = this.lazy ? undefined : this.get()
-    }
-
-    /**
-     * Evaluate the getter, and re-collect dependencies.
-     */
-    Watcher.prototype.get = function get() {
-        pushTarget(this)
-        var value
-        var vm = this.vm
-        try {
-            value = this.getter.call(vm, vm)
-        } catch (e) {
-            if (this.user) {
-                handleError(e, vm, 'getter for watcher "' + this.expression + '"')
-            } else {
-                throw e
-            }
-        } finally {
-            // "touch" every property so they are all tracked as
-            // dependencies for deep watching
-            if (this.deep) {
-                traverse(value)
-            }
-            popTarget()
-            this.cleanupDeps()
-        }
-        return value
-    }
-
-    /**
-     * Add a dependency to this directive.
-     */
-    Watcher.prototype.addDep = function addDep(dep) {
-        var id = dep.id
-        if (!this.newDepIds.has(id)) {
-            this.newDepIds.add(id)
-            this.newDeps.push(dep)
-            if (!this.depIds.has(id)) {
-                dep.addSub(this)
-            }
-        }
-    }
-
-    /**
-     * Clean up for dependency collection.
-     */
-    Watcher.prototype.cleanupDeps = function cleanupDeps() {
-        var this$1 = this
-
-        var i = this.deps.length
-        while (i--) {
-            var dep = this$1.deps[i]
-            if (!this$1.newDepIds.has(dep.id)) {
-                dep.removeSub(this$1)
-            }
-        }
-        var tmp = this.depIds
-        this.depIds = this.newDepIds
-        this.newDepIds = tmp
-        this.newDepIds.clear()
-        tmp = this.deps
-        this.deps = this.newDeps
-        this.newDeps = tmp
-        this.newDeps.length = 0
-    }
-
-    /**
-     * Subscriber interface.
-     * Will be called when a dependency changes.
-     */
-    Watcher.prototype.update = function update() {
-        /* istanbul ignore else */
-        if (this.lazy) {
-            this.dirty = true
-        } else if (this.sync) {
-            this.run()
-        } else {
-            queueWatcher(this)
-        }
-    }
-
-    /**
-     * Scheduler job interface.
-     * Will be called by the scheduler.
-     */
-    Watcher.prototype.run = function run() {
-        if (this.active) {
-            var value = this.get()
-            if (
-                value !== this.value ||
-                // Deep watchers and watchers on Object/Arrays should fire even
-                // when the value is the same, because the value may
-                // have mutated.
-                isObject(value) ||
-                this.deep
-            ) {
-                // set new value
-                var oldValue = this.value
-                this.value = value
-                if (this.user) {
-                    try {
-                        this.cb.call(this.vm, value, oldValue)
-                    } catch (e) {
-                        handleError(e, this.vm, 'callback for watcher "' + this.expression + '"')
-                    }
-                } else {
-                    this.cb.call(this.vm, value, oldValue)
-                }
-            }
-        }
-    }
-
-    /**
-     * Evaluate the value of the watcher.
-     * This only gets called for lazy watchers.
-     */
-    Watcher.prototype.evaluate = function evaluate() {
-        this.value = this.get()
-        this.dirty = false
-    }
-
-    /**
-     * Depend on all deps collected by this watcher.
-     */
-    Watcher.prototype.depend = function depend() {
-        var this$1 = this
-
-        var i = this.deps.length
-        while (i--) {
-            this$1.deps[i].depend()
-        }
-    }
-
-    /**
-     * Remove self from all dependencies' subscriber list.
-     */
-    Watcher.prototype.teardown = function teardown() {
-        var this$1 = this
-
-        if (this.active) {
-            // remove self from vm's watcher list
-            // this is a somewhat expensive operation so we skip it
-            // if the vm is being destroyed.
-            if (!this.vm._isBeingDestroyed) {
-                remove(this.vm._watchers, this)
-            }
-            var i = this.deps.length
-            while (i--) {
-                this$1.deps[i].removeSub(this$1)
-            }
-            this.active = false
-        }
-    }
-
-    /**
-     * Recursively traverse an object to evoke all converted
-     * getters, so that every nested property inside the object
-     * is collected as a "deep" dependency.
-     */
-    var seenObjects = new _Set()
-
-    function traverse(val) {
-        seenObjects.clear()
-        _traverse(val, seenObjects)
-    }
-
-    function _traverse(val, seen) {
-        var i, keys
-        var isA = Array.isArray(val)
-        if ((!isA && !isObject(val)) || !Object.isExtensible(val)) {
-            return
-        }
-        if (val.__ob__) {
-            var depId = val.__ob__.dep.id
-            if (seen.has(depId)) {
-                return
-            }
-            seen.add(depId)
-        }
-        if (isA) {
-            i = val.length
-            while (i--) {
-                _traverse(val[i], seen)
-            }
-        } else {
-            keys = Object.keys(val)
-            i = keys.length
-            while (i--) {
-                _traverse(val[keys[i]], seen)
-            }
-        }
-    }
-
-    /*  */
-
-    var sharedPropertyDefinition = {
-        enumerable: true,
-        configurable: true,
-        get: noop,
-        set: noop
-    }
-
-    function proxy(target, sourceKey, key) {
-        sharedPropertyDefinition.get = function proxyGetter() {
-            return this[sourceKey][key]
-        }
-        sharedPropertyDefinition.set = function proxySetter(val) {
-            this[sourceKey][key] = val
-        }
-        Object.defineProperty(target, key, sharedPropertyDefinition)
-    }
-
-    function initState(vm) {
-        vm._watchers = []
-        var opts = vm.$options
-        if (opts.props) {
-            initProps(vm, opts.props)
-        }
-        if (opts.methods) {
-            initMethods(vm, opts.methods)
-        }
-        if (opts.data) {
-            initData(vm)
-        } else {
-            observe((vm._data = {}), true /* asRootData */)
-        }
-        if (opts.computed) {
-            initComputed(vm, opts.computed)
-        }
-        if (opts.watch && opts.watch !== nativeWatch) {
-            initWatch(vm, opts.watch)
-        }
-    }
-
-    function checkOptionType(vm, name) {
-        var option = vm.$options[name]
-        if (!isPlainObject(option)) {
-            warn('component option "' + name + '" should be an object.', vm)
-        }
-    }
-
-    function initProps(vm, propsOptions) {
-        var propsData = vm.$options.propsData || {}
-        var props = (vm._props = {})
-        // cache prop keys so that future props updates can iterate using Array
-        // instead of dynamic object key enumeration.
-        var keys = (vm.$options._propKeys = [])
-        var isRoot = !vm.$parent
-        // root instance props should be converted
-        observerState.shouldConvert = isRoot
-        var loop = function(key) {
-            keys.push(key)
-            var value = validateProp(key, propsOptions, propsData, vm)
-            /* istanbul ignore else */
-            {
-                defineReactive$$1(props, key, value)
-            }
-            // static props are already proxied on the component's prototype
-            // during Vue.extend(). We only need to proxy props defined at
-            // instantiation here.
-            if (!(key in vm)) {
-                proxy(vm, "_props", key)
-            }
-        }
-
-        for (var key in propsOptions) loop(key)
-        observerState.shouldConvert = true
-    }
-
-    function initData(vm) {
-        var data = vm.$options.data
-        data = vm._data = typeof data === "function" ? getData(data, vm) : data || {}
-        if (!isPlainObject(data)) {
-            data = {}
-             false &&
-                false
-        }
-        // proxy data on instance
-        var keys = Object.keys(data)
-        var props = vm.$options.props
-        var methods = vm.$options.methods
-        var i = keys.length
-        while (i--) {
-            var key = keys[i]
-            if (props && hasOwn(props, key)) {
-                 false &&
-                    false
-            } else if (!isReserved(key)) {
-                proxy(vm, "_data", key)
-            }
-        }
-        // observe data
-        observe(data, true /* asRootData */)
-    }
-
-    function getData(data, vm) {
-        try {
-            return data.call(vm)
-        } catch (e) {
-            handleError(e, vm, "data()")
-            return {}
-        }
-    }
-
-    var computedWatcherOptions = {
-        lazy: true
-    }
-
-    function initComputed(vm, computed) {
-         false && false
-        var watchers = (vm._computedWatchers = Object.create(null))
-
-        for (var key in computed) {
-            var userDef = computed[key]
-            var getter = typeof userDef === "function" ? userDef : userDef.get
-            watchers[key] = new Watcher(vm, getter, noop, computedWatcherOptions)
-
-            // component-defined computed properties are already defined on the
-            // component prototype. We only need to define computed properties defined
-            // at instantiation here.
-            if (!(key in vm)) {
-                defineComputed(vm, key, userDef)
-            } else {
-            }
-        }
-    }
-
-    function defineComputed(target, key, userDef) {
-        if (typeof userDef === "function") {
-            sharedPropertyDefinition.get = createComputedGetter(key)
-            sharedPropertyDefinition.set = noop
-        } else {
-            sharedPropertyDefinition.get = userDef.get
-                ? userDef.cache !== false
-                    ? createComputedGetter(key)
-                    : userDef.get
-                : noop
-            sharedPropertyDefinition.set = userDef.set ? userDef.set : noop
-        }
-        Object.defineProperty(target, key, sharedPropertyDefinition)
-    }
-
-    function createComputedGetter(key) {
-        return function computedGetter() {
-            var watcher = this._computedWatchers && this._computedWatchers[key]
-            if (watcher) {
-                if (watcher.dirty) {
-                    watcher.evaluate()
-                }
-                if (Dep.target) {
-                    watcher.depend()
-                }
-                return watcher.value
-            }
-        }
-    }
-
-    function initMethods(vm, methods) {
-         false && false
-        var props = vm.$options.props
-        for (var key in methods) {
-            vm[key] = methods[key] == null ? noop : bind(methods[key], vm)
-        }
-    }
-
-    function initWatch(vm, watch) {
-         false && false
-        for (var key in watch) {
-            var handler = watch[key]
-            if (Array.isArray(handler)) {
-                for (var i = 0; i < handler.length; i++) {
-                    createWatcher(vm, key, handler[i])
-                }
-            } else {
-                createWatcher(vm, key, handler)
-            }
-        }
-    }
-
-    function createWatcher(vm, keyOrFn, handler, options) {
-        if (isPlainObject(handler)) {
-            options = handler
-            handler = handler.handler
-        }
-        if (typeof handler === "string") {
-            handler = vm[handler]
-        }
-        return vm.$watch(keyOrFn, handler, options)
-    }
-
-    function stateMixin(Vue) {
-        // flow somehow has problems with directly declared definition object
-        // when using Object.defineProperty, so we have to procedurally build up
-        // the object here.
-        var dataDef = {}
-        dataDef.get = function() {
-            return this._data
-        }
-        var propsDef = {}
-        propsDef.get = function() {
-            return this._props
-        }
-        Object.defineProperty(Vue.prototype, "$data", dataDef)
-        Object.defineProperty(Vue.prototype, "$props", propsDef)
-
-        Vue.prototype.$set = set
-        Vue.prototype.$delete = del
-
-        Vue.prototype.$watch = function(expOrFn, cb, options) {
-            var vm = this
-            if (isPlainObject(cb)) {
-                return createWatcher(vm, expOrFn, cb, options)
-            }
-            options = options || {}
-            options.user = true
-            var watcher = new Watcher(vm, expOrFn, cb, options)
-            if (options.immediate) {
-                cb.call(vm, watcher.value)
-            }
-            return function unwatchFn() {
-                watcher.teardown()
-            }
-        }
-    }
-
-    /*  */
-
-    function initProvide(vm) {
-        var provide = vm.$options.provide
-        if (provide) {
-            vm._provided = typeof provide === "function" ? provide.call(vm) : provide
-        }
-    }
-
-    function initInjections(vm) {
-        var result = resolveInject(vm.$options.inject, vm)
-        if (result) {
-            observerState.shouldConvert = false
-            Object.keys(result).forEach(function(key) {
-                /* istanbul ignore else */
-                {
-                    defineReactive$$1(vm, key, result[key])
-                }
-            })
-            observerState.shouldConvert = true
-        }
-    }
-
-    function resolveInject(inject, vm) {
-        if (inject) {
-            // inject is :any because flow is not smart enough to figure out cached
-            var result = Object.create(null)
-            var keys = hasSymbol ? Reflect.ownKeys(inject) : Object.keys(inject)
-
-            for (var i = 0; i < keys.length; i++) {
-                var key = keys[i]
-                var provideKey = inject[key]
-                var source = vm
-                while (source) {
-                    if (source._provided && provideKey in source._provided) {
-                        result[key] = source._provided[provideKey]
-                        break
-                    }
-                    source = source.$parent
-                }
-                if (false) {}
-            }
-            return result
-        }
-    }
-
-    /*  */
-
-    function createFunctionalComponent(Ctor, propsData, data, context, children) {
-        var props = {}
-        var propOptions = Ctor.options.props
-        if (isDef(propOptions)) {
-            for (var key in propOptions) {
-                props[key] = validateProp(key, propOptions, propsData || {})
-            }
-        } else {
-            if (isDef(data.attrs)) {
-                mergeProps(props, data.attrs)
-            }
-            if (isDef(data.props)) {
-                mergeProps(props, data.props)
-            }
-        }
-        // ensure the createElement function in functional components
-        // gets a unique context - this is necessary for correct named slot check
-        var _context = Object.create(context)
-        var h = function(a, b, c, d) {
-            return createElement(_context, a, b, c, d, true)
-        }
-        var vnode = Ctor.options.render.call(null, h, {
-            data: data,
-            props: props,
-            children: children,
-            parent: context,
-            listeners: data.on || {},
-            injections: resolveInject(Ctor.options.inject, context),
-            slots: function() {
-                return resolveSlots(children, context)
-            }
-        })
-        if (vnode instanceof VNode) {
-            vnode.functionalContext = context
-            vnode.functionalOptions = Ctor.options
-            if (data.slot) {
-                ;(vnode.data || (vnode.data = {})).slot = data.slot
-            }
-        }
-        return vnode
-    }
-
-    function mergeProps(to, from) {
-        for (var key in from) {
-            to[camelize(key)] = from[key]
-        }
-    }
-
-    /*  */
-
-    // hooks to be invoked on component VNodes during patch
-    var componentVNodeHooks = {
-        init: function init(vnode, hydrating, parentElm, refElm) {
-            if (!vnode.componentInstance || vnode.componentInstance._isDestroyed) {
-                var child = (vnode.componentInstance = createComponentInstanceForVnode(
-                    vnode,
-                    activeInstance,
-                    parentElm,
-                    refElm
-                ))
-                child.$mount(hydrating ? vnode.elm : undefined, hydrating)
-            } else if (vnode.data.keepAlive) {
-                // kept-alive components, treat as a patch
-                var mountedNode = vnode // work around flow
-                componentVNodeHooks.prepatch(mountedNode, mountedNode)
-            }
-        },
-
-        prepatch: function prepatch(oldVnode, vnode) {
-            var options = vnode.componentOptions
-            var child = (vnode.componentInstance = oldVnode.componentInstance)
-            updateChildComponent(
-                child,
-                options.propsData, // updated props
-                options.listeners, // updated listeners
-                vnode, // new parent vnode
-                options.children // new children
-            )
-        },
-
-        insert: function insert(vnode) {
-            var context = vnode.context
-            var componentInstance = vnode.componentInstance
-
-            if (!componentInstance._isMounted) {
-                componentInstance._isMounted = true
-                callHook(componentInstance, "mounted")
-            }
-            if (vnode.data.keepAlive) {
-                if (context._isMounted) {
-                    // vue-router#1212
-                    // During updates, a kept-alive component's child components may
-                    // change, so directly walking the tree here may call activated hooks
-                    // on incorrect children. Instead we push them into a queue which will
-                    // be processed after the whole patch process ended.
-                    queueActivatedComponent(componentInstance)
-                } else {
-                    activateChildComponent(componentInstance, true /* direct */)
-                }
-            }
-        },
-
-        destroy: function destroy(vnode) {
-            var componentInstance = vnode.componentInstance
-            if (!componentInstance._isDestroyed) {
-                if (!vnode.data.keepAlive) {
-                    componentInstance.$destroy()
-                } else {
-                    deactivateChildComponent(componentInstance, true /* direct */)
-                }
-            }
-        }
-    }
-
-    var hooksToMerge = Object.keys(componentVNodeHooks)
-
-    function createComponent(Ctor, data, context, children, tag) {
-        if (isUndef(Ctor)) {
-            return
-        }
-
-        var baseCtor = context.$options._base
-
-        // plain options object: turn it into a constructor
-        if (isObject(Ctor)) {
-            Ctor = baseCtor.extend(Ctor)
-        }
-
-        // if at this stage it's not a constructor or an async component factory,
-        // reject.
-        if (typeof Ctor !== "function") {
-            return
-        }
-
-        // async component
-        var asyncFactory
-        if (isUndef(Ctor.cid)) {
-            asyncFactory = Ctor
-            Ctor = resolveAsyncComponent(asyncFactory, baseCtor, context)
-            if (Ctor === undefined) {
-                // return a placeholder node for async component, which is rendered
-                // as a comment node but preserves all the raw information for the node.
-                // the information will be used for async server-rendering and hydration.
-                return createAsyncPlaceholder(asyncFactory, data, context, children, tag)
-            }
-        }
-
-        data = data || {}
-
-        // resolve constructor options in case global mixins are applied after
-        // component constructor creation
-        resolveConstructorOptions(Ctor)
-
-        // transform component v-model data into props & events
-        if (isDef(data.model)) {
-            transformModel(Ctor.options, data)
-        }
-
-        // extract props
-        var propsData = extractPropsFromVNodeData(data, Ctor, tag)
-
-        // functional component
-        if (isTrue(Ctor.options.functional)) {
-            return createFunctionalComponent(Ctor, propsData, data, context, children)
-        }
-
-        // keep listeners
-        var listeners = data.on
-
-        if (isTrue(Ctor.options.abstract)) {
-            // abstract components do not keep anything
-            // other than props & listeners & slot
-
-            // work around flow
-            var slot = data.slot
-            data = {}
-            if (slot) {
-                data.slot = slot
-            }
-        }
-
-        // merge component management hooks onto the placeholder node
-        mergeHooks(data)
-
-        // return a placeholder vnode
-        var name = Ctor.options.name || tag
-        var vnode = new VNode(
-            "vue-component-" + Ctor.cid + (name ? "-" + name : ""),
-            data,
-            undefined,
-            undefined,
-            undefined,
-            context,
-            {
-                Ctor: Ctor,
-                propsData: propsData,
-                listeners: listeners,
-                tag: tag,
-                children: children
-            },
-            asyncFactory
-        )
-        return vnode
-    }
-
-    function createComponentInstanceForVnode(
-        vnode, // we know it's MountedComponentVNode but flow doesn't
-        parent, // activeInstance in lifecycle state
-        parentElm,
-        refElm
-    ) {
-        var vnodeComponentOptions = vnode.componentOptions
-        var options = {
-            _isComponent: true,
-            parent: parent,
-            propsData: vnodeComponentOptions.propsData,
-            _componentTag: vnodeComponentOptions.tag,
-            _parentVnode: vnode,
-            _parentListeners: vnodeComponentOptions.listeners,
-            _renderChildren: vnodeComponentOptions.children,
-            _parentElm: parentElm || null,
-            _refElm: refElm || null
-        }
-        // check inline-template render functions
-        var inlineTemplate = vnode.data.inlineTemplate
-        if (isDef(inlineTemplate)) {
-            options.render = inlineTemplate.render
-            options.staticRenderFns = inlineTemplate.staticRenderFns
-        }
-        return new vnodeComponentOptions.Ctor(options)
-    }
-
-    function mergeHooks(data) {
-        if (!data.hook) {
-            data.hook = {}
-        }
-        for (var i = 0; i < hooksToMerge.length; i++) {
-            var key = hooksToMerge[i]
-            var fromParent = data.hook[key]
-            var ours = componentVNodeHooks[key]
-            data.hook[key] = fromParent ? mergeHook$1(ours, fromParent) : ours
-        }
-    }
-
-    function mergeHook$1(one, two) {
-        return function(a, b, c, d) {
-            one(a, b, c, d)
-            two(a, b, c, d)
-        }
-    }
-
-    // transform component v-model info (value and callback) into
-    // prop and event handler respectively.
-    function transformModel(options, data) {
-        var prop = (options.model && options.model.prop) || "value"
-        var event = (options.model && options.model.event) || "input"
-        ;(data.props || (data.props = {}))[prop] = data.model.value
-        var on = data.on || (data.on = {})
-        if (isDef(on[event])) {
-            on[event] = [data.model.callback].concat(on[event])
-        } else {
-            on[event] = data.model.callback
-        }
-    }
-
-    /*  */
-
-    var SIMPLE_NORMALIZE = 1
-    var ALWAYS_NORMALIZE = 2
-
-    // wrapper function for providing a more flexible interface
-    // without getting yelled at by flow
-    function createElement(context, tag, data, children, normalizationType, alwaysNormalize) {
-        if (Array.isArray(data) || isPrimitive(data)) {
-            normalizationType = children
-            children = data
-            data = undefined
-        }
-        if (isTrue(alwaysNormalize)) {
-            normalizationType = ALWAYS_NORMALIZE
-        }
-        return _createElement(context, tag, data, children, normalizationType)
-    }
-
-    function _createElement(context, tag, data, children, normalizationType) {
-        if (isDef(data) && isDef(data.__ob__)) {
-             false &&
-                false
-            return createEmptyVNode()
-        }
-        // object syntax in v-bind
-        if (isDef(data) && isDef(data.is)) {
-            tag = data.is
-        }
-        if (!tag) {
-            // in case of component :is set to falsy value
-            return createEmptyVNode()
-        }
-        // warn against non-primitive key
-        if (
-            false
-        ) {}
-        // support single function children as default scoped slot
-        if (Array.isArray(children) && typeof children[0] === "function") {
-            data = data || {}
-            data.scopedSlots = {
-                default: children[0]
-            }
-            children.length = 0
-        }
-        if (normalizationType === ALWAYS_NORMALIZE) {
-            children = normalizeChildren(children)
-        } else if (normalizationType === SIMPLE_NORMALIZE) {
-            children = simpleNormalizeChildren(children)
-        }
-        var vnode, ns
-        if (typeof tag === "string") {
-            var Ctor
-            ns = config.getTagNamespace(tag)
-            if (config.isReservedTag(tag)) {
-                // platform built-in elements
-                vnode = new VNode(
-                    config.parsePlatformTagName(tag),
-                    data,
-                    children,
-                    undefined,
-                    undefined,
-                    context
-                )
-            } else if (isDef((Ctor = resolveAsset(context.$options, "components", tag)))) {
-                // component
-                vnode = createComponent(Ctor, data, context, children, tag)
-            } else {
-                // unknown or unlisted namespaced elements
-                // check at runtime because it may get assigned a namespace when its
-                // parent normalizes children
-                vnode = new VNode(tag, data, children, undefined, undefined, context)
-            }
-        } else {
-            // direct component options / constructor
-            vnode = createComponent(tag, data, context, children)
-        }
-        if (isDef(vnode)) {
-            if (ns) {
-                applyNS(vnode, ns)
-            }
-            return vnode
-        } else {
-            return createEmptyVNode()
-        }
-    }
-
-    function applyNS(vnode, ns) {
-        vnode.ns = ns
-        if (vnode.tag === "foreignObject") {
-            // use default namespace inside foreignObject
-            return
-        }
-        if (isDef(vnode.children)) {
-            for (var i = 0, l = vnode.children.length; i < l; i++) {
-                var child = vnode.children[i]
-                if (isDef(child.tag) && isUndef(child.ns)) {
-                    applyNS(child, ns)
-                }
-            }
-        }
-    }
-
-    /*  */
-
-    /**
-     * Runtime helper for rendering v-for lists.
-     */
-    function renderList(val, render) {
-        var ret, i, l, keys, key
-        if (Array.isArray(val) || typeof val === "string") {
-            ret = new Array(val.length)
-            for (i = 0, l = val.length; i < l; i++) {
-                ret[i] = render(val[i], i)
-            }
-        } else if (typeof val === "number") {
-            ret = new Array(val)
-            for (i = 0; i < val; i++) {
-                ret[i] = render(i + 1, i)
-            }
-        } else if (isObject(val)) {
-            keys = Object.keys(val)
-            ret = new Array(keys.length)
-            for (i = 0, l = keys.length; i < l; i++) {
-                key = keys[i]
-                ret[i] = render(val[key], key, i)
-            }
-        }
-        if (isDef(ret)) {
-            ret._isVList = true
-        }
-        return ret
-    }
-
-    /*  */
-
-    /**
-     * Runtime helper for rendering <slot>
-     */
-    function renderSlot(name, fallback, props, bindObject) {
-        var scopedSlotFn = this.$scopedSlots[name]
-        if (scopedSlotFn) {
-            // scoped slot
-            props = props || {}
-            if (bindObject) {
-                props = extend(extend({}, bindObject), props)
-            }
-            return scopedSlotFn(props) || fallback
-        } else {
-            var slotNodes = this.$slots[name]
-            // warn duplicate slot usage
-            if (slotNodes && "production" !== "production") {
-                slotNodes._rendered &&
-                    warn(
-                        'Duplicate presence of slot "' +
-                            name +
-                            '" found in the same render tree ' +
-                            "- this will likely cause render errors.",
-                        this
-                    )
-                slotNodes._rendered = true
-            }
-            return slotNodes || fallback
-        }
-    }
-
-    /*  */
-
-    /**
-     * Runtime helper for resolving filters
-     */
-    function resolveFilter(id) {
-        return resolveAsset(this.$options, "filters", id, true) || identity
-    }
-
-    /*  */
-
-    /**
-     * Runtime helper for checking keyCodes from config.
-     */
-    function checkKeyCodes(eventKeyCode, key, builtInAlias) {
-        var keyCodes = config.keyCodes[key] || builtInAlias
-        if (Array.isArray(keyCodes)) {
-            return keyCodes.indexOf(eventKeyCode) === -1
-        } else {
-            return keyCodes !== eventKeyCode
-        }
-    }
-
-    /*  */
-
-    /**
-     * Runtime helper for merging v-bind="object" into a VNode's data.
-     */
-    function bindObjectProps(data, tag, value, asProp, isSync) {
-        if (value) {
-            if (!isObject(value)) {
-                 false &&
-                    false
-            } else {
-                if (Array.isArray(value)) {
-                    value = toObject(value)
-                }
-                var hash
-                var loop = function(key) {
-                    if (key === "class" || key === "style" || isReservedAttribute(key)) {
-                        hash = data
-                    } else {
-                        var type = data.attrs && data.attrs.type
-                        hash =
-                            asProp || config.mustUseProp(tag, type, key)
-                                ? data.domProps || (data.domProps = {})
-                                : data.attrs || (data.attrs = {})
-                    }
-                    if (!(key in hash)) {
-                        hash[key] = value[key]
-
-                        if (isSync) {
-                            var on = data.on || (data.on = {})
-                            on["update:" + key] = function($event) {
-                                value[key] = $event
-                            }
-                        }
-                    }
-                }
-
-                for (var key in value) loop(key)
-            }
-        }
-        return data
-    }
-
-    /*  */
-
-    /**
-     * Runtime helper for rendering static trees.
-     */
-    function renderStatic(index, isInFor) {
-        var tree = this._staticTrees[index]
-        // if has already-rendered static tree and not inside v-for,
-        // we can reuse the same tree by doing a shallow clone.
-        if (tree && !isInFor) {
-            return Array.isArray(tree) ? cloneVNodes(tree) : cloneVNode(tree)
-        }
-        // otherwise, render a fresh tree.
-        tree = this._staticTrees[index] = this.$options.staticRenderFns[index].call(
-            this._renderProxy
-        )
-        markStatic(tree, "__static__" + index, false)
-        return tree
-    }
-
-    /**
-     * Runtime helper for v-once.
-     * Effectively it means marking the node as static with a unique key.
-     */
-    function markOnce(tree, index, key) {
-        markStatic(tree, "__once__" + index + (key ? "_" + key : ""), true)
-        return tree
-    }
-
-    function markStatic(tree, key, isOnce) {
-        if (Array.isArray(tree)) {
-            for (var i = 0; i < tree.length; i++) {
-                if (tree[i] && typeof tree[i] !== "string") {
-                    markStaticNode(tree[i], key + "_" + i, isOnce)
-                }
-            }
-        } else {
-            markStaticNode(tree, key, isOnce)
-        }
-    }
-
-    function markStaticNode(node, key, isOnce) {
-        node.isStatic = true
-        node.key = key
-        node.isOnce = isOnce
-    }
-
-    /*  */
-
-    function bindObjectListeners(data, value) {
-        if (value) {
-            if (!isPlainObject(value)) {
-                 false &&
-                    false
-            } else {
-                var on = (data.on = data.on ? extend({}, data.on) : {})
-                for (var key in value) {
-                    var existing = on[key]
-                    var ours = value[key]
-                    on[key] = existing ? [].concat(ours, existing) : ours
-                }
-            }
-        }
-        return data
-    }
-
-    /*  */
-
-    function initRender(vm) {
-        vm._vnode = null // the root of the child tree
-        vm._staticTrees = null
-        var parentVnode = (vm.$vnode = vm.$options._parentVnode) // the placeholder node in parent tree
-        var renderContext = parentVnode && parentVnode.context
-        vm.$slots = resolveSlots(vm.$options._renderChildren, renderContext)
-        vm.$scopedSlots = emptyObject
-        // bind the createElement fn to this instance
-        // so that we get proper render context inside it.
-        // args order: tag, data, children, normalizationType, alwaysNormalize
-        // internal version is used by render functions compiled from templates
-        vm._c = function(a, b, c, d) {
-            return createElement(vm, a, b, c, d, false)
-        }
-        // normalization is always applied for the public version, used in
-        // user-written render functions.
-        vm.$createElement = function(a, b, c, d) {
-            return createElement(vm, a, b, c, d, true)
-        }
-
-        // $attrs & $listeners are exposed for easier HOC creation.
-        // they need to be reactive so that HOCs using them are always updated
-        var parentData = parentVnode && parentVnode.data
-        /* istanbul ignore else */
-        {
-            defineReactive$$1(vm, "$attrs", parentData && parentData.attrs, null, true)
-            defineReactive$$1(vm, "$listeners", parentData && parentData.on, null, true)
-        }
-    }
-
-    function renderMixin(Vue) {
-        Vue.prototype.$nextTick = function(fn) {
-            return nextTick(fn, this)
-        }
-
-        Vue.prototype._render = function() {
-            var vm = this
-            var ref = vm.$options
-            var render = ref.render
-            var staticRenderFns = ref.staticRenderFns
-            var _parentVnode = ref._parentVnode
-
-            if (vm._isMounted) {
-                // clone slot nodes on re-renders
-                for (var key in vm.$slots) {
-                    vm.$slots[key] = cloneVNodes(vm.$slots[key])
-                }
-            }
-
-            vm.$scopedSlots = (_parentVnode && _parentVnode.data.scopedSlots) || emptyObject
-
-            if (staticRenderFns && !vm._staticTrees) {
-                vm._staticTrees = []
-            }
-            // set parent vnode. this allows render functions to have access
-            // to the data on the placeholder node.
-            vm.$vnode = _parentVnode
-            // render self
-            var vnode
-            try {
-                vnode = render.call(vm._renderProxy, vm.$createElement)
-            } catch (e) {
-                handleError(e, vm, "render function")
-                // return error render result,
-                // or previous vnode to prevent render error causing blank component
-                /* istanbul ignore else */
-                {
-                    vnode = vm._vnode
-                }
-            }
-            // return empty vnode in case the render function errored out
-            if (!(vnode instanceof VNode)) {
-                if (false) {}
-                vnode = createEmptyVNode()
-            }
-            // set parent
-            vnode.parent = _parentVnode
-            return vnode
-        }
-
-        // internal render helpers.
-        // these are exposed on the instance prototype to reduce generated render
-        // code size.
-        Vue.prototype._o = markOnce
-        Vue.prototype._n = toNumber
-        Vue.prototype._s = toString
-        Vue.prototype._l = renderList
-        Vue.prototype._t = renderSlot
-        Vue.prototype._q = looseEqual
-        Vue.prototype._i = looseIndexOf
-        Vue.prototype._m = renderStatic
-        Vue.prototype._f = resolveFilter
-        Vue.prototype._k = checkKeyCodes
-        Vue.prototype._b = bindObjectProps
-        Vue.prototype._v = createTextVNode
-        Vue.prototype._e = createEmptyVNode
-        Vue.prototype._u = resolveScopedSlots
-        Vue.prototype._g = bindObjectListeners
-    }
-
-    /*  */
-
-    var uid = 0
-
-    function initMixin(Vue) {
-        Vue.prototype._init = function(options) {
-            var vm = this
-            // a uid
-            vm._uid = uid++
-
-            var startTag, endTag
-            /* istanbul ignore if */
-            if (false) {}
-
-            // a flag to avoid this being observed
-            vm._isVue = true
-            // merge options
-            if (options && options._isComponent) {
-                // optimize internal component instantiation
-                // since dynamic options merging is pretty slow, and none of the
-                // internal component options needs special treatment.
-                initInternalComponent(vm, options)
-            } else {
-                vm.$options = mergeOptions(
-                    resolveConstructorOptions(vm.constructor),
-                    options || {},
-                    vm
-                )
-            }
-            /* istanbul ignore else */
-            {
-                vm._renderProxy = vm
-            }
-            // expose real self
-            vm._self = vm
-            initLifecycle(vm)
-            initEvents(vm)
-            initRender(vm)
-            callHook(vm, "beforeCreate")
-            initInjections(vm) // resolve injections before data/props
-            initState(vm)
-            initProvide(vm) // resolve provide after data/props
-            callHook(vm, "created")
-
-            /* istanbul ignore if */
-            if (false) {}
-
-            if (vm.$options.el) {
-                vm.$mount(vm.$options.el)
-            }
-        }
-    }
-
-    function initInternalComponent(vm, options) {
-        var opts = (vm.$options = Object.create(vm.constructor.options))
-        // doing this because it's faster than dynamic enumeration.
-        opts.parent = options.parent
-        opts.propsData = options.propsData
-        opts._parentVnode = options._parentVnode
-        opts._parentListeners = options._parentListeners
-        opts._renderChildren = options._renderChildren
-        opts._componentTag = options._componentTag
-        opts._parentElm = options._parentElm
-        opts._refElm = options._refElm
-        if (options.render) {
-            opts.render = options.render
-            opts.staticRenderFns = options.staticRenderFns
-        }
-    }
-
-    function resolveConstructorOptions(Ctor) {
-        var options = Ctor.options
-        if (Ctor.super) {
-            var superOptions = resolveConstructorOptions(Ctor.super)
-            var cachedSuperOptions = Ctor.superOptions
-            if (superOptions !== cachedSuperOptions) {
-                // super option changed,
-                // need to resolve new options.
-                Ctor.superOptions = superOptions
-                // check if there are any late-modified/attached options (#4976)
-                var modifiedOptions = resolveModifiedOptions(Ctor)
-                // update base extend options
-                if (modifiedOptions) {
-                    extend(Ctor.extendOptions, modifiedOptions)
-                }
-                options = Ctor.options = mergeOptions(superOptions, Ctor.extendOptions)
-                if (options.name) {
-                    options.components[options.name] = Ctor
-                }
-            }
-        }
-        return options
-    }
-
-    function resolveModifiedOptions(Ctor) {
-        var modified
-        var latest = Ctor.options
-        var extended = Ctor.extendOptions
-        var sealed = Ctor.sealedOptions
-        for (var key in latest) {
-            if (latest[key] !== sealed[key]) {
-                if (!modified) {
-                    modified = {}
-                }
-                modified[key] = dedupe(latest[key], extended[key], sealed[key])
-            }
-        }
-        return modified
-    }
-
-    function dedupe(latest, extended, sealed) {
-        // compare latest and sealed to ensure lifecycle hooks won't be duplicated
-        // between merges
-        if (Array.isArray(latest)) {
-            var res = []
-            sealed = Array.isArray(sealed) ? sealed : [sealed]
-            extended = Array.isArray(extended) ? extended : [extended]
-            for (var i = 0; i < latest.length; i++) {
-                // push original options and not sealed options to exclude duplicated options
-                if (extended.indexOf(latest[i]) >= 0 || sealed.indexOf(latest[i]) < 0) {
-                    res.push(latest[i])
-                }
-            }
-            return res
-        } else {
-            return latest
-        }
-    }
-
-    function Vue$3(options) {
-        if (false) {}
-        this._init(options)
-    }
-
-    initMixin(Vue$3)
-    stateMixin(Vue$3)
-    eventsMixin(Vue$3)
-    lifecycleMixin(Vue$3)
-    renderMixin(Vue$3)
-
-    /*  */
-
-    function initUse(Vue) {
-        Vue.use = function(plugin) {
-            var installedPlugins = this._installedPlugins || (this._installedPlugins = [])
-            if (installedPlugins.indexOf(plugin) > -1) {
-                return this
-            }
-
-            // additional parameters
-            var args = toArray(arguments, 1)
-            args.unshift(this)
-            if (typeof plugin.install === "function") {
-                plugin.install.apply(plugin, args)
-            } else if (typeof plugin === "function") {
-                plugin.apply(null, args)
-            }
-            installedPlugins.push(plugin)
-            return this
-        }
-    }
-
-    /*  */
-
-    function initMixin$1(Vue) {
-        Vue.mixin = function(mixin) {
-            this.options = mergeOptions(this.options, mixin)
-            return this
-        }
-    }
-
-    /*  */
-
-    function initExtend(Vue) {
-        /**
-         * Each instance constructor, including Vue, has a unique
-         * cid. This enables us to create wrapped "child
-         * constructors" for prototypal inheritance and cache them.
-         */
-        Vue.cid = 0
-        var cid = 1
-
-        /**
-         * Class inheritance
-         */
-        Vue.extend = function(extendOptions) {
-            extendOptions = extendOptions || {}
-            var Super = this
-            var SuperId = Super.cid
-            var cachedCtors = extendOptions._Ctor || (extendOptions._Ctor = {})
-            if (cachedCtors[SuperId]) {
-                return cachedCtors[SuperId]
-            }
-
-            var name = extendOptions.name || Super.options.name
-            var Sub = function VueComponent(options) {
-                this._init(options)
-            }
-            Sub.prototype = Object.create(Super.prototype)
-            Sub.prototype.constructor = Sub
-            Sub.cid = cid++
-            Sub.options = mergeOptions(Super.options, extendOptions)
-            Sub["super"] = Super
-
-            // For props and computed properties, we define the proxy getters on
-            // the Vue instances at extension time, on the extended prototype. This
-            // avoids Object.defineProperty calls for each instance created.
-            if (Sub.options.props) {
-                initProps$1(Sub)
-            }
-            if (Sub.options.computed) {
-                initComputed$1(Sub)
-            }
-
-            // allow further extension/mixin/plugin usage
-            Sub.extend = Super.extend
-            Sub.mixin = Super.mixin
-            Sub.use = Super.use
-
-            // create asset registers, so extended classes
-            // can have their private assets too.
-            ASSET_TYPES.forEach(function(type) {
-                Sub[type] = Super[type]
-            })
-            // enable recursive self-lookup
-            if (name) {
-                Sub.options.components[name] = Sub
-            }
-
-            // keep a reference to the super options at extension time.
-            // later at instantiation we can check if Super's options have
-            // been updated.
-            Sub.superOptions = Super.options
-            Sub.extendOptions = extendOptions
-            Sub.sealedOptions = extend({}, Sub.options)
-
-            // cache constructor
-            cachedCtors[SuperId] = Sub
-            return Sub
-        }
-    }
-
-    function initProps$1(Comp) {
-        var props = Comp.options.props
-        for (var key in props) {
-            proxy(Comp.prototype, "_props", key)
-        }
-    }
-
-    function initComputed$1(Comp) {
-        var computed = Comp.options.computed
-        for (var key in computed) {
-            defineComputed(Comp.prototype, key, computed[key])
-        }
-    }
-
-    /*  */
-
-    function initAssetRegisters(Vue) {
-        /**
-         * Create asset registration methods.
-         */
-        ASSET_TYPES.forEach(function(type) {
-            Vue[type] = function(id, definition) {
-                if (!definition) {
-                    return this.options[type + "s"][id]
-                } else {
-                    /* istanbul ignore if */
-                    if (type === "component" && isPlainObject(definition)) {
-                        definition.name = definition.name || id
-                        definition = this.options._base.extend(definition)
-                    }
-                    if (type === "directive" && typeof definition === "function") {
-                        definition = {
-                            bind: definition,
-                            update: definition
-                        }
-                    }
-                    this.options[type + "s"][id] = definition
-                    return definition
-                }
-            }
-        })
-    }
-
-    /*  */
-
-    var patternTypes = [String, RegExp, Array]
-
-    function getComponentName(opts) {
-        return opts && (opts.Ctor.options.name || opts.tag)
-    }
-
-    function matches(pattern, name) {
-        if (Array.isArray(pattern)) {
-            return pattern.indexOf(name) > -1
-        } else if (typeof pattern === "string") {
-            return pattern.split(",").indexOf(name) > -1
-        } else if (isRegExp(pattern)) {
-            return pattern.test(name)
-        }
-        /* istanbul ignore next */
-        return false
-    }
-
-    function pruneCache(cache, current, filter) {
-        for (var key in cache) {
-            var cachedNode = cache[key]
-            if (cachedNode) {
-                var name = getComponentName(cachedNode.componentOptions)
-                if (name && !filter(name)) {
-                    if (cachedNode !== current) {
-                        pruneCacheEntry(cachedNode)
-                    }
-                    cache[key] = null
-                }
-            }
-        }
-    }
-
-    function pruneCacheEntry(vnode) {
-        if (vnode) {
-            vnode.componentInstance.$destroy()
-        }
-    }
-
-    var KeepAlive = {
-        name: "keep-alive",
-        abstract: true,
-
-        props: {
-            include: patternTypes,
-            exclude: patternTypes
-        },
-
-        created: function created() {
-            this.cache = Object.create(null)
-        },
-
-        destroyed: function destroyed() {
-            var this$1 = this
-
-            for (var key in this$1.cache) {
-                pruneCacheEntry(this$1.cache[key])
-            }
-        },
-
-        watch: {
-            include: function include(val) {
-                pruneCache(this.cache, this._vnode, function(name) {
-                    return matches(val, name)
-                })
-            },
-            exclude: function exclude(val) {
-                pruneCache(this.cache, this._vnode, function(name) {
-                    return !matches(val, name)
-                })
-            }
-        },
-
-        render: function render() {
-            var vnode = getFirstComponentChild(this.$slots.default)
-            var componentOptions = vnode && vnode.componentOptions
-            if (componentOptions) {
-                // check pattern
-                var name = getComponentName(componentOptions)
-                if (
-                    name &&
-                    ((this.include && !matches(this.include, name)) ||
-                        (this.exclude && matches(this.exclude, name)))
-                ) {
-                    return vnode
-                }
-                var key =
-                    vnode.key == null
-                        ? // same constructor may get registered as different local components
-                          // so cid alone is not enough (#3269)
-                          componentOptions.Ctor.cid +
-                          (componentOptions.tag ? "::" + componentOptions.tag : "")
-                        : vnode.key
-                if (this.cache[key]) {
-                    vnode.componentInstance = this.cache[key].componentInstance
-                } else {
-                    this.cache[key] = vnode
-                }
-                vnode.data.keepAlive = true
-            }
-            return vnode
-        }
-    }
-
-    var builtInComponents = {
-        KeepAlive: KeepAlive
-    }
-
-    /*  */
-
-    function initGlobalAPI(Vue) {
-        // config
-        var configDef = {}
-        configDef.get = function() {
-            return config
-        }
-        Object.defineProperty(Vue, "config", configDef)
-
-        // exposed util methods.
-        // NOTE: these are not considered part of the public API - avoid relying on
-        // them unless you are aware of the risk.
-        Vue.util = {
-            warn: warn,
-            extend: extend,
-            mergeOptions: mergeOptions,
-            defineReactive: defineReactive$$1
-        }
-
-        Vue.set = set
-        Vue.delete = del
-        Vue.nextTick = nextTick
-
-        Vue.options = Object.create(null)
-        ASSET_TYPES.forEach(function(type) {
-            Vue.options[type + "s"] = Object.create(null)
-        })
-
-        // this is used to identify the "base" constructor to extend all plain-object
-        // components with in Weex's multi-instance scenarios.
-        Vue.options._base = Vue
-
-        extend(Vue.options.components, builtInComponents)
-
-        initUse(Vue)
-        initMixin$1(Vue)
-        initExtend(Vue)
-        initAssetRegisters(Vue)
-    }
-
-    initGlobalAPI(Vue$3)
-
-    Object.defineProperty(Vue$3.prototype, "$isServer", {
-        get: isServerRendering
-    })
-
-    Object.defineProperty(Vue$3.prototype, "$ssrContext", {
-        get: function get() {
-            /* istanbul ignore next */
-            return this.$vnode && this.$vnode.ssrContext
-        }
-    })
-
-    Vue$3.version = "2.4.1"
-    Vue$3.mpvueVersion = "1.0.12"
-
-    /* globals renderer */
-
-    var isReservedTag = makeMap(
-        "template,script,style,element,content,slot,link,meta,svg,view," +
-            "a,div,img,image,text,span,richtext,input,switch,textarea,spinner,select," +
-            "slider,slider-neighbor,indicator,trisition,trisition-group,canvas," +
-            "list,cell,header,loading,loading-indicator,refresh,scrollable,scroller," +
-            "video,web,embed,tabbar,tabheader,datepicker,timepicker,marquee,countdown",
-        true
-    )
-
-    // these are reserved for web because they are directly compiled away
-    // during template compilation
-    var isReservedAttr = makeMap("style,class")
-
-    // Elements that you can, intentionally, leave open (and which close themselves)
-    // more flexable than web
-    var canBeLeftOpenTag = makeMap(
-        "web,spinner,switch,video,textarea,canvas," + "indicator,marquee,countdown",
-        true
-    )
-
-    var isUnaryTag = makeMap("embed,img,image,input,link,meta", true)
-
-    function mustUseProp() {
-        /* console.log('mustUseProp') */
-    }
-
-    function getTagNamespace() {
-        /* console.log('getTagNamespace') */
-    }
-
-    function isUnknownElement() {
-        /* console.log('isUnknownElement') */
-    }
-
-    function getComKey(vm) {
-        return vm && vm.$attrs ? vm.$attrs["mpcomid"] : "0"
-    }
-
-    // 用于小程序的 event type 到 web 的 event
-    var eventTypeMap = {
-        tap: ["tap", "click"],
-        touchstart: ["touchstart"],
-        touchmove: ["touchmove"],
-        touchcancel: ["touchcancel"],
-        touchend: ["touchend"],
-        longtap: ["longtap"],
-        input: ["input"],
-        blur: ["change", "blur"],
-        submit: ["submit"],
-        focus: ["focus"],
-        scrolltoupper: ["scrolltoupper"],
-        scrolltolower: ["scrolltolower"],
-        scroll: ["scroll"]
-    }
-
-    /*  */
-
-    // import { namespaceMap } from 'mp/util/index'
-
-    var obj = {}
-
-    function createElement$1(tagName, vnode) {
-        return obj
-    }
-
-    function createElementNS(namespace, tagName) {
-        return obj
-    }
-
-    function createTextNode(text) {
-        return obj
-    }
-
-    function createComment(text) {
-        return obj
-    }
-
-    function insertBefore(parentNode, newNode, referenceNode) {}
-
-    function removeChild(node, child) {}
-
-    function appendChild(node, child) {}
-
-    function parentNode(node) {
-        return obj
-    }
-
-    function nextSibling(node) {
-        return obj
-    }
-
-    function tagName(node) {
-        return "div"
-    }
-
-    function setTextContent(node, text) {
-        return obj
-    }
-
-    function setAttribute(node, key, val) {
-        return obj
-    }
-
-    var nodeOps = Object.freeze({
-        createElement: createElement$1,
-        createElementNS: createElementNS,
-        createTextNode: createTextNode,
-        createComment: createComment,
-        insertBefore: insertBefore,
-        removeChild: removeChild,
-        appendChild: appendChild,
-        parentNode: parentNode,
-        nextSibling: nextSibling,
-        tagName: tagName,
-        setTextContent: setTextContent,
-        setAttribute: setAttribute
-    })
-
-    /*  */
-
-    var ref = {
-        create: function create(_, vnode) {
-            registerRef(vnode)
-        },
-        update: function update(oldVnode, vnode) {
-            if (oldVnode.data.ref !== vnode.data.ref) {
-                registerRef(oldVnode, true)
-                registerRef(vnode)
-            }
-        },
-        destroy: function destroy(vnode) {
-            registerRef(vnode, true)
-        }
-    }
-
-    function registerRef(vnode, isRemoval) {
-        var key = vnode.data.ref
-        if (!key) {
-            return
-        }
-
-        var vm = vnode.context
-        var ref = vnode.componentInstance || vnode.elm
-        var refs = vm.$refs
-        if (isRemoval) {
-            if (Array.isArray(refs[key])) {
-                remove(refs[key], ref)
-            } else if (refs[key] === ref) {
-                refs[key] = undefined
-            }
-        } else {
-            if (vnode.data.refInFor) {
-                if (!Array.isArray(refs[key])) {
-                    refs[key] = [ref]
-                } else if (refs[key].indexOf(ref) < 0) {
-                    // $flow-disable-line
-                    refs[key].push(ref)
-                }
-            } else {
-                refs[key] = ref
-            }
-        }
-    }
-
-    /**
-     * Virtual DOM patching algorithm based on Snabbdom by
-     * Simon Friis Vindum (@paldepind)
-     * Licensed under the MIT License
-     * https://github.com/paldepind/snabbdom/blob/master/LICENSE
-     *
-     * modified by Evan You (@yyx990803)
-     *
-
-    /*
-     * Not type-checking this because this file is perf-critical and the cost
-     * of making flow understand it is not worth it.
-     */
-
-    var emptyNode = new VNode("", {}, [])
-
-    var hooks = ["create", "activate", "update", "remove", "destroy"]
-
-    function sameVnode(a, b) {
-        return (
-            a.key === b.key &&
-            ((a.tag === b.tag &&
-                a.isComment === b.isComment &&
-                isDef(a.data) === isDef(b.data) &&
-                sameInputType(a, b)) ||
-                (isTrue(a.isAsyncPlaceholder) &&
-                    a.asyncFactory === b.asyncFactory &&
-                    isUndef(b.asyncFactory.error)))
-        )
-    }
-
-    // Some browsers do not support dynamically changing type for <input>
-    // so they need to be treated as different nodes
-    function sameInputType(a, b) {
-        if (a.tag !== "input") {
-            return true
-        }
-        var i
-        var typeA = isDef((i = a.data)) && isDef((i = i.attrs)) && i.type
-        var typeB = isDef((i = b.data)) && isDef((i = i.attrs)) && i.type
-        return typeA === typeB
-    }
-
-    function createKeyToOldIdx(children, beginIdx, endIdx) {
-        var i, key
-        var map = {}
-        for (i = beginIdx; i <= endIdx; ++i) {
-            key = children[i].key
-            if (isDef(key)) {
-                map[key] = i
-            }
-        }
-        return map
-    }
-
-    function createPatchFunction(backend) {
-        var i, j
-        var cbs = {}
-
-        var modules = backend.modules
-        var nodeOps = backend.nodeOps
-
-        for (i = 0; i < hooks.length; ++i) {
-            cbs[hooks[i]] = []
-            for (j = 0; j < modules.length; ++j) {
-                if (isDef(modules[j][hooks[i]])) {
-                    cbs[hooks[i]].push(modules[j][hooks[i]])
-                }
-            }
-        }
-
-        function emptyNodeAt(elm) {
-            return new VNode(nodeOps.tagName(elm).toLowerCase(), {}, [], undefined, elm)
-        }
-
-        function createRmCb(childElm, listeners) {
-            function remove$$1() {
-                if (--remove$$1.listeners === 0) {
-                    removeNode(childElm)
-                }
-            }
-            remove$$1.listeners = listeners
-            return remove$$1
-        }
-
-        function removeNode(el) {
-            var parent = nodeOps.parentNode(el)
-            // element may have already been removed due to v-html / v-text
-            if (isDef(parent)) {
-                nodeOps.removeChild(parent, el)
-            }
-        }
-
-        var inPre = 0
-
-        function createElm(vnode, insertedVnodeQueue, parentElm, refElm, nested) {
-            vnode.isRootInsert = !nested // for transition enter check
-            if (createComponent(vnode, insertedVnodeQueue, parentElm, refElm)) {
-                return
-            }
-
-            var data = vnode.data
-            var children = vnode.children
-            var tag = vnode.tag
-            if (isDef(tag)) {
-                vnode.elm = vnode.ns
-                    ? nodeOps.createElementNS(vnode.ns, tag)
-                    : nodeOps.createElement(tag, vnode)
-                setScope(vnode)
-
-                /* istanbul ignore if */
-                {
-                    createChildren(vnode, children, insertedVnodeQueue)
-                    if (isDef(data)) {
-                        invokeCreateHooks(vnode, insertedVnodeQueue)
-                    }
-                    insert(parentElm, vnode.elm, refElm)
-                }
-
-                if (false) {}
-            } else if (isTrue(vnode.isComment)) {
-                vnode.elm = nodeOps.createComment(vnode.text)
-                insert(parentElm, vnode.elm, refElm)
-            } else {
-                vnode.elm = nodeOps.createTextNode(vnode.text)
-                insert(parentElm, vnode.elm, refElm)
-            }
-        }
-
-        function createComponent(vnode, insertedVnodeQueue, parentElm, refElm) {
-            var i = vnode.data
-            if (isDef(i)) {
-                var isReactivated = isDef(vnode.componentInstance) && i.keepAlive
-                if (isDef((i = i.hook)) && isDef((i = i.init))) {
-                    i(vnode, false /* hydrating */, parentElm, refElm)
-                }
-                // after calling the init hook, if the vnode is a child component
-                // it should've created a child instance and mounted it. the child
-                // component also has set the placeholder vnode's elm.
-                // in that case we can just return the element and be done.
-                if (isDef(vnode.componentInstance)) {
-                    initComponent(vnode, insertedVnodeQueue)
-                    if (isTrue(isReactivated)) {
-                        reactivateComponent(vnode, insertedVnodeQueue, parentElm, refElm)
-                    }
-                    return true
-                }
-            }
-        }
-
-        function initComponent(vnode, insertedVnodeQueue) {
-            if (isDef(vnode.data.pendingInsert)) {
-                insertedVnodeQueue.push.apply(insertedVnodeQueue, vnode.data.pendingInsert)
-                vnode.data.pendingInsert = null
-            }
-            vnode.elm = vnode.componentInstance.$el
-            if (isPatchable(vnode)) {
-                invokeCreateHooks(vnode, insertedVnodeQueue)
-                setScope(vnode)
-            } else {
-                // empty component root.
-                // skip all element-related modules except for ref (#3455)
-                registerRef(vnode)
-                // make sure to invoke the insert hook
-                insertedVnodeQueue.push(vnode)
-            }
-        }
-
-        function reactivateComponent(vnode, insertedVnodeQueue, parentElm, refElm) {
-            var i
-            // hack for #4339: a reactivated component with inner transition
-            // does not trigger because the inner node's created hooks are not called
-            // again. It's not ideal to involve module-specific logic in here but
-            // there doesn't seem to be a better way to do it.
-            var innerNode = vnode
-            while (innerNode.componentInstance) {
-                innerNode = innerNode.componentInstance._vnode
-                if (isDef((i = innerNode.data)) && isDef((i = i.transition))) {
-                    for (i = 0; i < cbs.activate.length; ++i) {
-                        cbs.activate[i](emptyNode, innerNode)
-                    }
-                    insertedVnodeQueue.push(innerNode)
-                    break
-                }
-            }
-            // unlike a newly created component,
-            // a reactivated keep-alive component doesn't insert itself
-            insert(parentElm, vnode.elm, refElm)
-        }
-
-        function insert(parent, elm, ref$$1) {
-            if (isDef(parent)) {
-                if (isDef(ref$$1)) {
-                    if (ref$$1.parentNode === parent) {
-                        nodeOps.insertBefore(parent, elm, ref$$1)
-                    }
-                } else {
-                    nodeOps.appendChild(parent, elm)
-                }
-            }
-        }
-
-        function createChildren(vnode, children, insertedVnodeQueue) {
-            if (Array.isArray(children)) {
-                for (var i = 0; i < children.length; ++i) {
-                    createElm(children[i], insertedVnodeQueue, vnode.elm, null, true)
-                }
-            } else if (isPrimitive(vnode.text)) {
-                nodeOps.appendChild(vnode.elm, nodeOps.createTextNode(vnode.text))
-            }
-        }
-
-        function isPatchable(vnode) {
-            while (vnode.componentInstance) {
-                vnode = vnode.componentInstance._vnode
-            }
-            return isDef(vnode.tag)
-        }
-
-        function invokeCreateHooks(vnode, insertedVnodeQueue) {
-            for (var i$1 = 0; i$1 < cbs.create.length; ++i$1) {
-                cbs.create[i$1](emptyNode, vnode)
-            }
-            i = vnode.data.hook // Reuse variable
-            if (isDef(i)) {
-                if (isDef(i.create)) {
-                    i.create(emptyNode, vnode)
-                }
-                if (isDef(i.insert)) {
-                    insertedVnodeQueue.push(vnode)
-                }
-            }
-        }
-
-        // set scope id attribute for scoped CSS.
-        // this is implemented as a special case to avoid the overhead
-        // of going through the normal attribute patching process.
-        function setScope(vnode) {
-            var i
-            var ancestor = vnode
-            while (ancestor) {
-                if (isDef((i = ancestor.context)) && isDef((i = i.$options._scopeId))) {
-                    nodeOps.setAttribute(vnode.elm, i, "")
-                }
-                ancestor = ancestor.parent
-            }
-            // for slot content they should also get the scopeId from the host instance.
-            if (
-                isDef((i = activeInstance)) &&
-                i !== vnode.context &&
-                isDef((i = i.$options._scopeId))
-            ) {
-                nodeOps.setAttribute(vnode.elm, i, "")
-            }
-        }
-
-        function addVnodes(parentElm, refElm, vnodes, startIdx, endIdx, insertedVnodeQueue) {
-            for (; startIdx <= endIdx; ++startIdx) {
-                createElm(vnodes[startIdx], insertedVnodeQueue, parentElm, refElm)
-            }
-        }
-
-        function invokeDestroyHook(vnode) {
-            var i, j
-            var data = vnode.data
-            if (isDef(data)) {
-                if (isDef((i = data.hook)) && isDef((i = i.destroy))) {
-                    i(vnode)
-                }
-                for (i = 0; i < cbs.destroy.length; ++i) {
-                    cbs.destroy[i](vnode)
-                }
-            }
-            if (isDef((i = vnode.children))) {
-                for (j = 0; j < vnode.children.length; ++j) {
-                    invokeDestroyHook(vnode.children[j])
-                }
-            }
-        }
-
-        function removeVnodes(parentElm, vnodes, startIdx, endIdx) {
-            for (; startIdx <= endIdx; ++startIdx) {
-                var ch = vnodes[startIdx]
-                if (isDef(ch)) {
-                    if (isDef(ch.tag)) {
-                        removeAndInvokeRemoveHook(ch)
-                        invokeDestroyHook(ch)
-                    } else {
-                        // Text node
-                        removeNode(ch.elm)
-                    }
-                }
-            }
-        }
-
-        function removeAndInvokeRemoveHook(vnode, rm) {
-            if (isDef(rm) || isDef(vnode.data)) {
-                var i
-                var listeners = cbs.remove.length + 1
-                if (isDef(rm)) {
-                    // we have a recursively passed down rm callback
-                    // increase the listeners count
-                    rm.listeners += listeners
-                } else {
-                    // directly removing
-                    rm = createRmCb(vnode.elm, listeners)
-                }
-                // recursively invoke hooks on child component root node
-                if (
-                    isDef((i = vnode.componentInstance)) &&
-                    isDef((i = i._vnode)) &&
-                    isDef(i.data)
-                ) {
-                    removeAndInvokeRemoveHook(i, rm)
-                }
-                for (i = 0; i < cbs.remove.length; ++i) {
-                    cbs.remove[i](vnode, rm)
-                }
-                if (isDef((i = vnode.data.hook)) && isDef((i = i.remove))) {
-                    i(vnode, rm)
-                } else {
-                    rm()
-                }
-            } else {
-                removeNode(vnode.elm)
-            }
-        }
-
-        function updateChildren(parentElm, oldCh, newCh, insertedVnodeQueue, removeOnly) {
-            var oldStartIdx = 0
-            var newStartIdx = 0
-            var oldEndIdx = oldCh.length - 1
-            var oldStartVnode = oldCh[0]
-            var oldEndVnode = oldCh[oldEndIdx]
-            var newEndIdx = newCh.length - 1
-            var newStartVnode = newCh[0]
-            var newEndVnode = newCh[newEndIdx]
-            var oldKeyToIdx, idxInOld, elmToMove, refElm
-
-            // removeOnly is a special flag used only by <transition-group>
-            // to ensure removed elements stay in correct relative positions
-            // during leaving transitions
-            var canMove = !removeOnly
-
-            while (oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx) {
-                if (isUndef(oldStartVnode)) {
-                    oldStartVnode = oldCh[++oldStartIdx] // Vnode has been moved left
-                } else if (isUndef(oldEndVnode)) {
-                    oldEndVnode = oldCh[--oldEndIdx]
-                } else if (sameVnode(oldStartVnode, newStartVnode)) {
-                    patchVnode(oldStartVnode, newStartVnode, insertedVnodeQueue)
-                    oldStartVnode = oldCh[++oldStartIdx]
-                    newStartVnode = newCh[++newStartIdx]
-                } else if (sameVnode(oldEndVnode, newEndVnode)) {
-                    patchVnode(oldEndVnode, newEndVnode, insertedVnodeQueue)
-                    oldEndVnode = oldCh[--oldEndIdx]
-                    newEndVnode = newCh[--newEndIdx]
-                } else if (sameVnode(oldStartVnode, newEndVnode)) {
-                    // Vnode moved right
-                    patchVnode(oldStartVnode, newEndVnode, insertedVnodeQueue)
-                    canMove &&
-                        nodeOps.insertBefore(
-                            parentElm,
-                            oldStartVnode.elm,
-                            nodeOps.nextSibling(oldEndVnode.elm)
-                        )
-                    oldStartVnode = oldCh[++oldStartIdx]
-                    newEndVnode = newCh[--newEndIdx]
-                } else if (sameVnode(oldEndVnode, newStartVnode)) {
-                    // Vnode moved left
-                    patchVnode(oldEndVnode, newStartVnode, insertedVnodeQueue)
-                    canMove && nodeOps.insertBefore(parentElm, oldEndVnode.elm, oldStartVnode.elm)
-                    oldEndVnode = oldCh[--oldEndIdx]
-                    newStartVnode = newCh[++newStartIdx]
-                } else {
-                    if (isUndef(oldKeyToIdx)) {
-                        oldKeyToIdx = createKeyToOldIdx(oldCh, oldStartIdx, oldEndIdx)
-                    }
-                    idxInOld = isDef(newStartVnode.key) ? oldKeyToIdx[newStartVnode.key] : null
-                    if (isUndef(idxInOld)) {
-                        // New element
-                        createElm(newStartVnode, insertedVnodeQueue, parentElm, oldStartVnode.elm)
-                        newStartVnode = newCh[++newStartIdx]
-                    } else {
-                        elmToMove = oldCh[idxInOld]
-                        /* istanbul ignore if */
-                        if (false) {}
-                        if (sameVnode(elmToMove, newStartVnode)) {
-                            patchVnode(elmToMove, newStartVnode, insertedVnodeQueue)
-                            oldCh[idxInOld] = undefined
-                            canMove &&
-                                nodeOps.insertBefore(parentElm, elmToMove.elm, oldStartVnode.elm)
-                            newStartVnode = newCh[++newStartIdx]
-                        } else {
-                            // same key but different element. treat as new element
-                            createElm(
-                                newStartVnode,
-                                insertedVnodeQueue,
-                                parentElm,
-                                oldStartVnode.elm
-                            )
-                            newStartVnode = newCh[++newStartIdx]
-                        }
-                    }
-                }
-            }
-            if (oldStartIdx > oldEndIdx) {
-                refElm = isUndef(newCh[newEndIdx + 1]) ? null : newCh[newEndIdx + 1].elm
-                addVnodes(parentElm, refElm, newCh, newStartIdx, newEndIdx, insertedVnodeQueue)
-            } else if (newStartIdx > newEndIdx) {
-                removeVnodes(parentElm, oldCh, oldStartIdx, oldEndIdx)
-            }
-        }
-
-        function patchVnode(oldVnode, vnode, insertedVnodeQueue, removeOnly) {
-            if (oldVnode === vnode) {
-                return
-            }
-
-            var elm = (vnode.elm = oldVnode.elm)
-
-            if (isTrue(oldVnode.isAsyncPlaceholder)) {
-                if (isDef(vnode.asyncFactory.resolved)) {
-                    hydrate(oldVnode.elm, vnode, insertedVnodeQueue)
-                } else {
-                    vnode.isAsyncPlaceholder = true
-                }
-                return
-            }
-
-            // reuse element for static trees.
-            // note we only do this if the vnode is cloned -
-            // if the new node is not cloned it means the render functions have been
-            // reset by the hot-reload-api and we need to do a proper re-render.
-            if (
-                isTrue(vnode.isStatic) &&
-                isTrue(oldVnode.isStatic) &&
-                vnode.key === oldVnode.key &&
-                (isTrue(vnode.isCloned) || isTrue(vnode.isOnce))
-            ) {
-                vnode.componentInstance = oldVnode.componentInstance
-                return
-            }
-
-            var i
-            var data = vnode.data
-            if (isDef(data) && isDef((i = data.hook)) && isDef((i = i.prepatch))) {
-                i(oldVnode, vnode)
-            }
-
-            var oldCh = oldVnode.children
-            var ch = vnode.children
-            if (isDef(data) && isPatchable(vnode)) {
-                for (i = 0; i < cbs.update.length; ++i) {
-                    cbs.update[i](oldVnode, vnode)
-                }
-                if (isDef((i = data.hook)) && isDef((i = i.update))) {
-                    i(oldVnode, vnode)
-                }
-            }
-            if (isUndef(vnode.text)) {
-                if (isDef(oldCh) && isDef(ch)) {
-                    if (oldCh !== ch) {
-                        updateChildren(elm, oldCh, ch, insertedVnodeQueue, removeOnly)
-                    }
-                } else if (isDef(ch)) {
-                    if (isDef(oldVnode.text)) {
-                        nodeOps.setTextContent(elm, "")
-                    }
-                    addVnodes(elm, null, ch, 0, ch.length - 1, insertedVnodeQueue)
-                } else if (isDef(oldCh)) {
-                    removeVnodes(elm, oldCh, 0, oldCh.length - 1)
-                } else if (isDef(oldVnode.text)) {
-                    nodeOps.setTextContent(elm, "")
-                }
-            } else if (oldVnode.text !== vnode.text) {
-                nodeOps.setTextContent(elm, vnode.text)
-            }
-            if (isDef(data)) {
-                if (isDef((i = data.hook)) && isDef((i = i.postpatch))) {
-                    i(oldVnode, vnode)
-                }
-            }
-        }
-
-        function invokeInsertHook(vnode, queue, initial) {
-            // delay insert hooks for component root nodes, invoke them after the
-            // element is really inserted
-            if (isTrue(initial) && isDef(vnode.parent)) {
-                vnode.parent.data.pendingInsert = queue
-            } else {
-                for (var i = 0; i < queue.length; ++i) {
-                    queue[i].data.hook.insert(queue[i])
-                }
-            }
-        }
-
-        var bailed = false
-        // list of modules that can skip create hook during hydration because they
-        // are already rendered on the client or has no need for initialization
-        var isRenderedModule = makeMap("attrs,style,class,staticClass,staticStyle,key")
-
-        // Note: this is a browser-only function so we can assume elms are DOM nodes.
-        function hydrate(elm, vnode, insertedVnodeQueue) {
-            if (isTrue(vnode.isComment) && isDef(vnode.asyncFactory)) {
-                vnode.elm = elm
-                vnode.isAsyncPlaceholder = true
-                return true
-            }
-            vnode.elm = elm
-            var tag = vnode.tag
-            var data = vnode.data
-            var children = vnode.children
-            if (isDef(data)) {
-                if (isDef((i = data.hook)) && isDef((i = i.init))) {
-                    i(vnode, true /* hydrating */)
-                }
-                if (isDef((i = vnode.componentInstance))) {
-                    // child component. it should have hydrated its own tree.
-                    initComponent(vnode, insertedVnodeQueue)
-                    return true
-                }
-            }
-            if (isDef(tag)) {
-                if (isDef(children)) {
-                    // empty element, allow client to pick up and populate children
-                    if (!elm.hasChildNodes()) {
-                        createChildren(vnode, children, insertedVnodeQueue)
-                    } else {
-                        var childrenMatch = true
-                        var childNode = elm.firstChild
-                        for (var i$1 = 0; i$1 < children.length; i$1++) {
-                            if (
-                                !childNode ||
-                                !hydrate(childNode, children[i$1], insertedVnodeQueue)
-                            ) {
-                                childrenMatch = false
-                                break
-                            }
-                            childNode = childNode.nextSibling
-                        }
-                        // if childNode is not null, it means the actual childNodes list is
-                        // longer than the virtual children list.
-                        if (!childrenMatch || childNode) {
-                            if (
-                                false
-                            ) {}
-                            return false
-                        }
-                    }
-                }
-                if (isDef(data)) {
-                    for (var key in data) {
-                        if (!isRenderedModule(key)) {
-                            invokeCreateHooks(vnode, insertedVnodeQueue)
-                            break
-                        }
-                    }
-                }
-            } else if (elm.data !== vnode.text) {
-                elm.data = vnode.text
-            }
-            return true
-        }
-
-        return function patch(oldVnode, vnode, hydrating, removeOnly, parentElm, refElm) {
-            if (isUndef(vnode)) {
-                if (isDef(oldVnode)) {
-                    invokeDestroyHook(oldVnode)
-                }
-                return
-            }
-
-            var isInitialPatch = false
-            var insertedVnodeQueue = []
-
-            if (isUndef(oldVnode)) {
-                // empty mount (likely as component), create new root element
-                isInitialPatch = true
-                createElm(vnode, insertedVnodeQueue, parentElm, refElm)
-            } else {
-                var isRealElement = isDef(oldVnode.nodeType)
-                if (!isRealElement && sameVnode(oldVnode, vnode)) {
-                    // patch existing root node
-                    patchVnode(oldVnode, vnode, insertedVnodeQueue, removeOnly)
-                } else {
-                    if (isRealElement) {
-                        // mounting to a real element
-                        // check if this is server-rendered content and if we can perform
-                        // a successful hydration.
-                        if (oldVnode.nodeType === 1 && oldVnode.hasAttribute(SSR_ATTR)) {
-                            oldVnode.removeAttribute(SSR_ATTR)
-                            hydrating = true
-                        }
-                        if (isTrue(hydrating)) {
-                            if (hydrate(oldVnode, vnode, insertedVnodeQueue)) {
-                                invokeInsertHook(vnode, insertedVnodeQueue, true)
-                                return oldVnode
-                            } else {
-                            }
-                        }
-                        // either not server-rendered, or hydration failed.
-                        // create an empty node and replace it
-                        oldVnode = emptyNodeAt(oldVnode)
-                    }
-                    // replacing existing element
-                    var oldElm = oldVnode.elm
-                    var parentElm$1 = nodeOps.parentNode(oldElm)
-                    createElm(
-                        vnode,
-                        insertedVnodeQueue,
-                        // extremely rare edge case: do not insert if old element is in a
-                        // leaving transition. Only happens when combining transition +
-                        // keep-alive + HOCs. (#4590)
-                        oldElm._leaveCb ? null : parentElm$1,
-                        nodeOps.nextSibling(oldElm)
-                    )
-
-                    if (isDef(vnode.parent)) {
-                        // component root element replaced.
-                        // update parent placeholder node element, recursively
-                        var ancestor = vnode.parent
-                        while (ancestor) {
-                            ancestor.elm = vnode.elm
-                            ancestor = ancestor.parent
-                        }
-                        if (isPatchable(vnode)) {
-                            for (var i = 0; i < cbs.create.length; ++i) {
-                                cbs.create[i](emptyNode, vnode.parent)
-                            }
-                        }
-                    }
-
-                    if (isDef(parentElm$1)) {
-                        removeVnodes(parentElm$1, [oldVnode], 0, 0)
-                    } else if (isDef(oldVnode.tag)) {
-                        invokeDestroyHook(oldVnode)
-                    }
-                }
-            }
-
-            invokeInsertHook(vnode, insertedVnodeQueue, isInitialPatch)
-            return vnode.elm
-        }
-    }
-
-    /*  */
-
-    // import baseModules from 'core/vdom/modules/index'
-    // const platformModules = []
-    // import platformModules from 'web/runtime/modules/index'
-
-    // the directive module should be applied last, after all
-    // built-in modules have been applied.
-    // const modules = platformModules.concat(baseModules)
-    var modules = [ref]
-
-    var corePatch = createPatchFunction({
-        nodeOps: nodeOps,
-        modules: modules
-    })
-
-    function patch() {
-        corePatch.apply(this, arguments)
-        this.$updateDataToMP()
-    }
-
-    function callHook$1(vm, hook, params) {
-        var handlers = vm.$options[hook]
-        if (hook === "onError" && handlers) {
-            handlers = [handlers]
-        }
-
-        var ret
-        if (handlers) {
-            for (var i = 0, j = handlers.length; i < j; i++) {
-                try {
-                    ret = handlers[i].call(vm, params)
-                } catch (e) {
-                    handleError(e, vm, hook + " hook")
-                }
-            }
-        }
-        if (vm._hasHookEvent) {
-            vm.$emit("hook:" + hook)
-        }
-
-        // for child
-        if (vm.$children.length) {
-            vm.$children.forEach(function(v) {
-                return callHook$1(v, hook, params)
-            })
-        }
-
-        return ret
-    }
-
-    // mpType 小程序实例的类型，可能的值是 'app', 'page'
-    // rootVueVM 是 vue 的根组件实例，子组件中访问 this.$root 可得
-    function getGlobalData(app, rootVueVM) {
-        var mp = rootVueVM.$mp
-        if (app && app.globalData) {
-            mp.appOptions = app.globalData.appOptions
-        }
-    }
-
-    // 格式化 properties 属性，并给每个属性加上 observer 方法
-
-    // properties 的 一些类型 https://developers.weixin.qq.com/miniprogram/dev/framework/custom-component/component.html
-    // properties: {
-    //   paramA: Number,
-    //   myProperty: { // 属性名
-    //     type: String, // 类型（必填），目前接受的类型包括：String, Number, Boolean, Object, Array, null（表示任意类型）
-    //     value: '', // 属性初始值（可选），如果未指定则会根据类型选择一个
-    //     observer: function(newVal, oldVal, changedPath) {
-    //        // 属性被改变时执行的函数（可选），也可以写成在methods段中定义的方法名字符串, 如：'_propertyChange'
-    //        // 通常 newVal 就是新设置的数据， oldVal 是旧数据
-    //     }
-    //   },
-    // }
-
-    // props 的一些类型 https://cn.vuejs.org/v2/guide/components-props.html#ad
-    // props: {
-    //   // 基础的类型检查 (`null` 匹配任何类型)
-    //   propA: Number,
-    //   // 多个可能的类型
-    //   propB: [String, Number],
-    //   // 必填的字符串
-    //   propC: {
-    //     type: String,
-    //     required: true
-    //   },
-    //   // 带有默认值的数字
-    //   propD: {
-    //     type: Number,
-    //     default: 100
-    //   },
-    //   // 带有默认值的对象
-    //   propE: {
-    //     type: Object,
-    //     // 对象或数组且一定会从一个工厂函数返回默认值
-    //     default: function () {
-    //       return { message: 'hello' }
-    //     }
-    //   },
-    //   // 自定义验证函数
-    //   propF: {
-    //     validator: function (value) {
-    //       // 这个值必须匹配下列字符串中的一个
-    //       return ['success', 'warning', 'danger'].indexOf(value) !== -1
-    //     }
-    //   }
-    // }
-
-    // core/util/options
-    function normalizeProps$1(props, res, vm) {
-        if (!props) {
-            return
-        }
-        var i, val, name
-        if (Array.isArray(props)) {
-            i = props.length
-            while (i--) {
-                val = props[i]
-                if (typeof val === "string") {
-                    name = camelize(val)
-                    res[name] = {
-                        type: null
-                    }
-                } else {
-                }
-            }
-        } else if (isPlainObject(props)) {
-            for (var key in props) {
-                val = props[key]
-                name = camelize(key)
-                res[name] = isPlainObject(val)
-                    ? val
-                    : {
-                          type: val
-                      }
-            }
-        }
-
-        // fix vueProps to properties
-        for (var key$1 in res) {
-            if (res.hasOwnProperty(key$1)) {
-                var item = res[key$1]
-                if (item.default) {
-                    item.value = item.default
-                }
-                var oldObserver = item.observer
-                item.observer = function(newVal, oldVal) {
-                    vm[name] = newVal
-                    // 先修改值再触发原始的 observer，跟 watch 行为保持一致
-                    if (typeof oldObserver === "function") {
-                        oldObserver.call(vm, newVal, oldVal)
-                    }
-                }
-            }
-        }
-
-        return res
-    }
-
-    function normalizeProperties(vm) {
-        var properties = vm.$options.properties
-        var vueProps = vm.$options.props
-        var res = {}
-
-        normalizeProps$1(properties, res, vm)
-        normalizeProps$1(vueProps, res, vm)
-
-        return res
-    }
-
-    /**
-     * 把 properties 中的属性 proxy 到 vm 上
-     */
-    function initMpProps(vm) {
-        var mpProps = (vm._mpProps = {})
-        var keys = Object.keys(vm.$options.properties || {})
-        keys.forEach(function(key) {
-            if (!(key in vm)) {
-                proxy(vm, "_mpProps", key)
-                mpProps[key] = undefined // for observe
-            }
-        })
-        observe(mpProps, true)
-    }
-
-    function initMP(mpType, next) {
-        var rootVueVM = this.$root
-        if (!rootVueVM.$mp) {
-            rootVueVM.$mp = {}
-        }
-
-        var mp = rootVueVM.$mp
-
-        // Please do not register multiple Pages
-        // if (mp.registered) {
-        if (mp.status) {
-            // 处理子组件的小程序生命周期
-            if (mpType === "app") {
-                callHook$1(this, "onLaunch", mp.appOptions)
-            } else {
-                this.__wxWebviewId__ = rootVueVM.__wxWebviewId__
-                this.__wxExparserNodeId__ = rootVueVM.__wxExparserNodeId__
-                callHook$1(this, "onLoad", mp.query)
-                // callHook$1(this, "onReady") // 避免 onReady触发两次
-            }
-            return next()
-        }
-        // mp.registered = true
-
-        mp.mpType = mpType
-        mp.status = "register"
-
-        if (mpType === "app") {
-            global.App({
-                // 页面的初始数据
-                globalData: {
-                    appOptions: {}
-                },
-
-                handleProxy: function handleProxy(e) {
-                    return rootVueVM.$handleProxyWithVue(e)
-                },
-
-                // Do something initial when launch.
-                onLaunch: function onLaunch(options) {
-                    if (options === void 0) options = {}
-
-                    mp.app = this
-                    mp.status = "launch"
-                    this.globalData.appOptions = mp.appOptions = options
-                    callHook$1(rootVueVM, "onLaunch", options)
-                    next()
-                },
-
-                // Do something when app show.
-                onShow: function onShow(options) {
-                    if (options === void 0) options = {}
-
-                    mp.status = "show"
-                    this.globalData.appOptions = mp.appOptions = options
-                    callHook$1(rootVueVM, "onShow", options)
-                },
-
-                // Do something when app hide.
-                onHide: function onHide() {
-                    mp.status = "hide"
-                    callHook$1(rootVueVM, "onHide")
-                },
-
-                onError: function onError(err) {
-                    callHook$1(rootVueVM, "onError", err)
-                },
-                //fixed by xxxxxx
-                onUniNViewMessage: function onUniNViewMessage(e) {
-                    callHook$1(rootVueVM, "onUniNViewMessage", e)
-                }
-            })
-        } else if (mpType === "component") {
-            initMpProps(rootVueVM)
-
-            global.Component({
-                // 小程序原生的组件属性
-                properties: normalizeProperties(rootVueVM),
-                // 页面的初始数据
-                data: {
-                    $root: {}
-                },
-                methods: {
-                    handleProxy: function handleProxy(e) {
-                        return rootVueVM.$handleProxyWithVue(e)
-                    }
-                },
-                // mp lifecycle for vue
-                // 组件生命周期函数，在组件实例进入页面节点树时执行，注意此时不能调用 setData
-                created: function created() {
-                    mp.status = "created"
-                    mp.page = this
-                },
-                // 组件生命周期函数，在组件实例进入页面节点树时执行
-                attached: function attached() {
-                    mp.status = "attached"
-                    callHook$1(rootVueVM, "attached")
-                },
-                // 组件生命周期函数，在组件布局完成后执行，此时可以获取节点信息（使用 SelectorQuery ）
-                ready: function ready() {
-                    mp.status = "ready"
-
-                    callHook$1(rootVueVM, "ready")
-                    next()
-
-                    // 只有页面需要 setData
-                    rootVueVM.$nextTick(function() {
-                        rootVueVM._initDataToMP()
-                    })
-                },
-                // 组件生命周期函数，在组件实例被移动到节点树另一个位置时执行
-                moved: function moved() {
-                    callHook$1(rootVueVM, "moved")
-                },
-                // 组件生命周期函数，在组件实例被从页面节点树移除时执行
-                detached: function detached() {
-                    mp.status = "detached"
-                    callHook$1(rootVueVM, "detached")
-                }
-            })
-        } else {
-            var app = global.getApp()
-    
-            
-            global.Page({
-                // 页面的初始数据
-                data: {
-                    $root: {}
-                },
-
-                handleProxy: function handleProxy(e) {
-                    return rootVueVM.$handleProxyWithVue(e)
-                },
-
-                // mp lifecycle for vue
-                // 生命周期函数--监听页面加载
-                onLoad: function onLoad(query) {
-                    rootVueVM.__wxWebviewId__ = this.__wxWebviewId__//fixed by xxxxxx(createIntersectionObserver)
-                    rootVueVM.__wxExparserNodeId__ = this.__wxExparserNodeId__
-                    mp.page = this
-                    mp.query = query
-                    mp.status = "load"
-                    getGlobalData(app, rootVueVM)
-                    //仅load时重置数据
-                    if (rootVueVM.$options && typeof rootVueVM.$options.data === "function") {
-                    		Object.assign(rootVueVM.$data, rootVueVM.$options.data())
-                    }
-                    callHook$1(rootVueVM, "onLoad", query)
-                },
-
-                // 生命周期函数--监听页面显示
-                onShow: function onShow() {
-                    rootVueVM.__wxWebviewId__ = this.__wxWebviewId__//fixed by xxxxxx(createIntersectionObserver)
-                    rootVueVM.__wxExparserNodeId__ = this.__wxExparserNodeId__
-                    mp.page = this
-                    mp.status = "show"
-                
-                    callHook$1(rootVueVM, "onShow")
-                    
-                    //   // 只有页面需要 setData
-                    rootVueVM.$nextTick(function () {
-                    	rootVueVM._initDataToMP();
-                    });
-                },
-
-                // 生命周期函数--监听页面初次渲染完成
-                onReady: function onReady() {
-                    mp.status = "ready"
-
-                    callHook$1(rootVueVM, "onReady")
-                    next()
-                },
-
-                // 生命周期函数--监听页面隐藏
-                onHide: function onHide() {
-                    mp.status = "hide"
-                    callHook$1(rootVueVM, "onHide")
-                },
-
-                // 生命周期函数--监听页面卸载
-                onUnload: function onUnload() {
-                    mp.status = "unload"
-                    callHook$1(rootVueVM, "onUnload")
-                    mp.page = null
-                },
-
-                // 页面相关事件处理函数--监听用户下拉动作
-                onPullDownRefresh: function onPullDownRefresh() {
-                    callHook$1(rootVueVM, "onPullDownRefresh")
-                },
-
-                // 页面上拉触底事件的处理函数
-                onReachBottom: function onReachBottom() {
-                    callHook$1(rootVueVM, "onReachBottom")
-                },
-
-                // 用户点击右上角分享
-                onShareAppMessage: rootVueVM.$options.onShareAppMessage
-                    ? function(options) {
-                          return callHook$1(rootVueVM, "onShareAppMessage", options)
-                      }
-                    : null,
-
-                // Do something when page scroll
-                onPageScroll: function onPageScroll(options) {
-                    callHook$1(rootVueVM, "onPageScroll", options)
-                },
-
-                // 当前是 tab 页时，点击 tab 时触发
-                onTabItemTap: function onTabItemTap(options) {
-                    callHook$1(rootVueVM, "onTabItemTap", options)
-                }
-            })
-        }
-    }
-
-    // 节流方法，性能优化
-    // 全局的命名约定，为了节省编译的包大小一律采取形象的缩写，说明如下。
-    // $c === $child
-    // $k === $comKey
-
-    // 新型的被拍平的数据结构
-    // {
-    //   $root: {
-    //     '1-1'{
-    //       // ... data
-    //     },
-    //     '1.2-1': {
-    //       // ... data1
-    //     },
-    //     '1.2-2': {
-    //       // ... data2
-    //     }
-    //   }
-    // }
-
-    function getVmData(vm) {
-        // 确保当前 vm 所有数据被同步
-        var dataKeys = [].concat(
-            Object.keys(vm._data || {}),
-            Object.keys(vm._props || {}),
-            Object.keys(vm._mpProps || {}),
-            Object.keys(vm._computedWatchers || {})
-        )
-        return dataKeys.reduce(function(res, key) {
-            res[key] = vm[key]
-            return res
-        }, {})
-    }
-
-    function getParentComKey(vm, res) {
-        if (res === void 0) res = []
-
-        var ref = vm || {}
-        var $parent = ref.$parent
-        if (!$parent) {
-            return res
-        }
-        res.unshift(getComKey($parent))
-        if ($parent.$parent) {
-            return getParentComKey($parent, res)
-        }
-        return res
-    }
-
-    function formatVmData(vm) {
-        var $p = getParentComKey(vm).join(",")
-        var $k = $p + ($p ? "," : "") + getComKey(vm)
-
-        // getVmData 这儿获取当前组件内的所有数据，包含 props、computed 的数据
-        // 改动 vue.runtime 所获的的核心能力
-        var data = Object.assign(getVmData(vm), {
-            $k: $k,
-            $kk: $k + ",",
-            $p: $p
-        })
-        var key = "$root." + $k
-        var res = {}
-        res[key] = data
-        return res
-    }
-
-    function collectVmData(vm, res) {
-        if (res === void 0) res = {}
-
-        var vms = vm.$children
-        if (vms && vms.length) {
-            vms.forEach(function(v) {
-                return collectVmData(v, res)
-            })
-        }
-        return Object.assign(res, formatVmData(vm))
-    }
-
-    /**
-     * 频率控制 返回函数连续调用时，func 执行频率限定为 次 / wait
-     * 自动合并 data
-     *
-     * @param  {function}   func      传入函数
-     * @param  {number}     wait      表示时间窗口的间隔
-     * @param  {object}     options   如果想忽略开始边界上的调用，传入{leading: false}。
-     *                                如果想忽略结尾边界上的调用，传入{trailing: false}
-     * @return {function}             返回客户调用函数
-     */
-    function throttle(func, wait, options) {
-        var context, args, result
-        var timeout = null
-        // 上次执行时间点
-        var previous = 0
-        if (!options) {
-            options = {}
-        }
-        // 延迟执行函数
-        function later() {
-            // 若设定了开始边界不执行选项，上次执行时间始终为0
-            previous = options.leading === false ? 0 : Date.now()
-            timeout = null
-            result = func.apply(context, args)
-            if (!timeout) {
-                context = args = null
-            }
-        }
-        return function(handle, data) {
-            var now = Date.now()
-            // 首次执行时，如果设定了开始边界不执行选项，将上次执行时间设定为当前时间。
-            if (!previous && options.leading === false) {
-                previous = now
-            }
-            // 延迟执行时间间隔
-            var remaining = wait - (now - previous)
-            context = this
-            args = args ? [handle, Object.assign(args[1], data)] : [handle, data]
-            // 延迟时间间隔remaining小于等于0，表示上次执行至此所间隔时间已经超过一个时间窗口
-            // remaining大于时间窗口wait，表示客户端系统时间被调整过
-            if (remaining <= 0 || remaining > wait) {
-                clearTimeout(timeout)
-                timeout = null
-                previous = now
-                result = func.apply(context, args)
-                if (!timeout) {
-                    context = args = null
-                }
-                // 如果延迟执行不存在，且没有设定结尾边界不执行选项
-            } else if (!timeout && options.trailing !== false) {
-                timeout = setTimeout(later, remaining)
-            }
-            return result
-        }
-    }
-
-    // 优化频繁的 setData: https://mp.weixin.qq.com/debug/wxadoc/dev/framework/performance/tips.html
-    var throttleSetData = throttle(function(handle, data) {
-        handle && handle(data)
-    }, 50)
-
-    function getPage(vm) {
-        var rootVueVM = vm.$root
-        var ref = rootVueVM.$mp || {}
-        var mpType = ref.mpType
-        if (mpType === void 0) mpType = ""
-        var page = ref.page
-
-        // 优化后台态页面进行 setData: https://mp.weixin.qq.com/debug/wxadoc/dev/framework/performance/tips.html
-        if (mpType === "app" || !page || typeof page.setData !== "function") {
-            return
-        }
-        return page
-    }
-
-    // 优化每次 setData 都传递大量新数据
-    function updateDataToMP() {
-        var page = getPage(this)
-        if (!page) {
-            return
-        }
-
-        var data = JSON.parse(JSON.stringify(formatVmData(this)))
-        //fixed by xxxxxx
-        throttleSetData(page.setData.bind(page), diff(data, page.data))
-    }
-
-    function initDataToMP() {
-        var page = getPage(this)
-        if (!page) {
-            return
-        }
-
-        var data = collectVmData(this.$root)
-        //fixed by xxxxxx
-        page.setData(JSON.parse(JSON.stringify(data)))
-    }
-
-    function getVM(vm, comkeys) {
-        if (comkeys === void 0) comkeys = []
-
-        var keys = comkeys.slice(1)
-        if (!keys.length) {
-            return vm
-        }
-
-        return keys.reduce(function(res, key) {
-            var len = res.$children.length
-            for (var i = 0; i < len; i++) {
-                var v = res.$children[i]
-                var k = getComKey(v)
-                if (k === key) {
-                    res = v
-                    return res
-                }
-            }
-            return res
-        }, vm)
-    }
-
-    function getHandle(vnode, eventid, eventTypes) {
-        if (eventTypes === void 0) eventTypes = []
-
-        var res = []
-        if (!vnode || !vnode.tag) {
-            return res
-        }
-
-        var ref = vnode || {}
-        var data = ref.data
-        if (data === void 0) data = {}
-        var children = ref.children
-        if (children === void 0) children = []
-        var componentInstance = ref.componentInstance
-        if (componentInstance) {
-            // 增加 slot 情况的处理
-            // Object.values 会多增加几行编译后的代码
-            Object.keys(componentInstance.$slots).forEach(function(slotKey) {
-                var slot = componentInstance.$slots[slotKey]
-                var slots = Array.isArray(slot) ? slot : [slot]
-                slots.forEach(function(node) {
-                    res = res.concat(getHandle(node, eventid, eventTypes))
-                })
-            })
-        } else {
-            // 避免遍历超出当前组件的 vm
-            children.forEach(function(node) {
-                res = res.concat(getHandle(node, eventid, eventTypes))
-            })
-        }
-
-        var attrs = data.attrs
-        var on = data.on
-        if (attrs && on && attrs["eventid"] === eventid) {
-            eventTypes.forEach(function(et) {
-                var h = on[et]
-                if (typeof h === "function") {
-                    res.push(h)
-                } else if (Array.isArray(h)) {
-                    res = res.concat(h)
-                }
-            })
-            return res
-        }
-
-        return res
-    }
-
-    function getWebEventByMP(e) {
-        var type = e.type
-        var timeStamp = e.timeStamp
-        var touches = e.touches
-        var detail = e.detail
-        if (detail === void 0) detail = {}
-        var target = e.target
-        if (target === void 0) target = {}
-        var currentTarget = e.currentTarget
-        if (currentTarget === void 0) currentTarget = {}
-        var x = detail.x
-        var y = detail.y
-        var event = {
-            mp: e,
-            type: type,
-            timeStamp: timeStamp,
-            x: x,
-            y: y,
-            target: Object.assign({}, target, detail),
-            detail: detail, //fixed by xxxxxx
-            currentTarget: currentTarget,
-            stopPropagation: noop,
-            preventDefault: noop
-        }
-
-        if (touches && touches.length) {
-            Object.assign(event, touches[0])
-            event.touches = touches
-        }
-        return event
-    }
-
-    function handleProxyWithVue(e) {
-        var rootVueVM = this.$root
-        var type = e.type
-        var target = e.target
-        if (target === void 0) target = {}
-        var currentTarget = e.currentTarget
-        var ref = currentTarget || target
-        var dataset = ref.dataset
-        if (dataset === void 0) dataset = {}
-        var comkey = dataset.comkey
-        if (comkey === void 0) comkey = ""
-        var eventid = dataset.eventid
-        var vm = getVM(rootVueVM, comkey.split(","))
-
-        if (!vm) {
-            return
-        }
-
-        var webEventTypes = eventTypeMap[type] || [type]
-        var handles = getHandle(vm._vnode, eventid, webEventTypes)
-
-        // TODO, enevt 还需要处理更多
-        // https://developer.mozilla.org/zh-CN/docs/Web/API/Event
-        if (handles.length) {
-            var event = getWebEventByMP(e)
-            if (handles.length === 1) {
-                var result = handles[0](event)
-                return result
-            }
-            handles.forEach(function(h) {
-                return h(event)
-            })
-        }
-    }
-
-    // for platforms
-    // import config from 'core/config'
-    // install platform specific utils
-    Vue$3.config.mustUseProp = mustUseProp
-    Vue$3.config.isReservedTag = isReservedTag
-    Vue$3.config.isReservedAttr = isReservedAttr
-    Vue$3.config.getTagNamespace = getTagNamespace
-    Vue$3.config.isUnknownElement = isUnknownElement
-
-    // install platform patch function
-    Vue$3.prototype.__patch__ = patch
-
-    // public mount method
-    Vue$3.prototype.$mount = function(el, hydrating) {
-        var this$1 = this
-
-        // el = el && inBrowser ? query(el) : undefined
-        // return mountComponent(this, el, hydrating)
-
-        // 初始化小程序生命周期相关
-        var options = this.$options
-
-        if (options && (options.render || options.mpType)) {
-            var mpType = options.mpType
-            if (mpType === void 0) mpType = "page"
-            return this._initMP(mpType, function() {
-                return mountComponent(this$1, undefined, undefined)
-            })
-        } else {
-            return mountComponent(this, undefined, undefined)
-        }
-    }
-
-    // for mp
-    Vue$3.prototype._initMP = initMP
-
-    Vue$3.prototype.$updateDataToMP = updateDataToMP
-    Vue$3.prototype._initDataToMP = initDataToMP
-
-    Vue$3.prototype.$handleProxyWithVue = handleProxyWithVue
-
-    /*  */
-
-    return Vue$3
-})
-
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../../../../webpack/buildin/global.js */ "./node_modules/webpack/buildin/global.js")))
-
-/***/ }),
-
-/***/ "./node_modules/babel-loader/lib/index.js!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/mpvue-citypicker/mpvueCityPicker.vue?vue&type=script&lang=js&":
-/*!**********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/babel-loader/lib!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--12-1!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--18-0!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!./node_modules/vue-loader/lib??vue-loader-options!D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/mpvue-citypicker/mpvueCityPicker.vue?vue&type=script&lang=js& ***!
-  \**********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-var _province = _interopRequireDefault(__webpack_require__(/*! ./city-data/province.js */ "../../mobile-app/components/mpvue-citypicker/city-data/province.js"));
-var _city = _interopRequireDefault(__webpack_require__(/*! ./city-data/city.js */ "../../mobile-app/components/mpvue-citypicker/city-data/city.js"));
-var _area = _interopRequireDefault(__webpack_require__(/*! ./city-data/area.js */ "../../mobile-app/components/mpvue-citypicker/city-data/area.js"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}var _default2 =
-{
-  data: function data() {
-    return {
-      pickerValue: [0, 0, 0],
-      provinceDataList: _province.default,
-      cityDataList: _city.default[0],
-      areaDataList: _area.default[0][0],
-      /* 是否显示控件 */
-      showPicker: false };
-
-  },
-  created: function created() {
-    this.init();
-  },
-  props: {
-    /* 默认值 */
-    pickerValueDefault: {
-      type: Array,
-      default: function _default() {
-        return [0, 0, 0];
-      } },
-
-    /* 主题色 */
-    themeColor: String },
-
-  watch: {
-    pickerValueDefault: function pickerValueDefault() {
-      this.init();
-    } },
-
-  methods: {
-    init: function init() {
-      this.handPickValueDefault(); // 对 pickerValueDefault 做兼容处理
-
-      var pickerValueDefault = this.pickerValueDefault;
-      this.cityDataList = _city.default[pickerValueDefault[0]];
-      this.areaDataList = _area.default[pickerValueDefault[0]][pickerValueDefault[1]];
-      this.pickerValue = pickerValueDefault;
-    },
-    show: function show() {var _this = this;
-      setTimeout(function () {
-        _this.showPicker = true;
-      }, 0);
-    },
-    maskClick: function maskClick() {
-      this.pickerCancel();
-    },
-    pickerCancel: function pickerCancel() {
-      this.showPicker = false;
-      this._$emit('onCancel');
-    },
-    pickerConfirm: function pickerConfirm(e) {//地址选中后的确定按钮
-      this.showPicker = false;
-      this._$emit('onConfirm');
-    },
-    showPickerView: function showPickerView() {
-      this.showPicker = true;
-    },
-    handPickValueDefault: function handPickValueDefault() {
-      var pickerValueDefault = this.pickerValueDefault;
-
-      var provinceIndex = pickerValueDefault[0];
-      var cityIndex = pickerValueDefault[1];
-      var areaIndex = pickerValueDefault[2];
-      if (
-      provinceIndex !== 0 ||
-      cityIndex !== 0 ||
-      areaIndex !== 0)
-      {
-        if (provinceIndex > _province.default.length - 1) {
-          this.pickerValueDefault[0] = provinceIndex = _province.default.length - 1;
-        }
-        if (cityIndex > _city.default[provinceIndex].length - 1) {
-          this.pickerValueDefault[1] = cityIndex = _city.default[provinceIndex].length - 1;
-        }
-        if (areaIndex > _area.default[provinceIndex][cityIndex].length - 1) {
-          this.pickerValueDefault[2] = _area.default[provinceIndex][cityIndex].length - 1;
-        }
-      }
-    },
-    pickerChange: function pickerChange(e) {
-      var changePickerValue = e.mp.detail.value;
-      if (this.pickerValue[0] !== changePickerValue[0]) {
-        // 第一级发生滚动
-        this.cityDataList = _city.default[changePickerValue[0]];
-        this.areaDataList = _area.default[changePickerValue[0]][0];
-        changePickerValue[1] = 0;
-        changePickerValue[2] = 0;
-      } else if (this.pickerValue[1] !== changePickerValue[1]) {
-        // 第二级滚动
-        this.areaDataList =
-        _area.default[changePickerValue[0]][changePickerValue[1]];
-        changePickerValue[2] = 0;
-      }
-      this.pickerValue = changePickerValue;
-      this._$emit('onChange');
-    },
-    _$emit: function _$emit(emitName) {
-      var pickObj = {
-        label: this._getLabel(),
-        value: this.pickerValue,
-        cityCode: this._getCityCode() };
-
-      this.$emit(emitName, pickObj);
-    },
-    _getLabel: function _getLabel() {
-      var pcikerLabel =
-      this.provinceDataList[this.pickerValue[0]].label +
-      '-' +
-      this.cityDataList[this.pickerValue[1]].label +
-      '-' +
-      this.areaDataList[this.pickerValue[2]].label;
-      return pcikerLabel;
-    },
-    _getCityCode: function _getCityCode() {
-      return this.areaDataList[this.pickerValue[2]].value;
-    } } };exports.default = _default2;
-
-/***/ }),
-
-/***/ "./node_modules/babel-loader/lib/index.js!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/mpvue-picker/mpvuePicker.vue?vue&type=script&lang=js&":
-/*!**************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/babel-loader/lib!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--12-1!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--18-0!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!./node_modules/vue-loader/lib??vue-loader-options!D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/mpvue-picker/mpvuePicker.vue?vue&type=script&lang=js& ***!
-  \**************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;function _defineProperty(obj, key, value) {if (key in obj) {Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true });} else {obj[key] = value;}return obj;}var _default2 =
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-{
-  data: function data() {
-    return {
-      pickerChangeValue: [],
-      pickerValue: [],
-      pickerValueArrayChange: true,
-      modeChange: false,
-      pickerValueSingleArray: [],
-      pickerValueHour: [],
-      pickerValueMinute: [],
-      pickerValueMulArray: [],
-      pickerValueMulTwoOne: [],
-      pickerValueMulTwoTwo: [],
-      pickerValueMulThreeOne: [],
-      pickerValueMulThreeTwo: [],
-      pickerValueMulThreeThree: [],
-      /* 是否显示控件 */
-      showPicker: false };
-
-  },
-  props: {
-    /* mode */
-    mode: {
-      type: String,
-      default: 'selector' },
-
-    /* picker 数值 */
-    pickerValueArray: {
-      type: Array,
-      default: function _default() {
-        return [];
-      } },
-
-    /* 默认值 */
-    pickerValueDefault: {
-      type: Array,
-      default: function _default() {
-        return [];
-      } },
-
-    /* 几级联动 */
-    deepLength: {
-      type: Number,
-      default: 2 },
-
-    /* 主题色 */
-    themeColor: String },
-
-  watch: _defineProperty({
-    pickerValueArray: function pickerValueArray(oldVal, newVal) {
-      this.pickerValueArrayChange = true;
-    },
-    mode: function mode(oldVal, newVal) {
-      this.modeChange = true;
-    } }, "pickerValueArray", function pickerValueArray(
-  val) {
-    this.initPicker(val);
-  }),
-
-  methods: {
-    initPicker: function initPicker(valueArray) {
-      var pickerValueArray = valueArray;
-      this.pickerValue = this.pickerValueDefault;
-      // 初始化多级联动
-      if (this.mode === 'selector') {
-        this.pickerValueSingleArray = valueArray;
-      } else if (this.mode === 'timeSelector') {
-        this.modeChange = false;
-        var hourArray = [];
-        var minuteArray = [];
-        for (var i = 0; i < 24; i++) {
-          hourArray.push({
-            value: i,
-            label: i > 9 ? "".concat(i, " \u65F6") : "0".concat(i, " \u65F6") });
-
-        }
-        for (var _i = 0; _i < 60; _i++) {
-          minuteArray.push({
-            value: _i,
-            label: _i > 9 ? "".concat(_i, " \u5206") : "0".concat(_i, " \u5206") });
-
-        }
-        this.pickerValueHour = hourArray;
-        this.pickerValueMinute = minuteArray;
-      } else if (this.mode === 'multiSelector') {
-        this.pickerValueMulArray = valueArray;
-      } else if (this.mode === 'multiLinkageSelector' && this.deepLength === 2) {
-        // 两级联动
-        var pickerValueMulTwoOne = [];
-        var pickerValueMulTwoTwo = [];
-        // 第一列
-        for (var _i2 = 0, length = pickerValueArray.length; _i2 < length; _i2++) {
-          pickerValueMulTwoOne.push(pickerValueArray[_i2]);
-        }
-        // 渲染第二列
-        // 如果有设定的默认值
-        if (this.pickerValueDefault.length === 2) {
-          var num = this.pickerValueDefault[0];
-          for (
-          var _i3 = 0, _length = pickerValueArray[num].children.length; _i3 < _length; _i3++)
-          {
-            pickerValueMulTwoTwo.push(pickerValueArray[num].children[_i3]);
-          }
-        } else {
-          for (
-          var _i4 = 0, _length2 = pickerValueArray[0].children.length; _i4 < _length2; _i4++)
-          {
-            pickerValueMulTwoTwo.push(pickerValueArray[0].children[_i4]);
-          }
-        }
-        this.pickerValueMulTwoOne = pickerValueMulTwoOne;
-        this.pickerValueMulTwoTwo = pickerValueMulTwoTwo;
-      } else if (
-      this.mode === 'multiLinkageSelector' &&
-      this.deepLength === 3)
-      {
-        var pickerValueMulThreeOne = [];
-        var pickerValueMulThreeTwo = [];
-        var pickerValueMulThreeThree = [];
-        // 第一列
-        for (var _i5 = 0, _length3 = pickerValueArray.length; _i5 < _length3; _i5++) {
-          pickerValueMulThreeOne.push(pickerValueArray[_i5]);
-        }
-        // 渲染第二列
-        this.pickerValueDefault =
-        this.pickerValueDefault.length === 3 ?
-        this.pickerValueDefault :
-        [0, 0, 0];
-        if (this.pickerValueDefault.length === 3) {
-          var _num = this.pickerValueDefault[0];
-          for (
-          var _i6 = 0, _length4 = pickerValueArray[_num].children.length; _i6 < _length4; _i6++)
-          {
-            pickerValueMulThreeTwo.push(pickerValueArray[_num].children[_i6]);
-          }
-          // 第三列
-          var numSecond = this.pickerValueDefault[1];
-          for (var _i7 = 0, _length5 = pickerValueArray[_num].children[numSecond].children.length; _i7 < _length5; _i7++) {
-            pickerValueMulThreeThree.push(
-            pickerValueArray[_num].children[numSecond].children[_i7]);
-
-          }
-        }
-        this.pickerValueMulThreeOne = pickerValueMulThreeOne;
-        this.pickerValueMulThreeTwo = pickerValueMulThreeTwo;
-        this.pickerValueMulThreeThree = pickerValueMulThreeThree;
-      }
-    },
-    show: function show() {var _this = this;
-      setTimeout(function () {
-        if (_this.pickerValueArrayChange || _this.modeChange) {
-          _this.initPicker(_this.pickerValueArray);
-          _this.showPicker = true;
-          _this.pickerValueArrayChange = false;
-          _this.modeChange = false;
-        } else {
-          _this.showPicker = true;
-        }
-      }, 0);
-    },
-    maskClick: function maskClick() {
-      this.pickerCancel();
-    },
-    pickerCancel: function pickerCancel() {
-      this.showPicker = false;
-      this._initPickerVale();
-      var pickObj = {
-        index: this.pickerValue,
-        value: this._getPickerLabelAndValue(this.pickerValue, this.mode).value,
-        label: this._getPickerLabelAndValue(this.pickerValue, this.mode).label };
-
-      this.$emit('onCancel', pickObj);
-    },
-    pickerConfirm: function pickerConfirm(e) {
-      this.showPicker = false;
-      this._initPickerVale();
-      var pickObj = {
-        index: this.pickerValue,
-        value: this._getPickerLabelAndValue(this.pickerValue, this.mode).value,
-        label: this._getPickerLabelAndValue(this.pickerValue, this.mode).label };
-
-      this.$emit('onConfirm', pickObj);
-    },
-    showPickerView: function showPickerView() {
-      this.showPicker = true;
-    },
-    pickerChange: function pickerChange(e) {
-      this.pickerValue = e.mp.detail.value;
-      var pickObj = {
-        index: this.pickerValue,
-        value: this._getPickerLabelAndValue(this.pickerValue, this.mode).value,
-        label: this._getPickerLabelAndValue(this.pickerValue, this.mode).label };
-
-      this.$emit('onChange', pickObj);
-    },
-    pickerChangeMul: function pickerChangeMul(e) {
-      if (this.deepLength === 2) {
-        var pickerValueArray = this.pickerValueArray;
-        var changeValue = e.mp.detail.value;
-        // 处理第一列滚动
-        if (changeValue[0] !== this.pickerValue[0]) {
-          var pickerValueMulTwoTwo = [];
-          // 第一列滚动第二列数据更新
-          for (var i = 0, length = pickerValueArray[changeValue[0]].children.length; i < length; i++) {
-            pickerValueMulTwoTwo.push(pickerValueArray[changeValue[0]].children[i]);
-          }
-          this.pickerValueMulTwoTwo = pickerValueMulTwoTwo;
-          // 第二列初始化为 0
-          changeValue[1] = 0;
-        }
-        this.pickerValue = changeValue;
-      } else if (this.deepLength === 3) {
-        var _pickerValueArray = this.pickerValueArray;
-        var _changeValue = e.mp.detail.value;
-        var pickerValueMulThreeTwo = [];
-        var pickerValueMulThreeThree = [];
-        // 重新渲染第二列
-        // 如果是第一列滚动
-        if (_changeValue[0] !== this.pickerValue[0]) {
-          this.pickerValueMulThreeTwo = [];
-          for (var _i8 = 0, _length6 = _pickerValueArray[_changeValue[0]].children.length; _i8 < _length6; _i8++) {
-            pickerValueMulThreeTwo.push(_pickerValueArray[_changeValue[0]].children[_i8]);
-          }
-          // 重新渲染第三列
-          for (var _i9 = 0, _length7 = _pickerValueArray[_changeValue[0]].children[0].children.length; _i9 <
-          _length7; _i9++) {
-            pickerValueMulThreeThree.push(_pickerValueArray[_changeValue[0]].children[0].children[_i9]);
-          }
-          _changeValue[1] = 0;
-          _changeValue[2] = 0;
-          this.pickerValueMulThreeTwo = pickerValueMulThreeTwo;
-          this.pickerValueMulThreeThree = pickerValueMulThreeThree;
-        } else if (_changeValue[1] !== this.pickerValue[1]) {
-          // 第二列滚动
-          // 重新渲染第三列
-          this.pickerValueMulThreeThree = [];
-          pickerValueMulThreeTwo = this.pickerValueMulThreeTwo;
-          for (var _i10 = 0, _length8 = _pickerValueArray[_changeValue[0]].children[_changeValue[1]].children.length; _i10 <
-          _length8; _i10++) {
-            pickerValueMulThreeThree.push(_pickerValueArray[_changeValue[0]].children[_changeValue[1]].children[
-            _i10]);
-          }
-          _changeValue[2] = 0;
-          this.pickerValueMulThreeThree = pickerValueMulThreeThree;
-        }
-        this.pickerValue = _changeValue;
-      }
-      var pickObj = {
-        index: this.pickerValue,
-        value: this._getPickerLabelAndValue(this.pickerValue, this.mode).value,
-        label: this._getPickerLabelAndValue(this.pickerValue, this.mode).label };
-
-      this.$emit('onChange', pickObj);
-    },
-    // 获取 pxikerLabel
-    _getPickerLabelAndValue: function _getPickerLabelAndValue(value, mode) {
-      var pickerLable;
-      var pickerGetValue = [];
-      // selector
-      if (mode === 'selector') {
-        pickerLable = this.pickerValueSingleArray[value].label;
-        pickerGetValue.push(this.pickerValueSingleArray[value].value);
-      } else if (mode === 'timeSelector') {
-        pickerLable = "".concat(this.pickerValueHour[value[0]].label, "-").concat(this.pickerValueMinute[value[1]].label);
-        pickerGetValue.push(this.pickerValueHour[value[0]].value);
-        pickerGetValue.push(this.pickerValueHour[value[1]].value);
-      } else if (mode === 'multiSelector') {
-        for (var i = 0; i < value.length; i++) {
-          if (i > 0) {
-            pickerLable += this.pickerValueMulArray[i][value[i]].label + (i === value.length - 1 ? '' :
-            '-');
-          } else {
-            pickerLable = this.pickerValueMulArray[i][value[i]].label + '-';
-          }
-          pickerGetValue.push(this.pickerValueMulArray[i][value[i]].value);
-        }
-      } else if (mode === 'multiLinkageSelector') {
-        /* eslint-disable indent */
-        pickerLable =
-        this.deepLength === 2 ? "".concat(
-        this.pickerValueMulTwoOne[value[0]].label, "-").concat(this.pickerValueMulTwoTwo[value[1]].label) : "".concat(
-        this.pickerValueMulThreeOne[value[0]].label, "-").concat(this.pickerValueMulThreeTwo[value[1]].label, "-").concat(this.pickerValueMulThreeThree[value[2]].label);
-        if (this.deepLength === 2) {
-          pickerGetValue.push(this.pickerValueMulTwoOne[value[0]].value);
-          pickerGetValue.push(this.pickerValueMulTwoTwo[value[1]].value);
-        } else {
-          pickerGetValue.push(this.pickerValueMulThreeOne[value[0]].value);
-          pickerGetValue.push(this.pickerValueMulThreeTwo[value[1]].value);
-          pickerGetValue.push(this.pickerValueMulThreeThree[value[2]].value);
-        }
-        /* eslint-enable indent */
-      }
-      return {
-        label: pickerLable,
-        value: pickerGetValue };
-
-    },
-    // 初始化 pickerValue 默认值
-    _initPickerVale: function _initPickerVale() {
-      if (this.pickerValue.length === 0) {
-        if (this.mode === 'selector') {
-          this.pickerValue = [0];
-        } else if (this.mode === 'multiSelector') {
-          this.pickerValue = new Int8Array(this.pickerValueArray.length);
-        } else if (
-        this.mode === 'multiLinkageSelector' &&
-        this.deepLength === 2)
-        {
-          this.pickerValue = [0, 0];
-        } else if (
-        this.mode === 'multiLinkageSelector' &&
-        this.deepLength === 3)
-        {
-          this.pickerValue = [0, 0, 0];
-        }
-      }
-    } } };exports.default = _default2;
-
-/***/ }),
-
-/***/ "./node_modules/babel-loader/lib/index.js!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/uni-badge/uni-badge.vue?vue&type=script&lang=js&":
-/*!*********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/babel-loader/lib!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--12-1!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--18-0!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!./node_modules/vue-loader/lib??vue-loader-options!D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-badge/uni-badge.vue?vue&type=script&lang=js& ***!
-  \*********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var _default =
-
-
-
-
-{
-  name: 'uni-badge',
-  props: {
-    type: {
-      type: String,
-      default: 'default' },
-
-    inverted: {
-      type: Boolean,
-      default: false },
-
-    text: {
-      type: String,
-      default: '' },
-
-    size: { //small.normal
-      type: String,
-      default: 'normal' } },
-
-
-  methods: {
-    onClick: function onClick() {
-      this.$emit('click');
-    } } };exports.default = _default;
-
-/***/ }),
-
-/***/ "./node_modules/babel-loader/lib/index.js!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/uni-collapse-item/uni-collapse-item.vue?vue&type=script&lang=js&":
-/*!*************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/babel-loader/lib!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--12-1!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--18-0!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!./node_modules/vue-loader/lib??vue-loader-options!D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-collapse-item/uni-collapse-item.vue?vue&type=script&lang=js& ***!
-  \*************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-var _uniIcon = _interopRequireDefault(__webpack_require__(/*! ../uni-icon/uni-icon.vue */ "../../mobile-app/components/uni-icon/uni-icon.vue"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}var _default =
-{
-  name: 'uni-collapse-item',
-  components: {
-    uniIcon: _uniIcon.default },
-
-  props: {
-    title: { //列表标题
-      type: String,
-      default: '' },
-
-    name: { //唯一标识符
-      type: [Number, String],
-      default: 0 },
-
-    disabled: { //是否禁用
-      type: [Boolean, String],
-      default: false },
-
-    showAnimation: { //是否显示动画
-      type: Boolean,
-      default: false },
-
-    open: { //是否展开
-      type: [Boolean, String],
-      default: false },
-
-    thumb: { //缩略图
-      type: String,
-      default: '' } },
-
-
-  data: function data() {
-    var elId = "Uni_".concat(Math.ceil(Math.random() * 10e5).toString(36));
-    return {
-      isOpen: false,
-      height: 'auto',
-      elId: elId };
-
-  },
-  watch: {
-    open: function open(val) {
-      this.isOpen = val;
-    } },
-
-  inject: ['collapse'],
-  created: function created() {
-    this.isOpen = this.open;
-    this.nameSync = this.name ? this.name : this.collapse.childrens.length;
-    this.collapse.childrens.push(this);
-    if (String(this.collapse.accordion) === 'true') {
-      if (this.isOpen) {
-        var lastEl = this.collapse.childrens[this.collapse.childrens.length - 2];
-        if (lastEl) {
-          this.collapse.childrens[this.collapse.childrens.length - 2].isOpen = false;
-        }
-      }
-    }
-  },
-
-
-
-
-
-
-  onReady: function onReady() {
-    this.getSize();
-  },
-
-  methods: {
-    getSize: function getSize() {var _this = this;
-      if (this.showAnimation) {
-        uni.createSelectorQuery().in(this).select("#".concat(this.elId)).boundingClientRect().exec(function (ret) {
-          _this.height = ret[0].height + 'px';
-        });
-      }
-    },
-    onClick: function onClick() {var _this2 = this;
-      if (this.disabled) {
-        return;
-      }
-      if (String(this.collapse.accordion) === 'true') {
-        this.collapse.childrens.forEach(function (vm) {
-          if (vm === _this2) {
-            return;
-          }
-          vm.isOpen = false;
-        });
-      }
-      this.isOpen = !this.isOpen;
-      this.collapse.onChange && this.collapse.onChange();
-    } } };exports.default = _default;
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ "./node_modules/@dcloudio/uni-mp-weixin/dist/index.js")["default"]))
-
-/***/ }),
-
-/***/ "./node_modules/babel-loader/lib/index.js!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/uni-collapse/uni-collapse.vue?vue&type=script&lang=js&":
-/*!***************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/babel-loader/lib!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--12-1!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--18-0!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!./node_modules/vue-loader/lib??vue-loader-options!D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-collapse/uni-collapse.vue?vue&type=script&lang=js& ***!
-  \***************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var _default =
-
-
-
-
-
-{
-  name: 'uni-collapse',
-  props: {
-    accordion: { //是否开启手风琴效果
-      type: [Boolean, String],
-      default: false } },
-
-
-  data: function data() {
-    return {};
-  },
-  provide: function provide() {
-    return {
-      collapse: this };
-
-  },
-  created: function created() {
-    this.childrens = [];
-  },
-  methods: {
-    onChange: function onChange() {
-      var activeItem = [];
-      this.childrens.forEach(function (vm, index) {
-        if (vm.isOpen) {
-          activeItem.push(vm.nameSync);
-        }
-      });
-      this.$emit('change', activeItem);
-    } } };exports.default = _default;
-
-/***/ }),
-
-/***/ "./node_modules/babel-loader/lib/index.js!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/uni-icon/uni-icon.vue?vue&type=script&lang=js&":
-/*!*******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/babel-loader/lib!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--12-1!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--18-0!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!./node_modules/vue-loader/lib??vue-loader-options!D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-icon/uni-icon.vue?vue&type=script&lang=js& ***!
-  \*******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var _default =
-
-
-
-
-{
-  name: 'UniIcon',
-  props: {
-    type: {
-      type: String,
-      default: '' },
-
-    color: {
-      type: String,
-      default: '#333333' },
-
-    size: {
-      type: [Number, String],
-      default: 16 } },
-
-
-  methods: {
-    _onClick: function _onClick() {
-      this.$emit('click');
-    } } };exports.default = _default;
-
-/***/ }),
-
-/***/ "./node_modules/babel-loader/lib/index.js!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/uni-list-item/uni-list-item.vue?vue&type=script&lang=js&":
-/*!*****************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/babel-loader/lib!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--12-1!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--18-0!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!./node_modules/vue-loader/lib??vue-loader-options!D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-list-item/uni-list-item.vue?vue&type=script&lang=js& ***!
-  \*****************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-var _uniIcon = _interopRequireDefault(__webpack_require__(/*! ../uni-icon/uni-icon.vue */ "../../mobile-app/components/uni-icon/uni-icon.vue"));
-var _uniBadge = _interopRequireDefault(__webpack_require__(/*! @/components/uni-badge/uni-badge.vue */ "../../mobile-app/components/uni-badge/uni-badge.vue"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}var _default2 =
-{
-  name: 'uni-list-item',
-  components: {
-    uniIcon: _uniIcon.default,
-    uniBadge: _uniBadge.default },
-
-  data: function data() {
-    return {};
-
-
-  },
-  props: {
-    title: {
-      type: String,
-      default: '' },
-    //列表标题
-    note: {
-      type: String,
-      default: '' },
-    //列表描述
-    disabled: { //是否禁用
-      type: [Boolean, String],
-      default: false },
-
-    showArrow: { //是否显示箭头
-      type: [Boolean, String],
-      default: true },
-
-    showBadge: { //是否显示数字角标
-      type: [Boolean, String],
-      default: false },
-
-    showSwitch: { //是否显示Switch
-      type: [Boolean, String],
-      default: false },
-
-    switchChecked: { //Switch是否被选中
-      type: [Boolean, String],
-      default: false },
-
-    badgeText: String, //badge内容
-    badgeType: { //badge类型
-      type: String,
-      default: 'success' },
-
-    thumb: String, //缩略图
-    showExtraIcon: { //是否显示扩展图标
-      type: [Boolean, String],
-      default: false },
-
-    extraIcon: {
-      type: Object,
-      default: function _default() {
-        return {
-          type: 'contact',
-          color: '#000000',
-          size: 20 };
-
-      } } },
-
-
-  methods: {
-    onClick: function onClick() {
-      this.$emit('click');
-    },
-    onSwitchChange: function onSwitchChange(e) {
-      this.$emit('switchChange', e.detail);
-    } } };exports.default = _default2;
-
-/***/ }),
-
-/***/ "./node_modules/babel-loader/lib/index.js!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/uni-list/uni-list.vue?vue&type=script&lang=js&":
-/*!*******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/babel-loader/lib!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--12-1!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--18-0!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!./node_modules/vue-loader/lib??vue-loader-options!D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-list/uni-list.vue?vue&type=script&lang=js& ***!
-  \*******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var _default =
-
-
-
-
-
-{
-  name: 'uni-list' };exports.default = _default;
-
-/***/ }),
-
-/***/ "./node_modules/babel-loader/lib/index.js!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/uni-popup/uni-popup.vue?vue&type=script&lang=js&":
-/*!*********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/babel-loader/lib!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--12-1!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--18-0!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!./node_modules/vue-loader/lib??vue-loader-options!D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-popup/uni-popup.vue?vue&type=script&lang=js& ***!
-  \*********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var _default =
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-{
-  name: 'UniPopup',
-  props: {
-    /**
-            * 页面显示
-            */
-    show: {
-      type: Boolean,
-      default: false },
-
-    /**
-                         * 对齐方式
-                         */
-    position: {
-      type: String,
-      // top - 顶部， middle - 居中, bottom - 底部
-      default: 'middle' },
-
-    /**
-                            * 显示模式
-                            */
-    mode: {
-      type: String,
-      default: 'insert' },
-
-    /**
-                            * 额外信息
-                            */
-    msg: {
-      type: String,
-      default: '' },
-
-    /**
-                      * h5遮罩是否到顶
-                      */
-    h5Top: {
-      type: Boolean,
-      default: false },
-
-    buttonMode: {
-      type: String,
-      default: 'bottom' } },
-
-
-  data: function data() {
-    return {
-      offsetTop: 0 };
-
-  },
-  watch: {
-    h5Top: function h5Top(newVal) {
-      if (newVal) {
-        this.offsetTop = 44;
-      } else {
-        this.offsetTop = 0;
-      }
-    } },
-
-  created: function created() {
-    var offsetTop = 0;
-
-
-
-
-
-
-
-    this.offsetTop = offsetTop;
-  },
-  methods: {
-    hide: function hide() {
-      if (this.mode === 'insert' && this.position === 'middle') return;
-      this.$emit('hidePopup');
-    },
-    closeMask: function closeMask() {
-      if (this.mode === 'insert') {
-        this.$emit('hidePopup');
-      }
-    },
-    moveHandle: function moveHandle() {} } };exports.default = _default;
-
-/***/ }),
-
-/***/ "./node_modules/babel-loader/lib/index.js!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/zz-prompt/index.vue?vue&type=script&lang=js&":
-/*!*****************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/babel-loader/lib!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--12-1!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--18-0!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!./node_modules/vue-loader/lib??vue-loader-options!D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/zz-prompt/index.vue?vue&type=script&lang=js& ***!
-  \*****************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var _default =
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-{
-  props: {
-    visible: {
-      type: Boolean,
-      default: false,
-      required: true },
-
-    title: {
-      type: String,
-      default: '提示' },
-
-    placeholder: {
-      type: String,
-      default: '请输入内容' },
-
-    mainColor: {
-      type: String,
-      default: '#e74a39' },
-
-    defaultValue: {
-      type: String } },
-
-
-  data: function data() {
-    return {
-      value: '' };
-
-  },
-  mounted: function mounted() {
-    this.value = this.defaultValue;
-  },
-  methods: {
-    close: function close() {
-      this.$emit('update:visible', false);
-    } } };exports.default = _default;
-
-/***/ }),
-
-/***/ "./node_modules/mini-css-extract-plugin/dist/loader.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/mpvue-citypicker/mpvueCityPicker.vue?vue&type=style&index=0&lang=css&":
-/*!*******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/mini-css-extract-plugin/dist/loader.js??ref--6-oneOf-1-0!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--6-oneOf-1-1!./node_modules/css-loader??ref--6-oneOf-1-2!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-oneOf-1-3!./node_modules/vue-loader/lib??vue-loader-options!D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/mpvue-citypicker/mpvueCityPicker.vue?vue&type=style&index=0&lang=css& ***!
-  \*******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-// extracted by mini-css-extract-plugin
-
-/***/ }),
-
-/***/ "./node_modules/mini-css-extract-plugin/dist/loader.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/mpvue-picker/mpvuePicker.vue?vue&type=style&index=0&lang=css&":
-/*!***********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/mini-css-extract-plugin/dist/loader.js??ref--6-oneOf-1-0!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--6-oneOf-1-1!./node_modules/css-loader??ref--6-oneOf-1-2!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-oneOf-1-3!./node_modules/vue-loader/lib??vue-loader-options!D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/mpvue-picker/mpvuePicker.vue?vue&type=style&index=0&lang=css& ***!
-  \***********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-// extracted by mini-css-extract-plugin
-
-/***/ }),
-
-/***/ "./node_modules/mini-css-extract-plugin/dist/loader.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/uni-badge/uni-badge.vue?vue&type=style&index=0&lang=css&":
-/*!******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/mini-css-extract-plugin/dist/loader.js??ref--6-oneOf-1-0!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--6-oneOf-1-1!./node_modules/css-loader??ref--6-oneOf-1-2!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-oneOf-1-3!./node_modules/vue-loader/lib??vue-loader-options!D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-badge/uni-badge.vue?vue&type=style&index=0&lang=css& ***!
-  \******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-// extracted by mini-css-extract-plugin
-
-/***/ }),
-
-/***/ "./node_modules/mini-css-extract-plugin/dist/loader.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/uni-collapse-item/uni-collapse-item.vue?vue&type=style&index=0&lang=css&":
-/*!**********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/mini-css-extract-plugin/dist/loader.js??ref--6-oneOf-1-0!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--6-oneOf-1-1!./node_modules/css-loader??ref--6-oneOf-1-2!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-oneOf-1-3!./node_modules/vue-loader/lib??vue-loader-options!D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-collapse-item/uni-collapse-item.vue?vue&type=style&index=0&lang=css& ***!
-  \**********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-// extracted by mini-css-extract-plugin
-
-/***/ }),
-
-/***/ "./node_modules/mini-css-extract-plugin/dist/loader.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/uni-collapse/uni-collapse.vue?vue&type=style&index=0&lang=css&":
-/*!************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/mini-css-extract-plugin/dist/loader.js??ref--6-oneOf-1-0!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--6-oneOf-1-1!./node_modules/css-loader??ref--6-oneOf-1-2!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-oneOf-1-3!./node_modules/vue-loader/lib??vue-loader-options!D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-collapse/uni-collapse.vue?vue&type=style&index=0&lang=css& ***!
-  \************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-// extracted by mini-css-extract-plugin
-
-/***/ }),
-
-/***/ "./node_modules/mini-css-extract-plugin/dist/loader.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/uni-icon/uni-icon.vue?vue&type=style&index=0&lang=css&":
-/*!****************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/mini-css-extract-plugin/dist/loader.js??ref--6-oneOf-1-0!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--6-oneOf-1-1!./node_modules/css-loader??ref--6-oneOf-1-2!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-oneOf-1-3!./node_modules/vue-loader/lib??vue-loader-options!D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-icon/uni-icon.vue?vue&type=style&index=0&lang=css& ***!
-  \****************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-// extracted by mini-css-extract-plugin
-
-/***/ }),
-
-/***/ "./node_modules/mini-css-extract-plugin/dist/loader.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/uni-list-item/uni-list-item.vue?vue&type=style&index=0&lang=css&":
-/*!**************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/mini-css-extract-plugin/dist/loader.js??ref--6-oneOf-1-0!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--6-oneOf-1-1!./node_modules/css-loader??ref--6-oneOf-1-2!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-oneOf-1-3!./node_modules/vue-loader/lib??vue-loader-options!D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-list-item/uni-list-item.vue?vue&type=style&index=0&lang=css& ***!
-  \**************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-// extracted by mini-css-extract-plugin
-
-/***/ }),
-
-/***/ "./node_modules/mini-css-extract-plugin/dist/loader.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/uni-list/uni-list.vue?vue&type=style&index=0&lang=css&":
-/*!****************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/mini-css-extract-plugin/dist/loader.js??ref--6-oneOf-1-0!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--6-oneOf-1-1!./node_modules/css-loader??ref--6-oneOf-1-2!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-oneOf-1-3!./node_modules/vue-loader/lib??vue-loader-options!D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-list/uni-list.vue?vue&type=style&index=0&lang=css& ***!
-  \****************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-// extracted by mini-css-extract-plugin
-
-/***/ }),
-
-/***/ "./node_modules/mini-css-extract-plugin/dist/loader.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/uni-popup/uni-popup.vue?vue&type=style&index=0&lang=css&":
-/*!******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/mini-css-extract-plugin/dist/loader.js??ref--6-oneOf-1-0!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--6-oneOf-1-1!./node_modules/css-loader??ref--6-oneOf-1-2!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-oneOf-1-3!./node_modules/vue-loader/lib??vue-loader-options!D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-popup/uni-popup.vue?vue&type=style&index=0&lang=css& ***!
-  \******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-// extracted by mini-css-extract-plugin
-
-/***/ }),
-
-/***/ "./node_modules/mini-css-extract-plugin/dist/loader.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/zz-prompt/index.vue?vue&type=style&index=0&id=2980bd14&scoped=true&lang=css&":
-/*!**************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/mini-css-extract-plugin/dist/loader.js??ref--6-oneOf-1-0!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--6-oneOf-1-1!./node_modules/css-loader??ref--6-oneOf-1-2!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-oneOf-1-3!./node_modules/vue-loader/lib??vue-loader-options!D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/zz-prompt/index.vue?vue&type=style&index=0&id=2980bd14&scoped=true&lang=css& ***!
-  \**************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-// extracted by mini-css-extract-plugin
-
-/***/ }),
-
-/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/mpvue-citypicker/mpvueCityPicker.vue?vue&type=template&id=e4d50284&":
-/*!********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--17-0!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!./node_modules/vue-loader/lib??vue-loader-options!D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/mpvue-citypicker/mpvueCityPicker.vue?vue&type=template&id=e4d50284& ***!
-  \********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
-/*! exports provided: render, staticRenderFns */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
-var render = function() {
-  var _vm = this
-  var _h = _vm.$createElement
-  var _c = _vm._self._c || _h
-  return _c("div", { staticClass: "mpvue-picker" }, [
-    _c("div", {
-      class: { pickerMask: _vm.showPicker },
-      attrs: { catchtouchmove: "true", eventid: "32d06906-0" },
-      on: { click: _vm.maskClick }
-    }),
-    _c(
-      "div",
-      {
-        staticClass: "mpvue-picker-content ",
-        class: { "mpvue-picker-view-show": _vm.showPicker }
-      },
-      [
-        _c(
-          "div",
-          {
-            staticClass: "mpvue-picker__hd",
-            attrs: { catchtouchmove: "true" }
-          },
-          [
-            _c(
-              "div",
-              {
-                staticClass: "mpvue-picker__action",
-                attrs: { eventid: "32d06906-1" },
-                on: { click: _vm.pickerCancel }
-              },
-              [_vm._v("取消")]
-            ),
-            _c(
-              "div",
-              {
-                staticClass: "mpvue-picker__action",
-                style: { color: _vm.themeColor },
-                attrs: { eventid: "32d06906-2" },
-                on: { click: _vm.pickerConfirm }
-              },
-              [_vm._v("确定")]
-            )
-          ]
-        ),
-        _c(
-          "picker-view",
-          {
-            staticClass: "mpvue-picker-view",
-            attrs: {
-              "indicator-style": "height: 40px;",
-              value: _vm.pickerValue,
-              eventid: "32d06906-3"
-            },
-            on: { change: _vm.pickerChange }
-          },
-          [
-            _c(
-              "block",
-              [
-                _c(
-                  "picker-view-column",
-                  { attrs: { mpcomid: "32d06906-0" } },
-                  _vm._l(_vm.provinceDataList, function(item, index) {
-                    return _c(
-                      "div",
-                      { key: index, staticClass: "picker-item" },
-                      [_vm._v(_vm._s(item.label))]
-                    )
-                  })
-                ),
-                _c(
-                  "picker-view-column",
-                  { attrs: { mpcomid: "32d06906-1" } },
-                  _vm._l(_vm.cityDataList, function(item, index) {
-                    return _c(
-                      "div",
-                      { key: index, staticClass: "picker-item" },
-                      [_vm._v(_vm._s(item.label))]
-                    )
-                  })
-                ),
-                _c(
-                  "picker-view-column",
-                  { attrs: { mpcomid: "32d06906-2" } },
-                  _vm._l(_vm.areaDataList, function(item, index) {
-                    return _c(
-                      "div",
-                      { key: index, staticClass: "picker-item" },
-                      [_vm._v(_vm._s(item.label))]
-                    )
-                  })
-                )
-              ],
-              1
-            )
-          ],
-          1
-        )
-      ],
-      1
-    )
-  ])
-}
-var staticRenderFns = []
-render._withStripped = true
-
-
-
-/***/ }),
-
-/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/mpvue-picker/mpvuePicker.vue?vue&type=template&id=d1038b70&":
-/*!************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--17-0!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!./node_modules/vue-loader/lib??vue-loader-options!D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/mpvue-picker/mpvuePicker.vue?vue&type=template&id=d1038b70& ***!
-  \************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
-/*! exports provided: render, staticRenderFns */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
-var render = function() {
-  var _vm = this
-  var _h = _vm.$createElement
-  var _c = _vm._self._c || _h
-  return _c("view", { staticClass: "mpvue-picker" }, [
-    _c("view", {
-      class: { pickerMask: _vm.showPicker },
-      attrs: { catchtouchmove: "true", eventid: "0c505990-0" },
-      on: { click: _vm.maskClick }
-    }),
-    _c(
-      "view",
-      {
-        staticClass: "mpvue-picker-content ",
-        class: { "mpvue-picker-view-show": _vm.showPicker }
-      },
-      [
-        _c(
-          "view",
-          {
-            staticClass: "mpvue-picker__hd",
-            attrs: { catchtouchmove: "true" }
-          },
-          [
-            _c(
-              "view",
-              {
-                staticClass: "mpvue-picker__action",
-                attrs: { eventid: "0c505990-1" },
-                on: { click: _vm.pickerCancel }
-              },
-              [_vm._v("取消")]
-            ),
-            _c(
-              "view",
-              {
-                staticClass: "mpvue-picker__action",
-                style: { color: _vm.themeColor },
-                attrs: { eventid: "0c505990-2" },
-                on: { click: _vm.pickerConfirm }
-              },
-              [_vm._v("确定")]
-            )
-          ]
-        ),
-        _vm.mode === "selector" && _vm.pickerValueSingleArray.length > 0
-          ? _c(
-              "picker-view",
-              {
-                staticClass: "mpvue-picker-view",
-                attrs: {
-                  "indicator-style": "height: 40px;",
-                  value: _vm.pickerValue,
-                  eventid: "0c505990-3"
-                },
-                on: { change: _vm.pickerChange }
-              },
-              [
-                _c(
-                  "block",
-                  [
-                    _c(
-                      "picker-view-column",
-                      { attrs: { mpcomid: "0c505990-0" } },
-                      _vm._l(_vm.pickerValueSingleArray, function(item, index) {
-                        return _c(
-                          "view",
-                          { key: index, staticClass: "picker-item" },
-                          [_vm._v(_vm._s(item.label))]
-                        )
-                      })
-                    )
-                  ],
-                  1
-                )
-              ],
-              1
-            )
-          : _vm._e(),
-        _vm.mode === "timeSelector"
-          ? _c(
-              "picker-view",
-              {
-                staticClass: "mpvue-picker-view",
-                attrs: {
-                  "indicator-style": "height: 40px;",
-                  value: _vm.pickerValue,
-                  eventid: "0c505990-4"
-                },
-                on: { change: _vm.pickerChange }
-              },
-              [
-                _c(
-                  "block",
-                  [
-                    _c(
-                      "picker-view-column",
-                      { attrs: { mpcomid: "0c505990-1" } },
-                      _vm._l(_vm.pickerValueHour, function(item, index) {
-                        return _c(
-                          "view",
-                          { key: index, staticClass: "picker-item" },
-                          [_vm._v(_vm._s(item.label))]
-                        )
-                      })
-                    ),
-                    _c(
-                      "picker-view-column",
-                      { attrs: { mpcomid: "0c505990-2" } },
-                      _vm._l(_vm.pickerValueMinute, function(item, index) {
-                        return _c(
-                          "view",
-                          { key: index, staticClass: "picker-item" },
-                          [_vm._v(_vm._s(item.label))]
-                        )
-                      })
-                    )
-                  ],
-                  1
-                )
-              ],
-              1
-            )
-          : _vm._e(),
-        _vm.mode === "multiSelector"
-          ? _c(
-              "picker-view",
-              {
-                staticClass: "mpvue-picker-view",
-                attrs: {
-                  "indicator-style": "height: 40px;",
-                  value: _vm.pickerValue,
-                  eventid: "0c505990-5"
-                },
-                on: { change: _vm.pickerChange }
-              },
-              _vm._l(_vm.pickerValueMulArray.length, function(n, index) {
-                return _c(
-                  "block",
-                  { key: index },
-                  [
-                    _c(
-                      "picker-view-column",
-                      { attrs: { mpcomid: "0c505990-3-" + index } },
-                      _vm._l(_vm.pickerValueMulArray[n], function(
-                        item,
-                        index1
-                      ) {
-                        return _c(
-                          "view",
-                          { key: index1, staticClass: "picker-item" },
-                          [_vm._v(_vm._s(item.label))]
-                        )
-                      })
-                    )
-                  ],
-                  1
-                )
-              })
-            )
-          : _vm._e(),
-        _vm.mode === "multiLinkageSelector" && _vm.deepLength === 2
-          ? _c(
-              "picker-view",
-              {
-                staticClass: "mpvue-picker-view",
-                attrs: {
-                  "indicator-style": "height: 40px;",
-                  value: _vm.pickerValue,
-                  eventid: "0c505990-6"
-                },
-                on: { change: _vm.pickerChangeMul }
-              },
-              [
-                _c(
-                  "block",
-                  [
-                    _c(
-                      "picker-view-column",
-                      { attrs: { mpcomid: "0c505990-4" } },
-                      _vm._l(_vm.pickerValueMulTwoOne, function(item, index) {
-                        return _c(
-                          "view",
-                          { key: index, staticClass: "picker-item" },
-                          [_vm._v(_vm._s(item.label))]
-                        )
-                      })
-                    ),
-                    _c(
-                      "picker-view-column",
-                      { attrs: { mpcomid: "0c505990-5" } },
-                      _vm._l(_vm.pickerValueMulTwoTwo, function(item, index) {
-                        return _c(
-                          "view",
-                          { key: index, staticClass: "picker-item" },
-                          [_vm._v(_vm._s(item.label))]
-                        )
-                      })
-                    )
-                  ],
-                  1
-                )
-              ],
-              1
-            )
-          : _vm._e(),
-        _vm.mode === "multiLinkageSelector" && _vm.deepLength === 3
-          ? _c(
-              "picker-view",
-              {
-                staticClass: "mpvue-picker-view",
-                attrs: {
-                  "indicator-style": "height: 40px;",
-                  value: _vm.pickerValue,
-                  eventid: "0c505990-7"
-                },
-                on: { change: _vm.pickerChangeMul }
-              },
-              [
-                _c(
-                  "block",
-                  [
-                    _c(
-                      "picker-view-column",
-                      { attrs: { mpcomid: "0c505990-6" } },
-                      _vm._l(_vm.pickerValueMulThreeOne, function(item, index) {
-                        return _c(
-                          "view",
-                          { key: index, staticClass: "picker-item" },
-                          [_vm._v(_vm._s(item.label))]
-                        )
-                      })
-                    ),
-                    _c(
-                      "picker-view-column",
-                      { attrs: { mpcomid: "0c505990-7" } },
-                      _vm._l(_vm.pickerValueMulThreeTwo, function(item, index) {
-                        return _c(
-                          "view",
-                          { key: index, staticClass: "picker-item" },
-                          [_vm._v(_vm._s(item.label))]
-                        )
-                      })
-                    ),
-                    _c(
-                      "picker-view-column",
-                      { attrs: { mpcomid: "0c505990-8" } },
-                      _vm._l(_vm.pickerValueMulThreeThree, function(
-                        item,
-                        index
-                      ) {
-                        return _c(
-                          "view",
-                          { key: index, staticClass: "picker-item" },
-                          [_vm._v(_vm._s(item.label))]
-                        )
-                      })
-                    )
-                  ],
-                  1
-                )
-              ],
-              1
-            )
-          : _vm._e()
-      ],
-      1
-    )
-  ])
-}
-var staticRenderFns = []
-render._withStripped = true
-
-
-
-/***/ }),
-
-/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/uni-badge/uni-badge.vue?vue&type=template&id=5b8b0742&":
-/*!*******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--17-0!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!./node_modules/vue-loader/lib??vue-loader-options!D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-badge/uni-badge.vue?vue&type=template&id=5b8b0742& ***!
-  \*******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
-/*! exports provided: render, staticRenderFns */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
-var render = function() {
-  var _vm = this
-  var _h = _vm.$createElement
-  var _c = _vm._self._c || _h
-  return _vm.text
-    ? _c(
-        "text",
-        {
-          staticClass: "uni-badge",
-          class: _vm.inverted
-            ? "uni-badge-" +
-              _vm.type +
-              " uni-badge--" +
-              _vm.size +
-              " uni-badge-inverted"
-            : "uni-badge-" + _vm.type + " uni-badge--" + _vm.size,
-          attrs: { eventid: "2370c132-0" },
-          on: {
-            click: function($event) {
-              _vm.onClick()
-            }
-          }
-        },
-        [_vm._v(_vm._s(_vm.text))]
-      )
-    : _vm._e()
-}
-var staticRenderFns = []
-render._withStripped = true
-
-
-
-/***/ }),
-
-/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/uni-collapse-item/uni-collapse-item.vue?vue&type=template&id=5e7beb02&":
-/*!***********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--17-0!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!./node_modules/vue-loader/lib??vue-loader-options!D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-collapse-item/uni-collapse-item.vue?vue&type=template&id=5e7beb02& ***!
-  \***********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
-/*! exports provided: render, staticRenderFns */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
-var render = function() {
-  var _vm = this
-  var _h = _vm.$createElement
-  var _c = _vm._self._c || _h
-  return _c(
-    "view",
-    {
-      class: [
-        "uni-collapse-cell",
-        {
-          "uni-collapse-cell--disabled": _vm.disabled,
-          "uni-collapse-cell--open": _vm.isOpen
-        }
-      ],
-      attrs: { "hover-class": _vm.disabled ? "" : "uni-collapse-cell--hover" }
-    },
-    [
-      _c(
-        "view",
-        {
-          staticClass: "uni-collapse-cell__title",
-          attrs: { eventid: "2c52fd87-0" },
-          on: { click: _vm.onClick }
-        },
-        [
-          _vm.thumb
-            ? _c("view", { staticClass: "uni-collapse-cell__title-extra" }, [
-                _c("image", {
-                  staticClass: "uni-collapse-cell__title-img",
-                  attrs: { src: _vm.thumb }
-                })
-              ])
-            : _vm._e(),
-          _c("view", { staticClass: "uni-collapse-cell__title-inner" }, [
-            _c("view", { staticClass: "uni-collapse-cell__title-text" }, [
-              _vm._v(_vm._s(_vm.title))
-            ])
-          ]),
-          _c(
-            "view",
-            {
-              staticClass: "uni-collapse-cell__title-arrow",
-              class: {
-                "uni-active": _vm.isOpen,
-                "uni-collapse-cell--animation": _vm.showAnimation === true
-              }
-            },
-            [
-              _c("uni-icon", {
-                attrs: {
-                  color: "#bbb",
-                  size: "20",
-                  type: "arrowdown",
-                  mpcomid: "2c52fd87-0"
-                }
-              })
-            ],
-            1
-          )
-        ]
-      ),
-      _c(
-        "view",
-        {
-          staticClass: "uni-collapse-cell__content",
-          class: { "uni-collapse-cell--animation": _vm.showAnimation === true },
-          style: { height: _vm.isOpen ? _vm.height : "0px" }
-        },
-        [
-          _c(
-            "view",
-            { attrs: { id: _vm.elId } },
-            [_vm._t("default", null, { mpcomid: "2c52fd87-1" })],
-            2
-          )
-        ]
-      )
-    ]
-  )
-}
-var staticRenderFns = []
-render._withStripped = true
-
-
-
-/***/ }),
-
-/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/uni-collapse/uni-collapse.vue?vue&type=template&id=719bab91&":
-/*!*************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--17-0!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!./node_modules/vue-loader/lib??vue-loader-options!D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-collapse/uni-collapse.vue?vue&type=template&id=719bab91& ***!
-  \*************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
-/*! exports provided: render, staticRenderFns */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
-var render = function() {
-  var _vm = this
-  var _h = _vm.$createElement
-  var _c = _vm._self._c || _h
-  return _c(
-    "view",
-    { staticClass: "uni-collapse" },
-    [_vm._t("default", null, { mpcomid: "dd1fc0ce-0" })],
-    2
-  )
-}
-var staticRenderFns = []
-render._withStripped = true
-
-
-
-/***/ }),
-
-/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/uni-icon/uni-icon.vue?vue&type=template&id=18ca1591&":
-/*!*****************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--17-0!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!./node_modules/vue-loader/lib??vue-loader-options!D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-icon/uni-icon.vue?vue&type=template&id=18ca1591& ***!
-  \*****************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
-/*! exports provided: render, staticRenderFns */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
-var render = function() {
-  var _vm = this
-  var _h = _vm.$createElement
-  var _c = _vm._self._c || _h
-  return _c("view", {
-    staticClass: "uni-icon",
-    class: "uni-icon-" + _vm.type,
-    style: { color: _vm.color, "font-size": _vm.size + "px" },
-    attrs: { eventid: "42d7a999-0" },
-    on: { click: _vm._onClick }
-  })
-}
-var staticRenderFns = []
-render._withStripped = true
-
-
-
-/***/ }),
-
-/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/uni-list-item/uni-list-item.vue?vue&type=template&id=3dfa491d&":
-/*!***************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--17-0!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!./node_modules/vue-loader/lib??vue-loader-options!D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-list-item/uni-list-item.vue?vue&type=template&id=3dfa491d& ***!
-  \***************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
-/*! exports provided: render, staticRenderFns */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
-var render = function() {
-  var _vm = this
-  var _h = _vm.$createElement
-  var _c = _vm._self._c || _h
-  return _c(
-    "view",
-    {
-      staticClass: "uni-list-item",
-      class: [
-        _vm.disabled === true || _vm.disabled === "true"
-          ? "uni-list-item--disabled"
-          : ""
-      ],
-      attrs: {
-        "hover-class":
-          _vm.disabled === true ||
-          _vm.disabled === "true" ||
-          _vm.showSwitch === true ||
-          _vm.showSwitch === "true"
-            ? ""
-            : "uni-list-item--hover",
-        eventid: "61e949b6-1"
-      },
-      on: { click: _vm.onClick }
-    },
-    [
-      _c("view", { staticClass: "uni-list-item__container" }, [
-        _vm.thumb
-          ? _c("view", { staticClass: "uni-list-item__icon" }, [
-              _c("image", {
-                staticClass: "uni-list-item__icon-img",
-                attrs: { src: _vm.thumb }
-              })
-            ])
-          : _vm.showExtraIcon === true || _vm.showExtraIcon === "true"
-          ? _c(
-              "view",
-              { staticClass: "uni-list-item__icon" },
-              [
-                _c("uni-icon", {
-                  attrs: {
-                    color: _vm.extraIcon.color,
-                    size: _vm.extraIcon.size,
-                    type: _vm.extraIcon.type,
-                    mpcomid: "61e949b6-0"
-                  }
-                })
-              ],
-              1
-            )
-          : _vm._e(),
-        _c("view", { staticClass: "uni-list-item__content" }, [
-          _c("view", { staticClass: "uni-list-item__content-title" }, [
-            _vm._v(_vm._s(_vm.title))
-          ]),
-          _vm.note
-            ? _c("view", { staticClass: "uni-list-item__content-note" }, [
-                _vm._v(_vm._s(_vm.note))
-              ])
-            : _vm._e()
-        ]),
-        _vm.showBadge === true ||
-        _vm.showBadge === "true" ||
-        _vm.showArrow === true ||
-        _vm.showArrow === "true" ||
-        _vm.showSwitch === true ||
-        _vm.showSwitch === "true"
-          ? _c(
-              "view",
-              { staticClass: "uni-list-item__extra" },
-              [
-                _vm.showBadge === true || _vm.showBadge === "true"
-                  ? _c("uni-badge", {
-                      attrs: {
-                        type: _vm.badgeType,
-                        text: _vm.badgeText,
-                        mpcomid: "61e949b6-1"
-                      }
-                    })
-                  : _vm._e(),
-                _vm.showSwitch === true || _vm.showSwitch === "true"
-                  ? _c("switch", {
-                      attrs: {
-                        disabled: _vm.disabled,
-                        checked: _vm.switchChecked,
-                        eventid: "61e949b6-0"
-                      },
-                      on: { change: _vm.onSwitchChange }
-                    })
-                  : _vm._e(),
-                _vm.showArrow === true || _vm.showArrow === "true"
-                  ? _c("uni-icon", {
-                      attrs: {
-                        color: "#bbb",
-                        size: "20",
-                        type: "arrowright",
-                        mpcomid: "61e949b6-2"
-                      }
-                    })
-                  : _vm._e()
-              ],
-              1
-            )
-          : _vm._e()
-      ])
-    ]
-  )
-}
-var staticRenderFns = []
-render._withStripped = true
-
-
-
-/***/ }),
-
-/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/uni-list/uni-list.vue?vue&type=template&id=f9f7c19e&":
-/*!*****************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--17-0!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!./node_modules/vue-loader/lib??vue-loader-options!D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-list/uni-list.vue?vue&type=template&id=f9f7c19e& ***!
-  \*****************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
-/*! exports provided: render, staticRenderFns */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
-var render = function() {
-  var _vm = this
-  var _h = _vm.$createElement
-  var _c = _vm._self._c || _h
-  return _c(
-    "view",
-    { staticClass: "uni-list" },
-    [_vm._t("default", null, { mpcomid: "49d78339-0" })],
-    2
-  )
-}
-var staticRenderFns = []
-render._withStripped = true
-
-
-
-/***/ }),
-
-/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/uni-popup/uni-popup.vue?vue&type=template&id=293c7631&":
-/*!*******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--17-0!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!./node_modules/vue-loader/lib??vue-loader-options!D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/uni-popup/uni-popup.vue?vue&type=template&id=293c7631& ***!
-  \*******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
-/*! exports provided: render, staticRenderFns */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
-var render = function() {
-  var _vm = this
-  var _h = _vm.$createElement
-  var _c = _vm._self._c || _h
-  return _c("view", [
-    _c("view", {
-      directives: [
-        { name: "show", rawName: "v-show", value: _vm.show, expression: "show" }
-      ],
-      staticClass: "uni-mask",
-      style: { top: _vm.offsetTop + "px" },
-      attrs: { eventid: "32e35239-0" },
-      on: {
-        click: _vm.hide,
-        touchmove: function($event) {
-          $event.stopPropagation()
-          $event.preventDefault()
-          _vm.moveHandle($event)
-        }
-      }
-    }),
-    _c(
-      "view",
-      {
-        directives: [
-          {
-            name: "show",
-            rawName: "v-show",
-            value: _vm.show,
-            expression: "show"
-          }
-        ],
-        staticClass: "uni-popup",
-        class: "uni-popup-" + _vm.position + " " + "uni-popup-" + _vm.mode
-      },
-      [
-        _vm._v(_vm._s(_vm.msg)),
-        _vm._t("default", null, { mpcomid: "32e35239-0" }),
-        _vm.position === "middle" && _vm.mode === "insert"
-          ? _c("view", {
-              staticClass: " uni-icon uni-icon-close",
-              class: {
-                "uni-close-bottom": _vm.buttonMode === "bottom",
-                "uni-close-right": _vm.buttonMode === "right"
-              },
-              attrs: { eventid: "32e35239-1" },
-              on: { click: _vm.closeMask }
-            })
-          : _vm._e()
-      ],
-      2
-    )
-  ])
-}
-var staticRenderFns = []
-render._withStripped = true
-
-
-
-/***/ }),
-
-/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader/index.js?!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!./node_modules/vue-loader/lib/index.js?!../../mobile-app/components/zz-prompt/index.vue?vue&type=template&id=2980bd14&scoped=true&":
-/*!***************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--17-0!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!./node_modules/vue-loader/lib??vue-loader-options!D:/softwara/HBuilderX.1.9.2.20190417.full/HBuilderX/mobile-app/components/zz-prompt/index.vue?vue&type=template&id=2980bd14&scoped=true& ***!
-  \***************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
-/*! exports provided: render, staticRenderFns */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
-var render = function() {
-  var _vm = this
-  var _h = _vm.$createElement
-  var _c = _vm._self._c || _h
-  return _vm.visible
-    ? _c(
-        "view",
-        {
-          staticClass: "prompt-box",
-          attrs: { eventid: "79ba1004-3" },
-          on: { touchmove: true }
-        },
-        [
-          _c(
-            "view",
-            { staticClass: "prompt" },
-            [
-              _c("view", { staticClass: "prompt-top" }, [
-                _c("text", { staticClass: "prompt-title" }, [
-                  _vm._v(_vm._s(_vm.title))
-                ]),
-                _c("input", {
-                  directives: [
-                    {
-                      name: "model",
-                      rawName: "v-model",
-                      value: _vm.value,
-                      expression: "value"
-                    }
-                  ],
-                  staticClass: "prompt-input",
-                  attrs: {
-                    type: "text",
-                    placeholder: _vm.placeholder,
-                    eventid: "79ba1004-0"
-                  },
-                  domProps: { value: _vm.value },
-                  on: {
-                    input: function($event) {
-                      if ($event.target.composing) {
-                        return
-                      }
-                      _vm.value = $event.target.value
-                    }
-                  }
-                })
-              ]),
-              _vm._t("default", null, { mpcomid: "79ba1004-0" }),
-              _c(
-                "view",
-                { staticClass: "prompt-buttons" },
-                [
-                  _c(
-                    "button",
-                    {
-                      staticClass: "prompt-cancle",
-                      style: "color:" + _vm.mainColor,
-                      attrs: { eventid: "79ba1004-1" },
-                      on: { click: _vm.close }
-                    },
-                    [_vm._v("取消")]
-                  ),
-                  _c(
-                    "button",
-                    {
-                      staticClass: "prompt-confirm",
-                      style: "background:" + _vm.mainColor,
-                      attrs: { eventid: "79ba1004-2" },
-                      on: {
-                        click: function($event) {
-                          _vm.$emit("confirm", _vm.value)
-                        }
-                      }
-                    },
-                    [_vm._v("确定")]
-                  )
-                ],
-                1
-              )
-            ],
-            2
-          )
-        ]
-      )
-    : _vm._e()
-}
-var staticRenderFns = []
-render._withStripped = true
-
-
-
-/***/ }),
-
-/***/ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js":
-/*!********************************************************************!*\
-  !*** ./node_modules/vue-loader/lib/runtime/componentNormalizer.js ***!
-  \********************************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return normalizeComponent; });
-/* globals __VUE_SSR_CONTEXT__ */
-
-// IMPORTANT: Do NOT use ES2015 features in this file (except for modules).
-// This module is a runtime utility for cleaner component module output and will
-// be included in the final webpack user bundle.
-
-function normalizeComponent (
-  scriptExports,
-  render,
-  staticRenderFns,
-  functionalTemplate,
-  injectStyles,
-  scopeId,
-  moduleIdentifier, /* server only */
-  shadowMode /* vue-cli only */
-) {
-  // Vue.extend constructor export interop
-  var options = typeof scriptExports === 'function'
-    ? scriptExports.options
-    : scriptExports
-
-  // render functions
-  if (render) {
-    options.render = render
-    options.staticRenderFns = staticRenderFns
-    options._compiled = true
-  }
-
-  // functional template
-  if (functionalTemplate) {
-    options.functional = true
-  }
-
-  // scopedId
-  if (scopeId) {
-    options._scopeId = 'data-v-' + scopeId
-  }
-
-  var hook
-  if (moduleIdentifier) { // server build
-    hook = function (context) {
-      // 2.3 injection
-      context =
-        context || // cached call
-        (this.$vnode && this.$vnode.ssrContext) || // stateful
-        (this.parent && this.parent.$vnode && this.parent.$vnode.ssrContext) // functional
-      // 2.2 with runInNewContext: true
-      if (!context && typeof __VUE_SSR_CONTEXT__ !== 'undefined') {
-        context = __VUE_SSR_CONTEXT__
-      }
-      // inject component styles
-      if (injectStyles) {
-        injectStyles.call(this, context)
-      }
-      // register component module identifier for async chunk inferrence
-      if (context && context._registeredComponents) {
-        context._registeredComponents.add(moduleIdentifier)
-      }
-    }
-    // used by ssr in case component is cached and beforeCreate
-    // never gets called
-    options._ssrRegister = hook
-  } else if (injectStyles) {
-    hook = shadowMode
-      ? function () { injectStyles.call(this, this.$root.$options.shadowRoot) }
-      : injectStyles
-  }
-
-  if (hook) {
-    if (options.functional) {
-      // for template-only hot-reload because in that case the render fn doesn't
-      // go through the normalizer
-      options._injectStyles = hook
-      // register for functioal component in vue file
-      var originalRender = options.render
-      options.render = function renderWithStyleInjection (h, context) {
-        hook.call(context)
-        return originalRender(h, context)
-      }
-    } else {
-      // inject component registration as beforeCreate hook
-      var existing = options.beforeCreate
-      options.beforeCreate = existing
-        ? [].concat(existing, hook)
-        : [hook]
-    }
-  }
-
-  return {
-    exports: scriptExports,
-    options: options
+  // Remove the global property added by runtime.js.
+  try {
+    delete g.regeneratorRuntime;
+  } catch(e) {
+    g.regeneratorRuntime = undefined;
   }
 }
 
 
 /***/ }),
 
-/***/ "./node_modules/webpack/buildin/global.js":
-/*!***********************************!*\
-  !*** (webpack)/buildin/global.js ***!
-  \***********************************/
+/***/ 78:
+/*!*****************************************************!*\
+  !*** ./node_modules/regenerator-runtime/runtime.js ***!
+  \*****************************************************/
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-var g;
+/**
+ * Copyright (c) 2014-present, Facebook, Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
 
-// This works in non-strict mode
-g = (function() {
-	return this;
-})();
+!(function(global) {
+  "use strict";
 
-try {
-	// This works if eval is allowed (see CSP)
-	g = g || new Function("return this")();
-} catch (e) {
-	// This works if the window reference is available
-	if (typeof window === "object") g = window;
-}
+  var Op = Object.prototype;
+  var hasOwn = Op.hasOwnProperty;
+  var undefined; // More compressible than void 0.
+  var $Symbol = typeof Symbol === "function" ? Symbol : {};
+  var iteratorSymbol = $Symbol.iterator || "@@iterator";
+  var asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator";
+  var toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag";
 
-// g can still be undefined, but nothing to do about it...
-// We return undefined, instead of nothing here, so it's
-// easier to handle this case. if(!global) { ...}
+  var inModule = typeof module === "object";
+  var runtime = global.regeneratorRuntime;
+  if (runtime) {
+    if (inModule) {
+      // If regeneratorRuntime is defined globally and we're in a module,
+      // make the exports object identical to regeneratorRuntime.
+      module.exports = runtime;
+    }
+    // Don't bother evaluating the rest of this file if the runtime was
+    // already defined globally.
+    return;
+  }
 
-module.exports = g;
+  // Define the runtime globally (as expected by generated code) as either
+  // module.exports (if we're in a module) or a new, empty object.
+  runtime = global.regeneratorRuntime = inModule ? module.exports : {};
 
+  function wrap(innerFn, outerFn, self, tryLocsList) {
+    // If outerFn provided and outerFn.prototype is a Generator, then outerFn.prototype instanceof Generator.
+    var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator;
+    var generator = Object.create(protoGenerator.prototype);
+    var context = new Context(tryLocsList || []);
+
+    // The ._invoke method unifies the implementations of the .next,
+    // .throw, and .return methods.
+    generator._invoke = makeInvokeMethod(innerFn, self, context);
+
+    return generator;
+  }
+  runtime.wrap = wrap;
+
+  // Try/catch helper to minimize deoptimizations. Returns a completion
+  // record like context.tryEntries[i].completion. This interface could
+  // have been (and was previously) designed to take a closure to be
+  // invoked without arguments, but in all the cases we care about we
+  // already have an existing method we want to call, so there's no need
+  // to create a new function object. We can even get away with assuming
+  // the method takes exactly one argument, since that happens to be true
+  // in every case, so we don't have to touch the arguments object. The
+  // only additional allocation required is the completion record, which
+  // has a stable shape and so hopefully should be cheap to allocate.
+  function tryCatch(fn, obj, arg) {
+    try {
+      return { type: "normal", arg: fn.call(obj, arg) };
+    } catch (err) {
+      return { type: "throw", arg: err };
+    }
+  }
+
+  var GenStateSuspendedStart = "suspendedStart";
+  var GenStateSuspendedYield = "suspendedYield";
+  var GenStateExecuting = "executing";
+  var GenStateCompleted = "completed";
+
+  // Returning this object from the innerFn has the same effect as
+  // breaking out of the dispatch switch statement.
+  var ContinueSentinel = {};
+
+  // Dummy constructor functions that we use as the .constructor and
+  // .constructor.prototype properties for functions that return Generator
+  // objects. For full spec compliance, you may wish to configure your
+  // minifier not to mangle the names of these two functions.
+  function Generator() {}
+  function GeneratorFunction() {}
+  function GeneratorFunctionPrototype() {}
+
+  // This is a polyfill for %IteratorPrototype% for environments that
+  // don't natively support it.
+  var IteratorPrototype = {};
+  IteratorPrototype[iteratorSymbol] = function () {
+    return this;
+  };
+
+  var getProto = Object.getPrototypeOf;
+  var NativeIteratorPrototype = getProto && getProto(getProto(values([])));
+  if (NativeIteratorPrototype &&
+      NativeIteratorPrototype !== Op &&
+      hasOwn.call(NativeIteratorPrototype, iteratorSymbol)) {
+    // This environment has a native %IteratorPrototype%; use it instead
+    // of the polyfill.
+    IteratorPrototype = NativeIteratorPrototype;
+  }
+
+  var Gp = GeneratorFunctionPrototype.prototype =
+    Generator.prototype = Object.create(IteratorPrototype);
+  GeneratorFunction.prototype = Gp.constructor = GeneratorFunctionPrototype;
+  GeneratorFunctionPrototype.constructor = GeneratorFunction;
+  GeneratorFunctionPrototype[toStringTagSymbol] =
+    GeneratorFunction.displayName = "GeneratorFunction";
+
+  // Helper for defining the .next, .throw, and .return methods of the
+  // Iterator interface in terms of a single ._invoke method.
+  function defineIteratorMethods(prototype) {
+    ["next", "throw", "return"].forEach(function(method) {
+      prototype[method] = function(arg) {
+        return this._invoke(method, arg);
+      };
+    });
+  }
+
+  runtime.isGeneratorFunction = function(genFun) {
+    var ctor = typeof genFun === "function" && genFun.constructor;
+    return ctor
+      ? ctor === GeneratorFunction ||
+        // For the native GeneratorFunction constructor, the best we can
+        // do is to check its .name property.
+        (ctor.displayName || ctor.name) === "GeneratorFunction"
+      : false;
+  };
+
+  runtime.mark = function(genFun) {
+    if (Object.setPrototypeOf) {
+      Object.setPrototypeOf(genFun, GeneratorFunctionPrototype);
+    } else {
+      genFun.__proto__ = GeneratorFunctionPrototype;
+      if (!(toStringTagSymbol in genFun)) {
+        genFun[toStringTagSymbol] = "GeneratorFunction";
+      }
+    }
+    genFun.prototype = Object.create(Gp);
+    return genFun;
+  };
+
+  // Within the body of any async function, `await x` is transformed to
+  // `yield regeneratorRuntime.awrap(x)`, so that the runtime can test
+  // `hasOwn.call(value, "__await")` to determine if the yielded value is
+  // meant to be awaited.
+  runtime.awrap = function(arg) {
+    return { __await: arg };
+  };
+
+  function AsyncIterator(generator) {
+    function invoke(method, arg, resolve, reject) {
+      var record = tryCatch(generator[method], generator, arg);
+      if (record.type === "throw") {
+        reject(record.arg);
+      } else {
+        var result = record.arg;
+        var value = result.value;
+        if (value &&
+            typeof value === "object" &&
+            hasOwn.call(value, "__await")) {
+          return Promise.resolve(value.__await).then(function(value) {
+            invoke("next", value, resolve, reject);
+          }, function(err) {
+            invoke("throw", err, resolve, reject);
+          });
+        }
+
+        return Promise.resolve(value).then(function(unwrapped) {
+          // When a yielded Promise is resolved, its final value becomes
+          // the .value of the Promise<{value,done}> result for the
+          // current iteration.
+          result.value = unwrapped;
+          resolve(result);
+        }, function(error) {
+          // If a rejected Promise was yielded, throw the rejection back
+          // into the async generator function so it can be handled there.
+          return invoke("throw", error, resolve, reject);
+        });
+      }
+    }
+
+    var previousPromise;
+
+    function enqueue(method, arg) {
+      function callInvokeWithMethodAndArg() {
+        return new Promise(function(resolve, reject) {
+          invoke(method, arg, resolve, reject);
+        });
+      }
+
+      return previousPromise =
+        // If enqueue has been called before, then we want to wait until
+        // all previous Promises have been resolved before calling invoke,
+        // so that results are always delivered in the correct order. If
+        // enqueue has not been called before, then it is important to
+        // call invoke immediately, without waiting on a callback to fire,
+        // so that the async generator function has the opportunity to do
+        // any necessary setup in a predictable way. This predictability
+        // is why the Promise constructor synchronously invokes its
+        // executor callback, and why async functions synchronously
+        // execute code before the first await. Since we implement simple
+        // async functions in terms of async generators, it is especially
+        // important to get this right, even though it requires care.
+        previousPromise ? previousPromise.then(
+          callInvokeWithMethodAndArg,
+          // Avoid propagating failures to Promises returned by later
+          // invocations of the iterator.
+          callInvokeWithMethodAndArg
+        ) : callInvokeWithMethodAndArg();
+    }
+
+    // Define the unified helper method that is used to implement .next,
+    // .throw, and .return (see defineIteratorMethods).
+    this._invoke = enqueue;
+  }
+
+  defineIteratorMethods(AsyncIterator.prototype);
+  AsyncIterator.prototype[asyncIteratorSymbol] = function () {
+    return this;
+  };
+  runtime.AsyncIterator = AsyncIterator;
+
+  // Note that simple async functions are implemented on top of
+  // AsyncIterator objects; they just return a Promise for the value of
+  // the final result produced by the iterator.
+  runtime.async = function(innerFn, outerFn, self, tryLocsList) {
+    var iter = new AsyncIterator(
+      wrap(innerFn, outerFn, self, tryLocsList)
+    );
+
+    return runtime.isGeneratorFunction(outerFn)
+      ? iter // If outerFn is a generator, return the full iterator.
+      : iter.next().then(function(result) {
+          return result.done ? result.value : iter.next();
+        });
+  };
+
+  function makeInvokeMethod(innerFn, self, context) {
+    var state = GenStateSuspendedStart;
+
+    return function invoke(method, arg) {
+      if (state === GenStateExecuting) {
+        throw new Error("Generator is already running");
+      }
+
+      if (state === GenStateCompleted) {
+        if (method === "throw") {
+          throw arg;
+        }
+
+        // Be forgiving, per 25.3.3.3.3 of the spec:
+        // https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generatorresume
+        return doneResult();
+      }
+
+      context.method = method;
+      context.arg = arg;
+
+      while (true) {
+        var delegate = context.delegate;
+        if (delegate) {
+          var delegateResult = maybeInvokeDelegate(delegate, context);
+          if (delegateResult) {
+            if (delegateResult === ContinueSentinel) continue;
+            return delegateResult;
+          }
+        }
+
+        if (context.method === "next") {
+          // Setting context._sent for legacy support of Babel's
+          // function.sent implementation.
+          context.sent = context._sent = context.arg;
+
+        } else if (context.method === "throw") {
+          if (state === GenStateSuspendedStart) {
+            state = GenStateCompleted;
+            throw context.arg;
+          }
+
+          context.dispatchException(context.arg);
+
+        } else if (context.method === "return") {
+          context.abrupt("return", context.arg);
+        }
+
+        state = GenStateExecuting;
+
+        var record = tryCatch(innerFn, self, context);
+        if (record.type === "normal") {
+          // If an exception is thrown from innerFn, we leave state ===
+          // GenStateExecuting and loop back for another invocation.
+          state = context.done
+            ? GenStateCompleted
+            : GenStateSuspendedYield;
+
+          if (record.arg === ContinueSentinel) {
+            continue;
+          }
+
+          return {
+            value: record.arg,
+            done: context.done
+          };
+
+        } else if (record.type === "throw") {
+          state = GenStateCompleted;
+          // Dispatch the exception by looping back around to the
+          // context.dispatchException(context.arg) call above.
+          context.method = "throw";
+          context.arg = record.arg;
+        }
+      }
+    };
+  }
+
+  // Call delegate.iterator[context.method](context.arg) and handle the
+  // result, either by returning a { value, done } result from the
+  // delegate iterator, or by modifying context.method and context.arg,
+  // setting context.delegate to null, and returning the ContinueSentinel.
+  function maybeInvokeDelegate(delegate, context) {
+    var method = delegate.iterator[context.method];
+    if (method === undefined) {
+      // A .throw or .return when the delegate iterator has no .throw
+      // method always terminates the yield* loop.
+      context.delegate = null;
+
+      if (context.method === "throw") {
+        if (delegate.iterator.return) {
+          // If the delegate iterator has a return method, give it a
+          // chance to clean up.
+          context.method = "return";
+          context.arg = undefined;
+          maybeInvokeDelegate(delegate, context);
+
+          if (context.method === "throw") {
+            // If maybeInvokeDelegate(context) changed context.method from
+            // "return" to "throw", let that override the TypeError below.
+            return ContinueSentinel;
+          }
+        }
+
+        context.method = "throw";
+        context.arg = new TypeError(
+          "The iterator does not provide a 'throw' method");
+      }
+
+      return ContinueSentinel;
+    }
+
+    var record = tryCatch(method, delegate.iterator, context.arg);
+
+    if (record.type === "throw") {
+      context.method = "throw";
+      context.arg = record.arg;
+      context.delegate = null;
+      return ContinueSentinel;
+    }
+
+    var info = record.arg;
+
+    if (! info) {
+      context.method = "throw";
+      context.arg = new TypeError("iterator result is not an object");
+      context.delegate = null;
+      return ContinueSentinel;
+    }
+
+    if (info.done) {
+      // Assign the result of the finished delegate to the temporary
+      // variable specified by delegate.resultName (see delegateYield).
+      context[delegate.resultName] = info.value;
+
+      // Resume execution at the desired location (see delegateYield).
+      context.next = delegate.nextLoc;
+
+      // If context.method was "throw" but the delegate handled the
+      // exception, let the outer generator proceed normally. If
+      // context.method was "next", forget context.arg since it has been
+      // "consumed" by the delegate iterator. If context.method was
+      // "return", allow the original .return call to continue in the
+      // outer generator.
+      if (context.method !== "return") {
+        context.method = "next";
+        context.arg = undefined;
+      }
+
+    } else {
+      // Re-yield the result returned by the delegate method.
+      return info;
+    }
+
+    // The delegate iterator is finished, so forget it and continue with
+    // the outer generator.
+    context.delegate = null;
+    return ContinueSentinel;
+  }
+
+  // Define Generator.prototype.{next,throw,return} in terms of the
+  // unified ._invoke helper method.
+  defineIteratorMethods(Gp);
+
+  Gp[toStringTagSymbol] = "Generator";
+
+  // A Generator should always return itself as the iterator object when the
+  // @@iterator function is called on it. Some browsers' implementations of the
+  // iterator prototype chain incorrectly implement this, causing the Generator
+  // object to not be returned from this call. This ensures that doesn't happen.
+  // See https://github.com/facebook/regenerator/issues/274 for more details.
+  Gp[iteratorSymbol] = function() {
+    return this;
+  };
+
+  Gp.toString = function() {
+    return "[object Generator]";
+  };
+
+  function pushTryEntry(locs) {
+    var entry = { tryLoc: locs[0] };
+
+    if (1 in locs) {
+      entry.catchLoc = locs[1];
+    }
+
+    if (2 in locs) {
+      entry.finallyLoc = locs[2];
+      entry.afterLoc = locs[3];
+    }
+
+    this.tryEntries.push(entry);
+  }
+
+  function resetTryEntry(entry) {
+    var record = entry.completion || {};
+    record.type = "normal";
+    delete record.arg;
+    entry.completion = record;
+  }
+
+  function Context(tryLocsList) {
+    // The root entry object (effectively a try statement without a catch
+    // or a finally block) gives us a place to store values thrown from
+    // locations where there is no enclosing try statement.
+    this.tryEntries = [{ tryLoc: "root" }];
+    tryLocsList.forEach(pushTryEntry, this);
+    this.reset(true);
+  }
+
+  runtime.keys = function(object) {
+    var keys = [];
+    for (var key in object) {
+      keys.push(key);
+    }
+    keys.reverse();
+
+    // Rather than returning an object with a next method, we keep
+    // things simple and return the next function itself.
+    return function next() {
+      while (keys.length) {
+        var key = keys.pop();
+        if (key in object) {
+          next.value = key;
+          next.done = false;
+          return next;
+        }
+      }
+
+      // To avoid creating an additional object, we just hang the .value
+      // and .done properties off the next function object itself. This
+      // also ensures that the minifier will not anonymize the function.
+      next.done = true;
+      return next;
+    };
+  };
+
+  function values(iterable) {
+    if (iterable) {
+      var iteratorMethod = iterable[iteratorSymbol];
+      if (iteratorMethod) {
+        return iteratorMethod.call(iterable);
+      }
+
+      if (typeof iterable.next === "function") {
+        return iterable;
+      }
+
+      if (!isNaN(iterable.length)) {
+        var i = -1, next = function next() {
+          while (++i < iterable.length) {
+            if (hasOwn.call(iterable, i)) {
+              next.value = iterable[i];
+              next.done = false;
+              return next;
+            }
+          }
+
+          next.value = undefined;
+          next.done = true;
+
+          return next;
+        };
+
+        return next.next = next;
+      }
+    }
+
+    // Return an iterator with no values.
+    return { next: doneResult };
+  }
+  runtime.values = values;
+
+  function doneResult() {
+    return { value: undefined, done: true };
+  }
+
+  Context.prototype = {
+    constructor: Context,
+
+    reset: function(skipTempReset) {
+      this.prev = 0;
+      this.next = 0;
+      // Resetting context._sent for legacy support of Babel's
+      // function.sent implementation.
+      this.sent = this._sent = undefined;
+      this.done = false;
+      this.delegate = null;
+
+      this.method = "next";
+      this.arg = undefined;
+
+      this.tryEntries.forEach(resetTryEntry);
+
+      if (!skipTempReset) {
+        for (var name in this) {
+          // Not sure about the optimal order of these conditions:
+          if (name.charAt(0) === "t" &&
+              hasOwn.call(this, name) &&
+              !isNaN(+name.slice(1))) {
+            this[name] = undefined;
+          }
+        }
+      }
+    },
+
+    stop: function() {
+      this.done = true;
+
+      var rootEntry = this.tryEntries[0];
+      var rootRecord = rootEntry.completion;
+      if (rootRecord.type === "throw") {
+        throw rootRecord.arg;
+      }
+
+      return this.rval;
+    },
+
+    dispatchException: function(exception) {
+      if (this.done) {
+        throw exception;
+      }
+
+      var context = this;
+      function handle(loc, caught) {
+        record.type = "throw";
+        record.arg = exception;
+        context.next = loc;
+
+        if (caught) {
+          // If the dispatched exception was caught by a catch block,
+          // then let that catch block handle the exception normally.
+          context.method = "next";
+          context.arg = undefined;
+        }
+
+        return !! caught;
+      }
+
+      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+        var entry = this.tryEntries[i];
+        var record = entry.completion;
+
+        if (entry.tryLoc === "root") {
+          // Exception thrown outside of any try block that could handle
+          // it, so set the completion value of the entire function to
+          // throw the exception.
+          return handle("end");
+        }
+
+        if (entry.tryLoc <= this.prev) {
+          var hasCatch = hasOwn.call(entry, "catchLoc");
+          var hasFinally = hasOwn.call(entry, "finallyLoc");
+
+          if (hasCatch && hasFinally) {
+            if (this.prev < entry.catchLoc) {
+              return handle(entry.catchLoc, true);
+            } else if (this.prev < entry.finallyLoc) {
+              return handle(entry.finallyLoc);
+            }
+
+          } else if (hasCatch) {
+            if (this.prev < entry.catchLoc) {
+              return handle(entry.catchLoc, true);
+            }
+
+          } else if (hasFinally) {
+            if (this.prev < entry.finallyLoc) {
+              return handle(entry.finallyLoc);
+            }
+
+          } else {
+            throw new Error("try statement without catch or finally");
+          }
+        }
+      }
+    },
+
+    abrupt: function(type, arg) {
+      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+        var entry = this.tryEntries[i];
+        if (entry.tryLoc <= this.prev &&
+            hasOwn.call(entry, "finallyLoc") &&
+            this.prev < entry.finallyLoc) {
+          var finallyEntry = entry;
+          break;
+        }
+      }
+
+      if (finallyEntry &&
+          (type === "break" ||
+           type === "continue") &&
+          finallyEntry.tryLoc <= arg &&
+          arg <= finallyEntry.finallyLoc) {
+        // Ignore the finally entry if control is not jumping to a
+        // location outside the try/catch block.
+        finallyEntry = null;
+      }
+
+      var record = finallyEntry ? finallyEntry.completion : {};
+      record.type = type;
+      record.arg = arg;
+
+      if (finallyEntry) {
+        this.method = "next";
+        this.next = finallyEntry.finallyLoc;
+        return ContinueSentinel;
+      }
+
+      return this.complete(record);
+    },
+
+    complete: function(record, afterLoc) {
+      if (record.type === "throw") {
+        throw record.arg;
+      }
+
+      if (record.type === "break" ||
+          record.type === "continue") {
+        this.next = record.arg;
+      } else if (record.type === "return") {
+        this.rval = this.arg = record.arg;
+        this.method = "return";
+        this.next = "end";
+      } else if (record.type === "normal" && afterLoc) {
+        this.next = afterLoc;
+      }
+
+      return ContinueSentinel;
+    },
+
+    finish: function(finallyLoc) {
+      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+        var entry = this.tryEntries[i];
+        if (entry.finallyLoc === finallyLoc) {
+          this.complete(entry.completion, entry.afterLoc);
+          resetTryEntry(entry);
+          return ContinueSentinel;
+        }
+      }
+    },
+
+    "catch": function(tryLoc) {
+      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+        var entry = this.tryEntries[i];
+        if (entry.tryLoc === tryLoc) {
+          var record = entry.completion;
+          if (record.type === "throw") {
+            var thrown = record.arg;
+            resetTryEntry(entry);
+          }
+          return thrown;
+        }
+      }
+
+      // The context.catch method must only be called with a location
+      // argument that corresponds to a known catch block.
+      throw new Error("illegal catch attempt");
+    },
+
+    delegateYield: function(iterable, resultName, nextLoc) {
+      this.delegate = {
+        iterator: values(iterable),
+        resultName: resultName,
+        nextLoc: nextLoc
+      };
+
+      if (this.method === "next") {
+        // Deliberately forget the last sent value so that we don't
+        // accidentally pass it on to the delegate.
+        this.arg = undefined;
+      }
+
+      return ContinueSentinel;
+    }
+  };
+})(
+  // In sloppy mode, unbound `this` refers to the global object, fallback to
+  // Function constructor if we're in global strict mode. That is sadly a form
+  // of indirect eval which violates Content Security Policy.
+  (function() {
+    return this || (typeof self === "object" && self);
+  })() || Function("return this")()
+);
+
+
+/***/ }),
+
+/***/ 8:
+/*!********************************************************************************!*\
+  !*** C:/Users/Administrator/Desktop/mobile-app-git/pages.json?{"type":"stat"} ***!
+  \********************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var _default = { "appid": "__UNI__ED7FFFF" };exports.default = _default;
 
 /***/ })
 

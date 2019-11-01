@@ -58,9 +58,10 @@
         "appid" : "",
         "setting" : {
             "urlCheck" : false,
-            "es6" : false
+            "es6" : true,
+            "minified" : true
         },
-        "usingComponents" : false
+        "usingComponents" : true
     },
     "h5" : {
         "title" : "印客宝-广告行业电商平台",

@@ -2,21 +2,7 @@
 	<view :style="{height:(height)+'px'}">
 		<view style="height: 90%;">
         	<loginheader></loginheader>
-        	<view class="form re">
-        		<view class="username">
-        			<view class="get-code" :style="{'color':getCodeBtnColor}" @click.stop="getCode()">{{getCodeText}}</view>
-        			<input :placeholder="'请输入尾号('+(telephone).substring(7, 11) +')手机号'" type="number" v-model="phoneNumber" placeholder-style="color: #cccccc;"/>
-        		</view>
-        		<view class="code">
-        			<input placeholder="请输入验证码" type="number" v-model="code" placeholder-style="color: #cccccc;"/>
-        		</view>
-        		<view class="password">
-        			<input placeholder="请输入新支付密码(6位纯数字)" type="number" v-model="paywd" password=true placeholder-style="color: #cccccc;" :password="showPassword"/>
-        			<view class="uni-icon uni-icon-eye" :class="[!showPassword ? 'uni-active' : '']" @click="changePassword"></view>
-        		</view>
-        		<view class="btn" @tap="doReset">重置密码</view>
-        	</view>
-        </view>
+        	
 		<copyright></copyright>
 	</view>
 </template>

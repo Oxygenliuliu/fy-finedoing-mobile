@@ -1,4 +1,6 @@
 {
-  "usingComponents": {},
-  "navigationBarTitleText": "修 改 支 付 密 码"
+  "navigationBarTitleText": "修改支付密码",
+  "usingComponents": {
+    "uni-popup": "/components/uni-popup/uni-popupPayResults"
+  }
 }

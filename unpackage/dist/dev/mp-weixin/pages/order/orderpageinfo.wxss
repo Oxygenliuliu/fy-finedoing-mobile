@@ -6,6 +6,10 @@
 }
 
 /*通用 */
+.end{
+	background-color: #FF0000;
+	color: #FFF;
+}
 view{
 	font-size:28rpx; 
 	line-height:1.8;
@@ -1640,105 +1644,171 @@ radio-group label, checkbox-group label{
 /* 数字角标 */
 
 /* .jiaobiao{
-	position: absolute;
-	top: 0;
-	color: #fff;
-	background-color: #dd524d;
-} */
+		position: absolute;
+		top: 0;
+		color: #fff;
+		background-color: #dd524d;
+	} */
+.csOrder{
+		position: fixed;
+		z-index: 999;
+		top: 0;
+		right: 20rpx;
+		display: -webkit-box;
+		display: -webkit-flex;
+		display: -ms-flexbox;
+		display: flex;
+		-webkit-box-align: center;
+		-webkit-align-items: center;
+		    -ms-flex-align: center;
+		        align-items: center;
+		-webkit-box-pack: center;
+		-webkit-justify-content: center;
+		    -ms-flex-pack: center;
+		        justify-content: center;
+		height: 44px;
+}
+.csOrderBtn{
+		border: 1px solid #cccccc;
+		border-radius: 25px;
+		padding: 0 10px;
+}
+.csOrderBtn::after{
+		display: none;
+}
+.orderPage{
+		width: 100%;
+		background-color: #fff;
+}
+.orderPageInfo uni-view{
+		font-size: 0.7rem;
+}
 
 /* 状态选中的下划线 */
 .boderBottom{
-	border-bottom: 2px solid red;
+		border-bottom: 2px solid red;
 }
 scroll-view {
-	background-color: #f3f3f3;
-	-webkit-box-sizing: border-box;
-	        box-sizing: border-box;
+		background-color: #f3f3f3;
+		-webkit-box-sizing: border-box;
+		        box-sizing: border-box;
 }
 .bg-white{
-	background-color: #FFF;
+		background-color: #FFF;
 }
 .margin {
-	margin: 30rpx;
-	padding: 12px 0 0 0;
+		margin: 30rpx;
+		padding: 12px 0 0 0;
 }
 .bgcColor{
-	border-radius: 5%;
-	background-color: #FFF;
+		border-radius: 3%;
+		background-color: #FFF;
 }
 
 /* 单号 */
 .orderNO{
-	width: 80%;
-	padding: 0 0 0 0.6rem;
+		width: 80%;
+		padding: 0 0 0 0.6rem;
 }
 .time{
-	padding: 0 0 0 0.6rem;
+		padding: 0 0 0 0.6rem;
 }
 .orderNO text{
-	font-size: 14px;
-	margin-top: 0;
-	margin-bottom: 10px;
-	padding: 10px;
-	color: #8f8f94;
+		font-size: 0.7rem;
+		margin-top: 0;
+		margin-bottom: 10px;
+		padding: 10px;
+		color: #8f8f94;
 }
 
 /* 状态 */
 .orderState{
-	width: 20%;
+		width: 20%;
 }
 .orderState ._i{
-	font-size: 1rem;
-	color: #999;
+		font-size: 1rem;
+		color: #999;
 }
 .orderState text{
-	color: #999;
-	font-size: 0.6rem;
+		color: #ff0000;
+		font-size: 0.7rem;
 }
 
 /* 商品详情[图片] */
 .orderImg{
-	width: 26%;
-	    padding: 0 0 0 0.6rem;
+		width: 26%;
+		    padding: 0 0 0 0.6rem;
 }
 .orderImg image{
-	width: 75px;
-	height: 75px;
+		width: 75px;
+		height: 75px;
+		border-radius: 5px;
 }
-.orderInfoText{
-	padding: 10px;
+.orderDetailInfo {
+		padding: 0 0 0 10px;
+		color: #000000;
 }
-.orderInfo{
-	width: 90%;
+.orderD_typeName text {
 }
-.orderList{
-	padding: 10px 10px;
-	text-align: right;
-	font-size: 0.55rem;
-	color: #999;
+.orderD_size {
+		color: #797979;
 }
+.orderD_size text{
+		margin-right: 10px;
+}
+.orderD_total text {
+		text-align: right;
+}
+
+/* 	.orderInfoText{
+		padding: 10px;
+	}
+	.orderInfo{
+		width: 90%;
+	}
+	.orderList{
+		padding: 10px 10px;
+		text-align: left;
+		font-size: 0.55rem;
+		color: #999;
+	} */
 
 /* 实付金额 */
 .Price{
-	margin-bottom: 0.5rem;
+		margin-bottom: 0.5rem;
 }
 .zongPrice{
-	margin-top: -10px;
-	text-align: right;
-	padding: 0 10px 0 0;
+		text-align: right;
+		padding: 0 10px 0 0;
 }
 .shiTitle{
-	font-size: 0.7rem;
-	color: #999;
+		font-size: 0.7rem;
+		color: #999;
 }
 
 /* 按钮 */
 .priceBtn{
-	border-top: 1px solid #f3f3f3;
-	text-align: right;
-	padding: 8px 6px 0 0;
+		border-top: 1px solid #f3f3f3;
+		text-align: right;
+		padding: 3% 6px;
 }
-.priceBtn button{
-	margin-left: 10px;
+.btns {
+		width: 180rpx;
+		min-width: 120rpx;
+		line-height: 2;
+		font-size: 0.7rem;
+		color: #666666;
+		padding: 0 20rpx;
+		border-radius: 50rpx;
+		border: 0.5px solid #ccc;
+		background: #ffffff;
+		margin:0 5px;
+}
+.btns::after{
+		border: 0;
+}
+.pay,.confirm {
+		border: solid 0.5px #ff0000;
+		color: #ff0000;
 }
 

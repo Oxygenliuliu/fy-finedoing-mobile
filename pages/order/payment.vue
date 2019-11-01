@@ -79,6 +79,7 @@
 		</view>
 		
 		<!-- 物流配送服务界面弹出 -->
+		<!-- #ifndef MP-WEIXIN -->
 		<uni-popup :show="delivery" type="bottom" position="bottom" @hidePopup="ClosePopup">
 			<view class="delivery_view" >
 				<view class="dv_mode">
@@ -100,6 +101,7 @@
 				</view>
 			</view>
 		</uni-popup>
+		<!-- #endif -->
 		<!-- 返回按钮：遮罩层 -->
 		<mask v-if="showMask"></mask>
 	</view>

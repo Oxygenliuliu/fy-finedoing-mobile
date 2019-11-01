@@ -1,4 +1,6 @@
 {
-  "usingComponents": {},
-  "navigationBarTitleText": ""
+  "navigationBarTitleText": "商品类别",
+  "usingComponents": {
+    "tar-bar": "/components/customize/tarBar"
+  }
 }

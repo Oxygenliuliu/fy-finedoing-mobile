@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "支付结果",
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "uni-popup": "/components/uni-popup/uni-popupPayResults"
+  }
+}

@@ -6,6 +6,10 @@
 }
 
 /*通用 */
+.end{
+	background-color: #FF0000;
+	color: #FFF;
+}
 view{
 	font-size:28rpx; 
 	line-height:1.8;
@@ -1636,105 +1640,396 @@ radio-group label, checkbox-group label{
         -ms-transform: translateY(50%);
             transform: translateY(50%);
 }
+@font-face {font-family: "iconfont";
+  src: url('/font/iconfont.eot?t=1567481503869'); /* IE9 */
+  src: url('/font/iconfont.eot?t=1567481503869#iefix') format('embedded-opentype'), /* IE6-IE8 */
+  url('data:application/x-font-woff2;charset=utf-8;base64,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') format('woff2'),
+  url('/font/iconfont.woff?t=1567481503869') format('woff'),
+  url('/font/iconfont.ttf?t=1567481503869') format('truetype'), /* chrome, firefox, opera, Safari, Android, iOS 4.2+ */
+  url('/font/iconfont.svg?t=1567481503869#iconfont') format('svg'); /* iOS 4.1- */
+}
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 1.5rem;
+  color: #FFF;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.icon-weixin:before {
+  content: "\E679";
+}
+.icon-gerenxinxi:before {
+  content: "\E601";
+}
+.icon-anquan:before {
+  content: "\E600";
+}
+.icon-xiangshangjiantoushixin:before {
+  content: "\E871";
+}
+.icon-zhifubao:before {
+  content: "\E62D";
+}
+.icon-leimupinleifenleileibie:before {
+  content: "\E602";
+}
+.icon-yue:before {
+  content: "\E62F";
+}
+.icon-guazhang:before {
+  content: "\E60F";
+}
+.icon-gouwuche1:before {
+  content: "\E603";
+}
+.icon-zhangdan:before {
+  content: "\E612";
+}
+.icon-el-icon-custom-order:before {
+  content: "\E604";
+}
+.icon-dizhi:before {
+  content: "\E605";
+}
+.icon-chongzhi:before {
+  content: "\E60D";
+}
+.icon-shanchu:before {
+  content: "\E63A";
+}
+.icon-xiugaifuzhi:before {
+  content: "\E61E";
+}
+.icon-round-check:before {
+  content: "\E607";
+}
+.icon-B-xiangshangsanjiaoshixin:before {
+  content: "\E89A";
+}
+
+/* 身份证（正面） */
+.icon-ID-positive:before {
+  content: "\E610";
+}
+
+/* 身份证 （反面） */
+.icon-ID-back:before {
+  content: "\E611";
+}
+
+/* 真实场地 */
+.icon-field:before {
+  content: "\E642";
+}
+
+/* 营业执照 */
+.icon-business-license:before {
+  content: "\E718";
+}
+
+/* 相机 */
+
+/* .icon-camera:before {
+  content: "\e63b";
+} */
+
+/* 成功 */
+.icon-chenggong:before {
+  content: "\E608";
+}
+
+/* 失败 */
+.icon-shibai:before {
+  content: "\E620";
+}
+
+/* 审核中 */
+.icon-shenhezhong:before {
+  content: "\E62A";
+}
+
+/* 修改图标样式 */
+.icon-xiugaifuzhi{ 
+		color: #666;
+		font-size: 20px
+}
+.btnDelete{
+		width: 90%;
+		margin-top: 1rem;
+		letter-spacing: 0.1rem;
+		background:#FFF9F9;
+		color: #FF0000;
+		border: 1px solid #FFF9F9;
+		font-size: 0.7rem;
+}
+
+/* 默认地址 */
+.default{
+		color: #FFF;
+		background-color: red;
+		margin-left: 1rem;
+		border: 1px solid red;
+		border-radius: 5px;
+		font-size: 0.5rem;
+		letter-spacing: 0.1rem;
+		padding: 0 0 0 0.2rem;
+}
+.moren{
+		width: 10%;
+		text-align: right;
+		margin-top: 1rem;
+		color: #e93b3d;
+		font-size: 14px;
+}
+
+/* 默认地址结束 */
+.scroll-Y {
+		height: 1160rpx;
+}
+.scroll-view-item {
+		height: 86vh;
+}
+uni-view{
+		display: static;
+}
+.defAddress{
+		display: none;
+}
 .active{
-	display: none;
+		display: none;
 }
 .actives{
-	display: none;
+		display: none;
 }
 page{
-	background-color: #FFF;
+		background-color: #FFF;
 }
-.uni-bgc{
-	background-color: #FFF;   
-	border-bottom: #EEE solid 1px;
+.btnOperation ._i{
+		margin-right:1rem ;
+}
+.uni-bgc{  
+		border-bottom: 1px solid #ddd;
 }
 .uni-addressRight{
-	display: -webkit-box;
-	display: -webkit-flex;
-	display: -ms-flexbox;
-	display: flex;
-	padding: 10px 0 0 10px;
-	font-weight: 600;
-	font-size: 14px
+		display: -webkit-box;
+		display: -webkit-flex;
+		display: -ms-flexbox;
+		display: flex;
+		padding: 10px 0 0 10px;
+}
+.uni-addressName,.uni-sddressPhone{
+		min-width: 20%;
+		max-width: 50%;
+		font-family: -apple-system,Helvetica,sans-serif;
+		color: #333;
+		font-size: 0.7rem;
+		font-weight: bold;
+		overflow: hidden;
+		white-space: nowrap;
+		-o-text-overflow: ellipsis;
+		   text-overflow: ellipsis;
 }
 .uni-sddressPhone{
-	margin-left: 14px;
+		margin-left: 14px;
 }
 .address{
-	max-width: 74vw;
-	padding: 0 10px;
-	white-space: nowrap;
-	overflow: hidden;
-	-o-text-overflow: ellipsis;
-	   text-overflow: ellipsis;
-	color: #8f8f94;
-	font-size: 0.65rem;
-}
-.default{
-	color: #C3C3C3;
-	margin-right: 10px;
-	font-size: 0.7rem;
+		max-width: 86vw;
+		padding: 0 10px;
+		margin-bottom: 0.5rem;
+		font-size: 14px;
+		color: #666;
+		overflow: hidden;
+		-o-text-overflow:ellipsis;
+		   text-overflow:ellipsis;
+		white-space: nowrap;
 }
 
 /* 底部 */
 .uni-count{
-	width: 100vw;
-	z-index: 999;
-	position: absolute;
-	bottom: 0px;
+		width: 80vw;
+		height: 6vh;
+		z-index: 999;
+		position: absolute;
+		bottom: 0.1rem;
+		left: 2rem;
+		border: 1px solid #e4393c;
+		border-radius: 14rem;
+		text-align: center;
+		line-height: 7vh;
+		font-size: 0.7rem;
 }
 .uni-addBtn{
-	color: #FFF;
-	background: #e4393c;
-	font-size: 0.8rem;
-	border-radius: 0px !important;
+		color: #FFF;
+		font-size: 16px;
+		line-height: 6vh;
+		/* letter-spacing: 0.2rem; */
+}
+.uni-addBtn view{
+		line-height: 6vh;
+		-webkit-box-align: center;
+		-webkit-align-items: center;
+		    -ms-flex-align: center;
+		        align-items: center;
+}
+.uni-icon-plusempty{
+		font-weight: 600;
 }
 
 /* 修改地址 */
 .uni-name{
-	border-bottom: #e3e3e3 solid 1px;
+		border-bottom: #e3e3e3 solid 1px;
 }
 .textName{
-	padding: 0 0.5rem;
-	width: 16vw;
-	height: 2.5rem;
-	line-height: 2.5rem;
-	color: #999;
+		padding: 0 0.5rem;
+		width: 16vw;
+		height: 2.5rem;
+		line-height: 2.5rem;
+		color: #999;
+		font-size: 0.7rem;
 }
 .biaoti{
-	color: #999;
-	margin-right: 6px;
+		color: #999;
+		margin-right: 6px;
 }
 .textCom{
-	max-width: 30vw;
-	overflow: hidden;
-	white-space: nowrap;
-	-o-text-overflow: ellipsis;
-	   text-overflow: ellipsis;
-	height: 2.5rem;
-	line-height: 2.5rem;
+		max-width: 30vw;
+		overflow: hidden;
+		white-space: nowrap;
+		-o-text-overflow: ellipsis;
+		   text-overflow: ellipsis;
+		height: 2.5rem;
+		line-height: 2.5rem;
 }
 .textaddress{
-	width: 70vw;
+		width: 70vw;
 }
+
+/* 设置默认地址的按钮 */
 .texticon{
-	color: #999;
-	height: 2.5rem;
-	line-height: 2.5rem;
+		color: #999;
+		height: 2.5rem;
+		line-height: 2.5rem;
 }
+.texticon switch{
+		-webkit-transform: scale(0.7,0.7);
+		    -ms-transform: scale(0.7,0.7);
+		        transform: scale(0.7,0.7)
+}
+
+/* 设置默认地址的按钮结束 */
 .input-content{
-	height: 2.5rem;
-	line-height: 2.5rem;
+		height: 2.5rem;
+		line-height: 2.5rem;
+		color: #333;
+		font-size: 0.7rem;
 }
 .xxzddress{
-	width: 80vw;
-	display: inline-block;
+		width: 80vw;
+		display: inline-block;
 }
 .uni-wrap{
-	border-bottom: #e3e3e3 solid 1px;
+		border-bottom: #e3e3e3 solid 1px;
 }
 .uni-wrap button{
-	margin-bottom: 10px;
+		margin-bottom: 10px;
+}
+
+/* 删除地址 */
+.deleteAdd{
+		width: 10vw;
+		margin-top: 0.2rem;
+		text-align: right;
+		position: absolute;
+		top: -38px;
+		right: 14px;
+		z-index: 999;
+		color: #E4393C;
+		font-weight: 600;
+}
+
+/* 	.footer {
+		position: fixed;
+		bottom: 0upx;
+		width: 94vw;
+		padding: 0 10%;
+		height: 99upx;
+		border-top: solid 1upx #eee;
+		background-color: #fff;
+		z-index: 2;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+	.btn {
+		height: 80upx;
+		border-radius: 40upx;
+		overflow: hidden;
+		display: flex;
+		margin-right: -2%;
+	}
+	.GoBack,
+	.BtnAddress {
+		height: 80upx;
+		width: 80vw;
+		color: #fff;
+		display: flex;
+		align-items: center;
+		font-size: 28upx;
+		letter-spacing: 0.2rem;
+	}
+	.GoBack {
+		background-color: #dcdbdb;
+	} */
+.footer {
+		position: fixed;
+		bottom: 0rpx;
+		width: 94vw;
+		padding: 0 4%;
+		height: 99rpx;
+		border-top: solid 1rpx #eee;
+		background-color: #fff;
+		z-index: 2;
+		display: -webkit-box;
+		display: -webkit-flex;
+		display: -ms-flexbox;
+		display: flex;
+		-webkit-box-pack: justify;
+		-webkit-justify-content: space-between;
+		    -ms-flex-pack: justify;
+		        justify-content: space-between;
+		-webkit-box-align: center;
+		-webkit-align-items: center;
+		    -ms-flex-align: center;
+		        align-items: center;
+}
+.btn {
+		height: 80rpx;
+		border-radius: 40rpx;
+		overflow: hidden;
+		display: -webkit-box;
+		display: -webkit-flex;
+		display: -ms-flexbox;
+		display: flex;
+		margin-right: -2%;
+}
+.GoBack,
+	.BtnAddress {
+		height: 80rpx;
+		padding: 0 138rpx;
+		color: #fff;
+		display: -webkit-box;
+		display: -webkit-flex;
+		display: -ms-flexbox;
+		display: flex;
+		-webkit-box-align: center;
+		-webkit-align-items: center;
+		    -ms-flex-align: center;
+		        align-items: center;
+		font-size: 0.7rem;
+		letter-spacing: 0.2rem;
+}
+.GoBack {
+		background-color: #dcdbdb;
 }
 

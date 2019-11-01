@@ -6,6 +6,10 @@
 }
 
 /*通用 */
+.end{
+	background-color: #FF0000;
+	color: #FFF;
+}
 view{
 	font-size:28rpx; 
 	line-height:1.8;
@@ -1645,6 +1649,7 @@ radio-group label, checkbox-group label{
 	height: 2.5rem;
 	line-height: 2.5rem;
 	color: #999;
+	font-size: 0.7rem;
 }
 .biaoti{
 	color: #999;
@@ -1670,15 +1675,44 @@ radio-group label, checkbox-group label{
 .input-content{
 	height: 2.5rem;
 	line-height: 2.5rem;
+	font-size: 0.7rem
 }
 .xxzddress{
 	width: 80vw;
 	display: inline-block;
 }
-.uni-wrap{
-	border-bottom: #e3e3e3 solid 1px;
+
+/* 保存按钮 */
+.uni-count{
+	width: 80vw;
+	height: 40px;
+	z-index: 999;
+	position: absolute;
+	bottom: 0.1rem;
+	left: 2rem;
+	border: 1px solid #e4393c;
+	border-radius: 14rem;
+	text-align: center;
 }
-.uni-wrap button{
-	margin-bottom: 10px;
+.uni-addBtn{
+	color: #FFF;
+	font-size: 1rem;
+	-webkit-box-pack: center;
+	-webkit-justify-content: center;
+	    -ms-flex-pack: center;
+	        justify-content: center;
+	-webkit-box-align: center;
+	-webkit-align-items: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+	display: -webkit-inline-box;
+	display: -webkit-inline-flex;
+	display: -ms-inline-flexbox;
+	display: inline-flex;
+	height: 100%;
+}
+.addBtn{
+	color: #FFF;
+	font-size:16px;
 }
 

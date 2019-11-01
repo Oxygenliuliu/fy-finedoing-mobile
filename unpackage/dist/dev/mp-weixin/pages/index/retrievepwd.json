@@ -1,4 +1,7 @@
 {
-  "usingComponents": {},
-  "navigationBarTitleText": "找 回 支 付 密 码"
+  "navigationBarTitleText": "找回登陆密码",
+  "usingComponents": {
+    "copyright": "/components/customize/copyright",
+    "loginheader": "/components/customize/loginheader"
+  }
 }

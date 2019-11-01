@@ -1,0 +1,1 @@
+<view><view class="payResults"><view class="payImg"><image src="{{payImg}}" mode></image></view><view class="payPrice"><text>{{payPrice}}</text></view><view class="payText"><text>{{payText}}</text></view><view data-event-opts="{{[['tap',[['skipTo']]]]}}" class="payClick" bindtap="__e"><text style="color:#0081FF;">点击返回订单</text></view></view></view>

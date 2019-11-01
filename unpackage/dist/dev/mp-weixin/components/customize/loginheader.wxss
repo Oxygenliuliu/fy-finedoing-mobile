@@ -1,0 +1,45 @@
+
+.logo {
+	width: 100%;
+	height: 30vw;
+	display: -webkit-box;
+	display: -webkit-flex;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-pack: center;
+	-webkit-justify-content: center;
+	    -ms-flex-pack: center;
+	        justify-content: center;
+	-webkit-box-align: center;
+	-webkit-align-items: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+}
+.logo .img {
+	width: 20%;
+	/* height: 20vw; */
+}
+.logo .img image {
+	width: 100%;
+	height: 20vw;
+	border-radius: 100%;
+}
+.title {
+	width: 100%;
+	height: 5vw;
+	display: -webkit-box;
+	display: -webkit-flex;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-pack: center;
+	-webkit-justify-content: center;
+	    -ms-flex-pack: center;
+	        justify-content: center;
+	-webkit-box-align: center;
+	-webkit-align-items: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+	padding: 0 0 1rem 0;
+	font-size: 0.8rem;
+}
+

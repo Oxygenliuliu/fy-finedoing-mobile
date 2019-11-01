@@ -2,7 +2,7 @@
 	<view>
 		<!-- 发票类型 -->
 		<view class="invoiceType">
-			<uni-collapse>
+			<!-- <uni-collapse> -->
 				<text class="titleInvo">发票类型</text>
 				<view style="margin-top: 10px;"> 
 					<view class="uni-list">
@@ -28,12 +28,12 @@
 						</radio-group>
 					</view>
 				</view>	
-			</uni-collapse>
+			<!-- </uni-collapse> -->
 		</view>
 		
 		<!-- 发票抬头 -->
 		<view class="invoiceType01 invoiceType" :class="{active:typeNum==2}">
-			<uni-collapse>
+			<!-- <uni-collapse> -->
 				<text class="titleInvo">发票抬头</text>
 				<view style="margin-top: 10px;">
 					<view class="uni-list">
@@ -53,13 +53,13 @@
 						</radio-group>
 					</view>
 				</view>	
-			</uni-collapse>
+		<!-- 	</uni-collapse> -->
 		</view>
 		
 		<!-- 发票内容 -->
 		<view class="enterprise invoiceType" :class="{active:typeNum==2}">
 			<!-- 企业发票内容 -->
-			<uni-collapse>
+			<!-- <uni-collapse> -->
 				<text class="titleInvo">发票内容</text>
 				<view style="padding: 0.07rem 0.7rem 4rem 0.7rem;background: #FFFFFF;margin-top: 10px;">
 					<view class="enterpriseContent">
@@ -79,7 +79,7 @@
 						<input type="text" v-model="bankcode">
 					</view>
 				</view>
-			</uni-collapse>
+			<!-- </uni-collapse> -->
 		</view>
 		<view class="dv_footer">
 			<view class="dv_footer_taxpoint">税点<text style="margin-right: 10px;">{{taxPoint}}</text>税费<text>￥ {{taxes}}</text></view>

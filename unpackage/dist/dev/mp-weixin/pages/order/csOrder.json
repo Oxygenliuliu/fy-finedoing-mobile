@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "线下订单",
+  "enablePullDownRefresh": true,
+  "onReachBottomDistance": 500,
+  "usingComponents": {
+    "uni-badge": "/components/uni-badge/uni-badge",
+    "uni-load-more": "/components/uni-load-more/uni-load-more"
+  }
+}

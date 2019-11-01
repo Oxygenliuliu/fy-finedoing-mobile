@@ -1,4 +1,7 @@
 {
-  "usingComponents": {},
-  "navigationBarTitleText": "注 册"
+  "navigationBarTitleText": "注册",
+  "usingComponents": {
+    "copyright": "/components/customize/copyright",
+    "loginheader": "/components/customize/loginheader"
+  }
 }

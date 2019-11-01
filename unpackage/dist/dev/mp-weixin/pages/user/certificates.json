@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "认证资料",
+  "usingComponents": {
+    "uni-steps": "/components/uni-steps/uni-steps"
+  }
+}

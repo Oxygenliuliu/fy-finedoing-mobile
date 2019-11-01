@@ -1,7 +1,7 @@
 <template>
 	<view>
 		<scroll-view style="height: 1350upx;" :scroll-top="scrollTop" scroll-y="true" class="scroll-Y" @scroll="scroll">
-			<view class="flex-row uni-header" :class="{isHeaderColor:isHeaderColor}" style="display: flex;flex-direction: row;position: fixed;z-index: 999;">
+			<view class="flex-row uni-header  header-search" :class="{isHeaderColor:isHeaderColor}">
 				<view class="flex-view-item uni-left" @tap="leftBars"><i class="uni-icon uni-icon-bars"></i></view>
 				<!-- 搜索框 -->
 				<view class="flex-view-item uni-content search">
@@ -37,31 +37,31 @@
 						<view class="imgFize fenLei"><i class="iconfont icon-leimupinleifenleileibie"></i></view>
 						<view class="uni-fontFize">全部分类</view>
 					</view>
-					<view class="flex-view-item uni-li" @tap="btnJump(num=2)">
+					<view class="flex-view-item uni-li" @tap="btnJump(2)">
 						<view class="imgFize chongZhi"><i class="iconfont icon-chongzhi"></i></view>
 						<view class="uni-fontFize">充值中心</view>
 					</view>
-					<view class="flex-view-item uni-li" @tap="btnJump(num=3)">
+					<view class="flex-view-item uni-li" @tap="btnJump(3)">
 						<view class="imgFize dingDan"><i class="iconfont icon-el-icon-custom-order"></i></view>
 						<view class="uni-fontFize">我的订单</view>
 					</view>
-					<view class="flex-view-item uni-li" @tap="btnJump(num=4)">
+					<view class="flex-view-item uni-li" @tap="btnJump(4)">
 						<view class="imgFize anQuan"><i class="iconfont icon-anquan"></i></view>
 						<view class="uni-fontFize">安全中心</view>
 					</view>
-					<view class="flex-view-item uni-li" id="personal" @tap="btnJump(num=5)">
+					<view class="flex-view-item uni-li" id="personal" @tap="btnJump(5)">
 						<view class="imgFize userName"><i class="iconfont icon-gerenxinxi"></i></view>
 						<view class="uni-fontFize">个人信息</view>
 					</view>
-					<view class="flex-view-item uni-li" id="shopping" @tap="btnJump(num=6)">
+					<view class="flex-view-item uni-li" id="shopping" @tap="btnJump(6)">
 						<view class="imgFize gouWuche"><i class="iconfont icon-gouwuche1"></i></view>
 						<view class="uni-fontFize">购物车</view>
 					</view>
-					<view url="../user/useraddress" class="flex-view-item uni-li" @tap="btnJump(num=7)">
+					<view url="../user/useraddress" class="flex-view-item uni-li" @tap="btnJump(7)">
 						<view class="imgFize diZhi"><i class="iconfont icon-dizhi"></i></view>
 						<view class="uni-fontFize">地址管理</view>
 					</view>
-					<view url="../user/bill" class="flex-view-item uni-li" @tap="btnJump(num=8)">
+					<view url="../user/bill" class="flex-view-item uni-li" @tap="btnJump(8)">
 						<view class="imgFize zhangDan"><i class="iconfont icon-zhangdan"></i></view>
 						<view class="uni-fontFize">资金流水</view>
 					</view>
@@ -74,12 +74,16 @@
 					<text>{{item.name}}</text>
 					<hr>
 				</view>
-				
 				<view class="uni-product-list">
 					<view class="uni-product" v-for="(goods , ietm) in item.data" :key="ietm">
 						<navigator :url="'../product/productinfo?type='+(goods.tid)" :data-tid=(goods.tid)>
 						<view class="image-view">
+							<!-- #ifndef MP-WEIXIN -->
 							<img v-lazy="imgUrl+goods.img" class="image">
+							<!-- #endif -->
+							<!-- #ifdef MP-WEIXIN -->
+							<img :src="imgUrl+goods.img" class="image">
+							<!-- #endif -->
 						</view>
 						<view class="uni-product-title">{{goods.gname}}</view>
 						<view class="uni-product-price">
@@ -232,7 +236,6 @@
 			},
 			// 跳转链接 
 			btnJump(evt) { //option为object类型，会序列化上个页面传递的参数
-				console.log(evt);
 				if(this.userName == ''){
 					this.judge();
 				}else{
@@ -380,6 +383,12 @@
 	@import "../../common/iconfont.css";
 	@import "../../static/css/base.scss";
 	
+	.header-search{
+		display: flex;
+		flex-direction: row;
+		position: fixed;
+		z-index: 999;
+	}
 	/* 购物车角标 */
 	.uni-tabbar .uni-tabbar__reddot{
 		background-color: #0B877F !important;
@@ -543,7 +552,12 @@
 	
 	.uni-product {
 		width: 45%;
+		/* #ifndef MP-WEIXIN */
 	    padding: 10px 0 10px 3.2%;
+			/* #endif */
+		/* #ifdef MP-WEIXIN */
+		padding: 10px 0 80px 3.2%;
+			/* #endif */
 	    display: flex;
 	    flex-direction: column;
 	}
@@ -551,7 +565,12 @@
 	.image-view {
 	    height: 100%;
 	    width: 100%;
-	    margin: 12upx 0;
+		/* #ifndef MP-WEIXIN */
+	    margin: 12px 0;
+			/* #endif */
+		/* #ifdef MP-WEIXIN */
+		margin: 15px 0
+			/* #endif */
 	}
 	
 	img.image {

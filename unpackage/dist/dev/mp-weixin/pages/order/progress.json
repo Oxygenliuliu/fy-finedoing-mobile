@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "明细流程",
+  "usingComponents": {
+    "uni-steps": "/components/uni-steps/uni-steps-progress"
+  }
+}

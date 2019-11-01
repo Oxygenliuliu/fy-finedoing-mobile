@@ -6,6 +6,10 @@
 }
 
 /*通用 */
+.end{
+	background-color: #FF0000;
+	color: #FFF;
+}
 view{
 	font-size:28rpx; 
 	line-height:1.8;
@@ -1636,14 +1640,28 @@ radio-group label, checkbox-group label{
         -ms-transform: translateY(50%);
             transform: translateY(50%);
 }
-
-/* @import url("https://at.alicdn.com/t/font_1214261_rv86cuemzpl.css"); */
-
-/* @import "../../common/iconfont.css"; */
+.orderPageInfo{
+		width: 20%;
+		text-align: center;
+		padding: 0.3rem 0.7rem;
+}
+.orderPageInfo view{
+		font-size: 0.7rem;
+}
+.scroll-Y {
+		height: 1160rpx;
+}
+.scroll-view-item {
+		height: 1160rpx;
+		line-height: 1160rpx;
+}
+.billDetails{
+		margin-bottom: 30px;
+}
 
 /* 状态选中的下划线 */
 .boderBottom{
-		border-bottom: 2px solid #007aff;
+		border-bottom: 2px solid #FF0000;
 }
 
 /* 将内容隐藏 */
@@ -1681,34 +1699,35 @@ radio-group label, checkbox-group label{
 
 /* 余额 */
 .total{
-		height: 1.5rem;
-		width: 100%;
-		line-height: 1.5rem;
-		padding-left: 20px;
-		background-color: #efeff4;
-		border-bottom: #CCC solid 1px;
+		height: 2.5rem;
+		line-height: 2.5rem;
+		background-color: #F7F7F7;
 }
-.recharge{
-		border-bottom: 1px solid #AAAAAA;
+.total text {
+		color: #999999;
+		margin: 0 40rpx;
 }
-.recharge .iconimg{
-		width: 45px;
-		height: 45px;
-		float: left;
-		margin-right: 15px;
+.uni-list-cell::after,.uni-list::after{
+		height: 2px;
+		background-color: #F7F7F7;
 }
-.recharge .iconimg>image{
-		width:100%;
-		height:100%;
-		max-width:105px;
-		max-height:140px;
+.uni-list-cell-hover {
+		background-color: #FFFFFF;
 }
-.rechargeFund{
-		color:#8F8F94;
-		margin-bottom: 10px;
+.uni-media-list-money .uni-media-list-cash {
+		color:#333333;
+		font-family: Trebuchet MS;
+		font-size: 34rpx;
+		font-weight: 600;
 }
-.ordinances{
-		border-bottom: 1px solid #8F8F94;
-		margin-top: 10px;
+uni-view.uni-media-list-money {
+		display: -webkit-box;
+		display: -webkit-flex;
+		display: -ms-flexbox;
+		display: flex;
+		-webkit-box-align: center;
+		-webkit-align-items: center;
+		    -ms-flex-align: center;
+		        align-items: center;
 }
 

@@ -6,6 +6,10 @@
 }
 
 /*通用 */
+.end{
+	background-color: #FF0000;
+	color: #FFF;
+}
 view{
 	font-size:28rpx; 
 	line-height:1.8;
@@ -1636,6 +1640,17 @@ radio-group label, checkbox-group label{
         -ms-transform: translateY(50%);
             transform: translateY(50%);
 }
+.active{
+	 display: none;
+}
+.userRadiu{
+	background: #FFF9F9;
+	width: 90%;
+	margin: 0.5rem auto;
+	height: 5rem;
+	border-radius: 15px;
+	border: 1px solid #DD524D;
+}
 .uni-img ._img{
 	width: 100%;
 	height: 6.8rem;
@@ -1664,7 +1679,8 @@ radio-group label, checkbox-group label{
 	text-shadow: 1px 1px 1px #000;
 }
 .user-btn{
-	background-color: #dd524d;
+	background-color: #FF0000;
 	border-radius: 25rem;
+	font-size: 16px;
 }	
 

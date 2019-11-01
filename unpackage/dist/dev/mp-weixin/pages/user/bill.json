@@ -1,4 +1,5 @@
 {
-  "usingComponents": {},
-  "navigationBarTitleText": "账 单"
+  "navigationBarTitleText": "资金流水",
+  "enablePullDownRefresh": true,
+  "usingComponents": {}
 }

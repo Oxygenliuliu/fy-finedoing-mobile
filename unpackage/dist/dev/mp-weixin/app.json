@@ -1,9 +1,16 @@
 {
   "pages": [
     "pages/index/index",
+    "pages/order/progress",
+    "pages/user/edit",
+    "pages/order/balance",
     "pages/index/login",
+    "pages/index/search",
     "pages/product/productinfo",
     "pages/order/orderpageinfo",
+    "pages/order/csOrder",
+    "pages/order/delivery",
+    "pages/order/csDetails",
     "pages/user/addressNew",
     "pages/user/useraddress",
     "pages/product/product",
@@ -13,6 +20,7 @@
     "pages/user/change_password",
     "pages/user/change_payment",
     "pages/user/personalInfo",
+    "pages/user/companyInfo",
     "pages/user/bill",
     "pages/user/recharge_center",
     "pages/order/details",
@@ -22,8 +30,12 @@
     "pages/user/user",
     "pages/index/retrievepwd",
     "pages/user/change_phone",
-    "pages/order/invoice",
-    "pages/order/receiving"
+    "pages/order/receiving",
+    "pages/user/weChat",
+    "pages/order/invoiceDetails",
+    "pages/order/payResults",
+    "pages/user/certificates",
+    "pages/order/invoice"
   ],
   "subPackages": [],
   "window": {
@@ -32,38 +44,9 @@
     "navigationBarBackgroundColor": "#F8F8F8",
     "backgroundColor": "#F8F8F8"
   },
-  "usingComponents": {},
-  "tabBar": {
-    "color": "#dbdbdb",
-    "selectedColor": "#e43130",
-    "borderStyle": "black",
-    "backgroundColor": "#ffffff",
-    "list": [
-      {
-        "pagePath": "pages/index/index",
-        "iconPath": "static/image/home.png",
-        "selectedIconPath": "static/image/homes.png",
-        "text": "首页"
-      },
-      {
-        "pagePath": "pages/product/product",
-        "iconPath": "static/image/sort.png",
-        "selectedIconPath": "static/image/sorts.png",
-        "text": "分类"
-      },
-      {
-        "pagePath": "pages/shopping/shopping",
-        "iconPath": "static/image/shop.png",
-        "selectedIconPath": "static/image/shops.png",
-        "text": "购物车"
-      },
-      {
-        "pagePath": "pages/user/user",
-        "iconPath": "static/image/user.png",
-        "selectedIconPath": "static/image/users.png",
-        "text": "我的"
-      }
-    ]
+  "networkTimeout": {
+    "request": 80000
   },
-  "sitemapLocation": "sitemap.json"
+  "usingComponents": {},
+  "sitemapLocation": "sitemap62.json"
 }

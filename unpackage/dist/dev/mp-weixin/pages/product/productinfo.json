@@ -1,4 +1,11 @@
 {
-  "usingComponents": {},
-  "navigationBarTitleText": "商 品 名 称"
+  "navigationBarTitleText": "产品页",
+  "navigationBarBackgroundColor": "#f1f1f1",
+  "onReachBottomDistance": 50,
+  "usingComponents": {
+    "uni-popup": "/components/uni-popup/uni-popup",
+    "shop-car-animation": "/components/fly-in-cart/fly-in-cart",
+    "uni-makings": "/components/uni-makings/uni-makings",
+    "native-share": "/common/NativeShare"
+  }
 }

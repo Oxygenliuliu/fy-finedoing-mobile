@@ -1,0 +1,31 @@
+
+.price,
+.price-icon,
+.price-count {
+	display: inline-block;
+	line-height: 1;
+}
+.price-icon {
+	font-size: 22rpx;
+}
+.price-count {
+	font-size: 26rpx;
+}
+.price-icon-sup,
+.price-icon-sub {
+	font-size: 52%;
+}
+.price-icon-sup {
+	vertical-align: super;
+	line-height: 1.1;
+}
+.price-icon-del,
+.price-count-del {
+	font-weight: normal;
+	text-decoration: line-through;
+}
+.price-count-decimal-small {
+	display: inline;
+	font-size: 62%;
+}
+

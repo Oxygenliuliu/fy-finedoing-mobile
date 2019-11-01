@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "余额支付",
+  "usingComponents": {
+    "uni-popup": "/components/uni-popup/uni-popup"
+  }
+}
