@@ -53,7 +53,7 @@
 						</radio-group>
 					</view>
 				</view>	
-		<!-- 	</uni-collapse> -->
+			<!-- </uni-collapse> -->
 		</view>
 		
 		<!-- 发票内容 -->
@@ -63,7 +63,7 @@
 				<text class="titleInvo">发票内容</text>
 				<view style="padding: 0.07rem 0.7rem 4rem 0.7rem;background: #FFFFFF;margin-top: 10px;">
 					<view class="enterpriseContent">
-						<text>公司名称</text>
+						<text>发票抬头</text>
 						<input type="text" v-model="companyName">
 					</view>
 					<view class="enterpriseContent" :class="{active:titleNum==1}">
@@ -94,19 +94,15 @@
 <script>
 	import route from "@/common/public.js"
 	import uniList from '@/components/uni-list/uni-list.vue'
-	import uniListItem from '@/components/uni-list-item/uni-list-item.vue'
-	import uniCollapse from '@/components/uni-collapse/uni-collapse.vue'
-	import uniCollapseItem from '@/components/uni-collapse-item/uni-collapse-item.vue'
 	export default{
 		components:{
-			uniList,uniListItem,uniCollapse,uniCollapseItem
+			uniList
 		},
 		data(){
 			return{
 				Signboard:'',
 				Signguid:'',
-				prevPage:[],
-				
+				prevPage:{},
 				invoiceName:'不开票',//发票名
 				address:'',
 				bankcode:'',
@@ -157,7 +153,7 @@
 				this.Signboard = data.Ident_Signboard;  //给Signboard 赋值最近更新
 				this.Signguid = data.Ident_Signguid;  //给Signguid 赋值
 				uni.request({
-					url: route.variable+'/mobile/order/get_invoices',
+					url: getApp().globalData.webUrl+'/mobile/order/get_invoices',
 					method: 'GET',
 					data:{
 						Ident_Signboard: this.Signboard,
@@ -208,30 +204,37 @@
 			btnOK(){
 				if(this.titleNum==2){
 					if(this.companyName == ''){
-						uni.showToast({title: '公司名称不能为空',icon: 'none'});
+						uni.showToast({title: '发票抬头不能为空',icon: 'none'});
+						return false;
+					}else if(!(/^[\u4e00-\u9fa5_a-zA-Z0-9]+$/).test(this.companyName)){
+						uni.showToast({title:'发票抬头不能包含特殊字符',icon:'none'})
 						return false;
 					}
+					
 					if(this.taxcode == ''){
 						uni.showToast({title: '纳税人识别号不能为空',icon: 'none'});
 						return false;
 					}
-					if(this.address == ''){
-						uni.showToast({title: '地址、电话不能为空',icon: 'none'});
-						return false;
-					}
-					if(this.bankcode == ''){
-						uni.showToast({title: '开户行及账号不能为空',icon: 'none'});
-						return false;
-					}
+					// if(this.address == ''){
+					// 	uni.showToast({title: '地址、电话不能为空',icon: 'none'});
+					// 	return false;
+					// }
+					// if(this.bankcode == ''){
+					// 	uni.showToast({title: '开户行及账号不能为空',icon: 'none'});
+					// 	return false;
+					// }
 				}else if(this.titleNum==1){
 					if(this.companyName == ''){
-						uni.showToast({title: '公司名称不能为空',icon: 'none'});
+						uni.showToast({title: '发票抬头不能为空',icon: 'none'});
+						return false;
+					}else if(!(/^[\u4e00-\u9fa5_a-zA-Z0-9]+$/).test(this.companyName)){
+						uni.showToast({title:'发票抬头不能包含特殊字符',icon:'none'})
 						return false;
 					}
 				}
 				if(this.flag == 1){
 					uni.request({
-						url: route.variable+'/mobile/order/updInvoice',
+						url: getApp().globalData.webUrl+'/mobile/order/updInvoice',
 						method: 'POST',
 						data:{
 							Ident_Signboard: this.Signboard,
@@ -255,7 +258,7 @@
 					arr.selectInvoTypeName = this.invoiceName;  //发票类型 名称
 					arr.selectInvoice_type = this.typeNum;  //是否开票下标
 					arr.selectFaPiaoNum = this.titleNum;  //公司还是个人
-					arr.selectCorporateName = this.companyName;  //公司名称
+					arr.selectCorporateName = this.companyName;  //发票抬头
 					arr.selectTaxpayerNum = this.taxcode;  //纳税人识别号
 					arr.selectaddressPhone = this.address;  //电话和地址
 					arr.selectopenBankNum = this.bankcode;  //开户行及账户
@@ -264,7 +267,16 @@
 					arr.selectSubTotal = this.totalMoney;  //总价
 					arr.taxType = this.taxType;//发票类型
 					// console.log(arr)
+					
+					// #ifdef H5
 					this.prevPage.myInvoice(arr);
+					// #endif
+					// #ifndef H5
+					let pages = getCurrentPages();
+					let prevPage = pages[pages.length - 2]; 
+					prevPage = prevPage.$vm
+					prevPage.myInvoice(arr);
+					 // #endif
 					// uni.navigateBack({
 					// 	delta: 1,
 					// 	animationType: 'pop-out',
@@ -274,26 +286,24 @@
 					return; 
 			},
 			btnCancel(){
-				this.prevPage.myInvoice(this.prevPage.invoiceInfo);
-				// uni.navigateBack({
-				// 	delta: 1,
-				// 	animationType: 'pop-out',
-				// 	animationDuration: 200
-				// });
 				uni.navigateBack();
 				return; 
 			}
 		},
 		onLoad(options) {
-			let pages = getCurrentPages();
-			let prevPage = pages[pages.length - 2];  
+			 let pages = getCurrentPages();
+			 let prevPage = pages[pages.length - 2]; 
+			
+			// #ifdef H5
 			this.prevPage=prevPage
-			// console.log(prevPage)
-			// console.log(prevPage.invoiceInfo)
+			// #endif
+			// #ifndef H5
+			//this.prevPage=prevPage
+			prevPage = prevPage.$vm
+			// #endif
 			if(prevPage.TotalMoney){
 				this.totalMoney = prevPage.TotalMoney
 			}
-			
 			if(prevPage.invoiceInfo.selectCorporateName){
 				// console.log(prevPage.invoiceInfo)
 				this.invoiceisShow = prevPage.invoiceInfo.invoiceisShow;
@@ -301,7 +311,7 @@
 				this.invoiceName = prevPage.invoiceInfo.selectInvoTypeName;  //发票类型 名称
 				this.typeNum = prevPage.invoiceInfo.selectInvoice_type;  //是否开票下标
 				this.titleNum = prevPage.invoiceInfo.selectFaPiaoNum;  //公司还是个人
-				this.companyName = prevPage.invoiceInfo.selectCorporateName;  //公司名称
+				this.companyName = prevPage.invoiceInfo.selectCorporateName;  //发票抬头
 				this.taxcode = prevPage.invoiceInfo.selectTaxpayerNum;  //纳税人识别号
 				this.address = prevPage.invoiceInfo.selectaddressPhone;  //电话和地址
 				this.bankcode = prevPage.invoiceInfo.selectopenBankNum;  //开户行及账户
@@ -323,13 +333,18 @@
 		color: #333333;
 		background-color: #FFF;
 	}
+	.invoiceType{
+		width: 100%;
+		background-color: #f1f1f1;
+	}
 	.active{
 		display: none;
 	}
 	.titleInvo{
-		background-color: #f1f1f1;
+		width: 100%;
 		padding: 0.4rem 0 0 0.8rem;
 		font-size: 14px;
+		margin-top: 2px;
 	}
 	.delivery_view{
 		height: 70vh;
@@ -357,7 +372,7 @@
 	.uni-list-cell {
 		justify-content: flex-start
 	}
-	.uni-list::before,.uni-list::after,.uni-list-cell::before,.uni-list-cell::after,.uni-collapse::before,.uni-collapse::after{
+	.uni-list::before,.uni-list::after,.uni-list-cell::before,.uni-list-cell::after,.uni-collapse::before{
 		background: #FFFFFF;
 	}
 	.uni-list[data-v-1c42fea2]::before{
@@ -405,6 +420,7 @@
 		display: inline-block;
 		height: 46px;
 		line-height: 46px;
+		font-size: 0.7rem;
 	}
 	.enterpriseContent input{
 		width: 69%;
@@ -413,9 +429,7 @@
 		float: right;
 		background-color: #F7F7F7;
 		margin-top: 0.2rem;
-	}
-	.uni-collapse[data-v-719bab91]:after{
-		content: none;
+		font-size: 0.7rem;
 	}
 	.dv_footer {
 		position: fixed;
@@ -432,6 +446,9 @@
 	}
 	.dv_footer .dv_footer_taxpoint{
 		margin: 0 0.5rem;
+	}
+	.uni-collapse[data-v-24e7d5ce]:after{
+		display: none;
 	}
 	.dv_btn {
 		height: 80upx;

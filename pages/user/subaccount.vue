@@ -1,19 +1,10 @@
 <template>
 	<view>
-		<view :class="{active:subaccount}">
+		<!-- #ifdef MP-WEIXIN -->
+				<my-header @toBack='toBack'></my-header>
+		<!-- #endif -->
+		<view class="container" :class="{active:subaccount}">
 			<scroll-view  :scroll-top="scrollTop" scroll-y="true" class="scroll-Y" @scroll="scroll" >
-				<!-- <view class="flex-row uni-bgc" style="display: flex;flex-direction: row;"  v-for="(items,index) in subaccountInfo" :key="index" @tap="composeTap(items)">
-					<view class="flex-view-item" style="width: 80%;">
-						<view class="uni-subRight">
-							<view class="uni-subname">账户名：<text>{{items.uname}}</text></view>
-							<view class="uni-subPhone">联系方式:<text>{{items.telephone}}</text></view>
-						</view>
-					</view>
-					<view class="flex-view-item compose" style="width: 20%;text-align: center;">
-							<view class="" @tap="composeTap(items)">编辑</view>
-							<text class="iconfont icon-xiugaifuzhi" @tap="composeTap(items)"></text>
-					</view>
-				</view> -->
 				<view class="flex-row uni-bgc" style="display: flex;flex-direction: row;" v-for="(items,index) in subaccountInfo" :key="index">
 					<view class="flex-view-item" style="width: 86%;"  @tap="composeTap(items)">
 						<view class="uni-addressRight">
@@ -29,14 +20,12 @@
 			</scroll-view>
 			<!-- 新建子账号 -->
 			 <view class="uni-count end">
-			 	<navigator url="subaccountNew" class="uni-addBtn">
-			 		<!-- <i class="uni-icon uni-icon-plusempty"></i> -->新建子账号
-			 	</navigator>
+			 	<navigator url="subaccountNew" class="uni-addBtn">新建子账号</navigator>
 			 </view>
 		</view>		
 			
 		<!-- 编辑子账号 -->
-		<view class="uni-bianJi" :class="{actives:bianJi}">
+		<view class="container uni-bianJi" :class="{actives:bianJi}">
 			<view>
 				<!--用户名-->
 				<view class="flex-row uni-name" style="display: flex;flex-direction: row;">
@@ -60,10 +49,6 @@
 					<view class="flex-view-item textInput"><input type="password" class="input-content" placeholder="请输入密码" @input="password" ></view>
 				</view>
 			</view>
-			<!-- <button @tap="dlSubaccounts(subid)" class="btnDelete">删除子账号</button> -->
-			<!-- <view class="deleteAdd" @tap="dlSubaccounts(subid)">
-				<text>删除</text>
-			</view> -->
 			<!-- 按钮 -->
 			<view class="footer">
 				<view class="btn">
@@ -71,10 +56,6 @@
 					<view class="upSubaccounts end"  @tap="upSubaccounts">保 存</view>
 				</view>
 			</view>
-			
-			<!-- <view class="uni-count end">
-					<view class="uni-addBtn" @tap="upSubaccounts" style="height: 7vh;">保存账号</view>
-			</view> -->
 		</view>
 		<mask v-if="showMask"></mask>
 	</view>
@@ -82,10 +63,12 @@
 
 <script>
 	import route from "@/common/public.js"
-	import uniIcon from "@/components/uni-icon/uni-icon.vue"
+	import uniIcon from "@/components/uni-icon/uni-icons.vue"
 	import uniPopup from '@/components/uni-popup/uni-popup.vue'
+	// 引入自定义导航栏
+	import header from '@/components/header/header.vue'
 	export default{
-		components: {uniIcon,uniPopup},
+		components: {uniIcon,uniPopup,'my-header': header},
 		data(){
 			return {
 				scrollTop: 0,
@@ -153,14 +136,6 @@
 					}
 				})
 			},
-			// 删除地址 弹出层里的确定按钮
-			/* subAdsYes(e){
-				this.subAdsYesFun();
-				uni.setNavigationBarTitle({
-					title: '子 账 号  管 理'
-				})
-			}, */
-			// 删除地址 弹出层里的 取消按钮
 			subAdsNo(e){
 				this.subAds = false;
 			},
@@ -200,7 +175,7 @@
 				}else{
 					//调updSubAccount(修改子账户)的接口
 					uni.request({
-						url:route.variable+'/mobile/Subaccount/updSubAccount',
+						url:getApp().globalData.webUrl+'/mobile/Subaccount/updSubAccount',
 						method:'POST',
 						data:{
 							Ident_Signboard: this.Signboard,
@@ -236,7 +211,6 @@
 						fail:(res)=>{
 							uni.hideLoading()
 							uni.showToast({title: '数据加载失败'+'错误码201',icon:"none"});
-							console.log("fail: "+JSON.stringify(e));
 						}
 					})
 				}
@@ -244,7 +218,7 @@
 			// 删除子账号 函数
 			subAdsYesFun(evt){
 				uni.request({
-					url:route.variable+'/mobile/Subaccount/delSubAccount',
+					url:getApp().globalData.webUrl+'/mobile/Subaccount/delSubAccount',
 					method:'GET',
 					data:{
 						uid:this.subid,
@@ -281,7 +255,7 @@
 			onSubaccount(){
 				uni.request({ 
 					//获取子账号信息
-					url: route.variable+'/mobile/Subaccount/getSubAccount',  //调用子账号接口的地址
+					url: getApp().globalData.webUrl+'/mobile/Subaccount/getSubAccount',  //调用子账号接口的地址
 					method: 'GET',
 					data: {
 						Ident_Signboard: this.Signboard,
@@ -301,6 +275,44 @@
 						console.log("fail: "+JSON.stringify(e));
 					}
 				})
+			},
+			toBack(){
+				if(this.showMask) {
+					if(this.showMask == true){
+						if(this.sacntList.uname != this.inputName || this.sacntList.telephone != this.inputPhone){
+							uni.showModal({
+								title:"提示",
+								content:"是否保存已修改的信息",
+								confirmColor:'#E93B3D',
+								success:(res)=> {
+									if(res.confirm){
+										this.upSubaccounts();
+										uni.setNavigationBarTitle({
+											title: '子 账 号 管 理'
+										})}else if (res.cancel){
+										uni.setNavigationBarTitle({
+											title: '子 账 号 管 理'
+										})
+									}
+								}
+							})
+						}else{
+							this.bianJi = true;
+							this.subaccount = false;
+							uni.setNavigationBarTitle({
+								title: '子 账 号 管 理'
+							})
+						}
+						this.showMask = false;  
+						return true;  
+					}
+				}else{
+					this.bianJi = true;
+					this.subaccount = false;
+					this.showMask = false;
+					this.back();
+					return true;  
+				}
 			}
 		},
 		
@@ -337,8 +349,6 @@
 								}
 							}
 						})
-						/* this.showMask = false;
-						return true; */
 					}else{
 						this.bianJi = true;
 						this.subaccount = false;
@@ -360,6 +370,20 @@
 			  return true;  
 		  }
 		},
+		mounted(){
+			// #ifndef MP-WEIXIN
+			if (window.history && window.history.pushState) {
+				history.pushState(null, null, document.URL);
+				window.addEventListener('popstate', this.toBack, false);
+			}
+			// #endif
+		
+		},
+		destroyed(){
+			// #ifndef MP-WEIXIN
+				window.removeEventListener('popstate', this.toBack, false);
+			// #endif
+		},
 	}
 </script>
 
@@ -367,6 +391,12 @@
 	@import "../../common/uni.css";
 	@import "../../common/iconfont.css";
 	@import "../../common/css/useraddress.css";
+	/* #ifdef MP-WEIXIN */
+	.container{	margin-top: 60px;
+		position: relative;
+	}
+	/* #endif */
+	
 	.uni-bgc{
 		padding: 0 0 0 2%;
 		background-color: #FFF;   
@@ -389,41 +419,6 @@
 	.uni-trash{
 		padding: 0.5rem;
 	}
-	/* 新建子账号按钮 */
-	/* .uni-count{
-		width: 80vw;
-		height: 6vh;
-		z-index: 999;
-		position: absolute;
-		bottom: 0.1rem;
-		left: 2rem;
-		border: 1px solid #e4393c;
-		border-radius: 14rem;
-		text-align: center;
-	} */
-	/* .uni-addBtn{
-		color: #FFF;
-		font-size: 15px;
-	} */
-	/* .uni-addBtn view{
-		line-height: 6vh;
-		align-items: center;
-	} */
-	/* .uni-icon-plusempty{
-		font-weight: 600;
-	} */
-	/* 删除地址 */
-	/* .deleteAdd{
-		width: 10vw;
-		margin-top: 0.2rem;
-		text-align: right;
-		position: absolute;
-		top: -38px;
-		right: 14px;
-		z-index: 999;
-		color: #E4393C;
-		font-weight: 600;
-	} */
 	/* 编辑子账号 */
 	.compose{
 		text-align: right;
@@ -454,21 +449,6 @@
 		width: 80vw;
 		display: inline-block;
 	}
-	/* .textCom{
-		max-width: 30vw;
-		overflow: hidden;
-		white-space: nowrap;
-		text-overflow: ellipsis;
-		height: 2.5rem;
-		line-height: 2.5rem;
-	} */
-	/* .textInput{
-		margin-left: 10px;
-	} */
-	/* .input-content{
-		height: 2.5rem;
-		line-height: 2.5rem;
-	} */
 	.uni-wrap{
 		border-bottom: #e3e3e3 solid 1px;
 	}
@@ -476,26 +456,6 @@
 		margin-bottom: 10px;
 	}
 	/* 确定/返回按钮 */
-	/* .footer {
-		position: fixed;
-		bottom: 0upx;
-		width: 94vw;
-		padding: 0 4%;
-		height: 99upx;
-		border-top: solid 1upx #eee;
-		background-color: #fff;
-		z-index: 2;
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-	}
-	.btn {
-		height: 80upx;
-		border-radius: 40upx;
-		overflow: hidden;
-		display: flex;
-		margin-right: -2%;
-	} */
 	.upReturn,
 	.upSubaccounts {
 		height: 80upx;

@@ -25,8 +25,6 @@
 		<copyright></copyright>
 	</view>
 </template>
-
-
 <script>
 	import route from "@/common/public.js"
 	import copyright from "@/components/customize/copyright.vue"
@@ -57,7 +55,7 @@
 		},
 		methods: {
 			Timer(){},
-			getCode(){
+			checkedUserInputInfo() {
 				if(this.userName==''){
 					uni.showToast({title: '请输入用户名',icon:"none"});
 					return false; 
@@ -75,9 +73,16 @@
 					uni.showToast({title: '请填写正确手机号码',icon:"none"});
 					return false; 
 				} 
+			},
+			getCode(){
+				if(!(/^1(3|4|5|6|7|8|9)\d{9}$/.test(this.phoneNumber))){
+					uni.showToast({title: '请填写正确手机号码',icon:"none"});
+					return false; 
+				}else{
+				this.checkedUserInputInfo();
 				//验证用户名和手机号是否已注册
 				uni.request({
-					url:route.variable+'/mobile/index/Ahthenticated', //获取验证时调用的接口
+					url:getApp().globalData.webUrl+'/mobile/index/Ahthenticated', //获取验证时调用的接口
 					method:'POST',
 					data:{
 						username:this.userName,
@@ -96,7 +101,7 @@
 							//示例用定时器模拟请求效果
 							
 								uni.request({
-									url:route.variable+'/mobile/index/sendSms', //获取验证时调用的接口
+									url:getApp().globalData.webUrl+'/mobile/index/sendSms', //获取验证时调用的接口
 									method:'POST',
 									data:{
 										mobile:this.phoneNumber
@@ -121,7 +126,8 @@
 						console.log("fail: "+'错误码201');
 						setTimeout(()=>{uni.showToast({title: '获取验证码失败'+'错误码201',icon:"none"});},3000);
 					}
-				})
+				})	
+				}
 			},
 			setTimer(){
 				let holdTime = 60;
@@ -141,24 +147,7 @@
 			},
 			doReg(){
 				uni.hideKeyboard()
-				
-				if(this.userName==''){
-					uni.showToast({title: '请输入用户名',icon:"none"});
-					return false; 
-				}
-				if(this.passwd==''){
-					uni.showToast({title: '请输入密码',icon:"none"});
-					return false; 
-				}
-				if(this.phoneNumber==''){
-					uni.showToast({title: '请输入手机号',icon:"none"});
-					return false; 
-				}
-				//模板示例部分验证规则
-				if(!(/^1(3|4|5|6|7|8|9)\d{9}$/.test(this.phoneNumber))){ 
-					uni.showToast({title: '请填写正确手机号码',icon:"none"});
-					return false; 
-				} 
+				this.checkedUserInputInfo();
 				//示例验证码，实际使用中应为请求服务器比对验证码是否正确。
 				if(this.code==''){ 
 					uni.showToast({title: '请输入验证码',icon:"none"});
@@ -168,9 +157,8 @@
 					title: '注册中...'
 				})
 				//模板示例把用户注册信息储存在本地，实际使用中请替换为上传服务器。
-				
 					uni.request({
-						url:route.variable+'/mobile/index/registrant', //注册接口地址
+						url:getApp().globalData.webUrl+'/mobile/index/registrant', //注册接口地址
 						method:'POST',
 						data:{  //注册所需传递的参数
 							Ident_Signboard: this.Signboard,
@@ -182,10 +170,9 @@
 						},
 						//注册请求成功后的回调函数
 						success:(res) => {
-							console.log(res);
 							//判断返回的状态  0--成功
 							if(res.data.status == 0){
-								console.log(res)
+								uni.hideLoading();
 								uni.redirectTo({
 									url: 'login?userName='+this.userName
 								})
@@ -201,7 +188,6 @@
 							console.log("fail: "+'错误码201');
 						}
 					})
-				
 			},
 			toLogin(){ 
 				uni.hideKeyboard()
@@ -211,8 +197,6 @@
 		}
 	}
 </script>
-
-
 <style lang="scss">
 	@import "../../static/css/login.scss";
 </style>

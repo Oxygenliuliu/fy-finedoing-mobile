@@ -2,7 +2,7 @@
 	<view>
 		<view class="payResults">
 			<view class="payImg">
-				<image :src="payImg" mode="" ></image>
+				<image :src="(payImg)" mode="" ></image>
 			</view>
 			<view class="payPrice">
 				<text>{{payPrice}}</text>
@@ -14,7 +14,7 @@
 				<text style="color: #0081FF;">点击返回订单</text>
 			</view>
 		</view>
-		<!-- #ifndef MP-WEIXIN -->
+			<!-- #ifndef MP-WEIXIN -->
 		<uni-popup :show="payShow" type="middle" >
 			<view class="layer uni-flex uni-column">
 				<view class="flex-item flex-item-V layer_item layer_header">
@@ -78,7 +78,7 @@
 				that.DateOrder = uni.getStorageSync('DateRand');  //随机生成的单号
 				if(that.PayMethod == 'Alipay'){
 					uni.request({
-						url: route.variable+'/mobile/Alipay/order_query',
+						url: getApp().globalData.webUrl+'/mobile/Alipay/order_query',
 						method: 'GET',
 						data:{
 							Ident_Signboard: that.Signboard,
@@ -118,7 +118,7 @@
 					})
 				}else{
 					uni.request({
-						url: route.variable+'/mobile/wechat/Repquery',
+						url: getApp().globalData.webUrl+'/mobile/wechat/Repquery',
 						method: 'GET',
 						data:{
 							Ident_Signboard: that.Signboard,
@@ -159,6 +159,9 @@
 				}
 			}
 		},
+		onLoad:function(options){
+			
+		}
 	}
 </script>
 
@@ -192,6 +195,10 @@
 		display: flex;
 		justify-content: center;
 	}
+	
+	
+	
+	
 	.layer{
 		width: 70vw;
 		height: 40vw;

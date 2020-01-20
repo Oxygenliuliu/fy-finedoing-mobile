@@ -7,7 +7,7 @@
         			<input placeholder="请输入手机号" type="number" v-model="phoneNumber" placeholder-style="color: #cccccc;"/>
         		</view>
         		<view class="password">
-        			<input placeholder="请输入登陆密码" v-model="passwd" password=true placeholder-style="color: #cccccc;"/>
+        			<input placeholder="请输入登录密码" v-model="passwd" password=true placeholder-style="color: #cccccc;"/>
         		</view>
         		<view class="btn" @tap="doChange">确认更改</view>
         	</view>
@@ -37,7 +37,13 @@
 		},
 		onLoad() {
 				try {
-				    this.height = this.winHeight
+					// #ifndef APP-PLUS
+					this.height = this.winHeight - statusBarHeight
+					// #endif
+					// #ifdef APP-PLUS
+					let statusBarHeight = uni.getSystemInfoSync().statusBarHeight
+					this.height = this.winHeight - statusBarHeight
+					// #endif
 				} catch (e) {
 				    // error
 				}
@@ -57,7 +63,7 @@
 					return false; 
 				} 
 				if(this.passwd==''){
-					uni.showToast({title: '请输入登陆密码',icon:"none"});
+					uni.showToast({title: '请输入登录密码',icon:"none"});
 					return false; 
 				}
 				
@@ -65,7 +71,7 @@
 					title: '更改中...'
 				})
 				uni.request({
-					url:route.variable+'/mobile/Security/updatePhone',
+					url:getApp().globalData.webUrl+'/mobile/Security/updatePhone',
 					method:'GET',
 					data:{
 						Ident_Signboard: this.Signboard,
@@ -90,7 +96,6 @@
 					fail:(res)=>{
 						uni.hideLoading()
 						uni.showToast({title: '更改绑定手机号失败'+'错误码201',icon:"none"});
-						console.log("fail: "+JSON.stringify(e));
 					}	
 				})	
 			},
@@ -101,4 +106,8 @@
 
 <style lang="scss">
 	@import "../../static/css/login.scss";
+	.uni-bottom{
+		position: absolute;
+		bottom: 10px;
+	}
 </style>

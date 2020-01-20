@@ -1,0 +1,37 @@
+@font-face {font-family: "iconfont";
+  font-family: 'iconfont';  /* project id 1495219 */
+   src: url('https://at.alicdn.com/t/font_1495219_0h9lvjvq50f5.eot');
+   src: url('https://at.alicdn.com/t/font_1495219_0h9lvjvq50f5.eot?#iefix') format('embedded-opentype'),
+   url('https://at.alicdn.com/t/font_1495219_0h9lvjvq50f5.woff2') format('woff2'),
+   url('https://at.alicdn.com/t/font_1495219_0h9lvjvq50f5.woff') format('woff'),
+   url('https://at.alicdn.com/t/font_1495219_0h9lvjvq50f5.ttf') format('truetype'),
+   url('https://at.alicdn.com/t/font_1495219_0h9lvjvq50f5.svg#iconfont') format('svg');
+   }
+
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-leimupinleifenleileibie:before {
+  content: "\e7f9";
+}
+
+.icon-wode:before {
+  content: "\e638";
+}
+
+.icon-gouwuche2:before {
+  content: "\e62d";
+}
+
+.icon-icon-test:before {
+  content: "\e628";
+}
+
+.icon-shouye:before {
+  content: "\e64c";
+}

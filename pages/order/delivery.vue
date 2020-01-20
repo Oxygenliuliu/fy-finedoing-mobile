@@ -10,20 +10,17 @@
 		</view>
 		<view class="block" style="display: block;">
 			<view class="block_body">
-				<uni-icon type="contact" size="30"></uni-icon>
+				<!-- <uni-icon type="contact" size="30"></uni-icon> -->
 				<view class="example-title">物流信息</view>
 				<uni-steps :options="list" :active="active" direction="column" />
 			</view>
 		</view>
-		
 	</view>
 </template>
-
 <script>
 	import uniSteps from '@/components/uni-steps/uni-steps.vue'
 	import route from "@/common/public.js"
-	import uniIcon from "@/components/uni-icon/uni-icon.vue"
-
+	import uniIcon from "@/components/uni-icon/uni-icons.vue"
 	export default {
 		components: {
 			uniSteps,uniIcon
@@ -42,7 +39,7 @@
 				var datas = JSON.parse(jsonList); //JSON字符串转对象
 				uni.request({
 					method: "GET",
-					url: route.variable + "/mobile/order/logistics",
+					url: getApp().globalData.webUrl + "/mobile/order/logistics",
 					dataType: "json",
 					data: {
 						Ident_Signboard: datas.Ident_Signboard,
@@ -51,6 +48,10 @@
 					},
 					success: function(res) {
 						console.log(res.data.logisticsNodes)
+						if(!res.data.logisticsNodes){
+							uni.showToast({title: '未查询到当前明细物流信息！',icon: 'none',duration: 3000})
+							return false;
+						}
 						for (var i = 0; i < res.data.logisticsNodes.length; i++) {
 							var arr = {};
 							arr.title = res.data.logisticsNodes[i].AcceptStation
@@ -75,17 +76,14 @@
 		}
 	}
 </script>
-
 <style lang="scss">
 	@import "../../common/uni.css";
-	
 	page {
 		display: flex;
 		flex-direction: column;
 		box-sizing: border-box;
 		background-color: #F7F7F7
 	}
-	
 	view {
 		font-size: 28upx;
 		line-height: inherit
@@ -93,7 +91,6 @@
 	uni-view.uni-flex.uni-row {
 	    margin: 0.3rem 0;
 	}
-
 	.block{
 		display: block;
 		.block_body {
@@ -102,7 +99,6 @@
 			background: #fff;
 			border-radius: 8px;
 			font-size: 0.7rem;
-			
 			.uni-flex .block_left{
 				color: #333333;
 				padding: 0 0.5rem;

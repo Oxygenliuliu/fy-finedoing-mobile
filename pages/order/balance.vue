@@ -1,7 +1,7 @@
 <template>
 	<view class="situ paymoney_view">
 		<view class="block">
-			<image src="../../static/image/yue01.png"></image></br>
+			<image src="../../static/image/yue01.png" lazy-load='true'></image></br>
 			<text>支付金额</text>
 			<view class="blockOne">
 				<text>￥{{payMoney}}</text></br>
@@ -9,9 +9,7 @@
 			<text>信用额度：￥{{usable}}/{{amount}}</text>
 		</view></br>
 		<button @tap="pytClick">确认</button>
-		
 		<!-- 输入支付密码界面弹出 -->
-		<!-- #ifndef MP-WEIXIN -->
 		<uni-popup :show="pytPwd" type="bottom" position="bottom">
 			<view class="content">
 				<view class="login">
@@ -43,7 +41,6 @@
 							<view class="item">
 								<view v-if="len==5" :class="{line:show}"></view>
 								<view v-if="len>=6" class="dot"></view>
-			
 							</view>
 							<view v-if="len>5" class="dot">{{numlength}}</view>
 							<input class="trade_pwd" disabled="disabled" maxlength="6" id="targetInput" @focus="focus1" @blur="blur1" type="number"
@@ -52,19 +49,13 @@
 					</view>
 				</view>
 				<view class="keypan">
-					<view class="titles">
-						<span @click="back()">取消</span>
-						<span @click='setpwd'>确认</span>
-					</view>
-					<view class="pan_num_key" :class="[items.checked?'pan_num_checked':'pan_num_key']" v-for="(items,index) in boardlists"
-					 :key="index" @click="writepwd(items.id)"><image class="" src="../../static/image/delete.png" :style="{display:(items.id == '12'?'block':'none')}"></image>{{items.con}}</view>
+				<view class="pan_num_key" :class="[items.checked?'pan_num_checked':'pan_num_key']" v-for="(items,index) in boardlists"
+					 :key="index" @click="writepwd(items.id)"><image lazy-load='true' src="../../static/image/delete.png" :style="{display:(items.id == '12'?'block':'none')}"></image>{{items.con}}</view>
 				</view>
 			</view>
 		</uni-popup>
-		<!-- #endif -->
-	</view>	
+	</view>
 </template>
-
 <script>
 	import route from "@/common/public.js"
 	import uniPopup from '@/components/uni-popup/uni-popup.vue'
@@ -72,8 +63,6 @@
 		mapGetters,
 		mapActions
 	} from 'vuex';
-	
-	
 	export default {
 		components: {uniPopup},
 		computed: {
@@ -99,56 +88,19 @@
 				gopen: false,
 				isactive: true,
 				resgetcode: false,
-				boardlists: [{
-						id: 1,
-						con: 1,
-						checked: false
-					}, {
-						id: 2,
-						con: 2,
-						checked: false
-					}, {
-						id: 3,
-						con: 3,
-						checked: false
-					}, {
-						id: 4,
-						con: 4,
-						checked: false
-					}, {
-						id: 5,
-						con: 5,
-						checked: false
-					}, {
-						id: 6,
-						con: 6,
-						checked: false
-					}, {
-						id: 7,
-						con: 7,
-						checked: false
-					}, {
-						id: 8,
-						con: 8,
-						checked: false
-					}, {
-						id: 9,
-						con: 9,
-						checked: false
-					}, {
-						id: 10,
-						con: "",
-						checked: false
-					}, {
-						id: 11,
-						con: 0,
-						checked: false
-					},
-					{
-						id: 12,
-						con: "",
-						checked: false
-					},
+				boardlists: [
+					{id: 1,con: 1,checked: false,},
+					{id: 2,con: 2,checked: false,},
+					{id: 3,con: 3,checked: false,},
+					{id: 4,con: 4,checked: false,}, 
+					{id: 5,con: 5,checked: false,}, 
+					{id: 6,con: 6,checked: false,},
+					{id: 7,con: 7,checked: false}, 
+					{id: 8,con: 8,checked: false}, 
+					{id: 9,con: 9,checked: false}, 
+					{id: 10,con: "",checked: false}, 
+					{id: 11,con: 0,checked: false},
+					{id: 12,con: "",checked: false},
 	
 				]
 			};
@@ -170,11 +122,12 @@
 			this.amount = options.amount
 			this.usable = options.usable
 			this.orderId = options.orderNum
+			uni.removeStorageSync('isPayTrue');
 		},
 		methods: {
-			
 			pytClick(evt){
 				this.pytPwd=true;
+				
 			},
 			writepwd(num) {
 				if (num == 12) {
@@ -191,9 +144,6 @@
 					this.boardlists[num - 1].checked = true;
 				}
 				this.numarr.push(num);
-				if (this.numarr.length > 6) {
-					return
-				}
 				var that = this;
 				setTimeout(function() {
 					for (var i = 0; i < that.boardlists.length; i++) {
@@ -201,8 +151,9 @@
 					}
 				}, 200)
 				this.trade_pwd = this.numarr.join("");
-	
-	
+				if (this.numarr.length == 6) {
+					this.setpwd();
+				}
 			},
 			//密码框
 			back() {
@@ -221,7 +172,12 @@
 			focus1() {
 				this.show = true
 			},
-	
+			reset(){
+				this.trade_pwd = '';
+				this.show = true
+				this.numarr = [],
+				this.numlength = ""
+			},
 			// 确认执行的方法
 			setpwd() {
 				if (this.trade_pwd.length < 6) {
@@ -233,7 +189,7 @@
 				}
 				// 密码长度为6位以后执行方法
 				uni.request({
-					url: route.variable+'/mobile/Balance/yuepay',
+					url: getApp().globalData.webUrl+'/mobile/Balance/yuepay',
 					method: 'POST',
 					data: {
 						Ident_Signboard: this.Signboard,
@@ -247,18 +203,56 @@
 							uni.showToast({
 								title: '支付成功',
 								icon: 'none',
-								duration:3000,
-							})
-							setTimeout(function(){
-								uni.redirectTo({
-									url: 'orderpageinfo?orderNum=balance'
-								})
-							},3000);
+								duration:1000,
+							});
+							/* stat 转化订单或上传图片*/
+							console.log( res.data.orderId,666666,res)
+							let detailsId = res.data.orderId;
+							setTimeout(()=>{
+								let sendPicture = {
+									"msg":true,
+									"data":{
+										'tradeno': this.orderId,
+										'status': 1,
+									}
+								}
+									uni.setStorageSync('sendPicture',JSON.stringify(sendPicture))
+									uni.showModal({
+											title:"提示",
+											content: '是否立即提交订单',
+											cancelText:'等待传图',
+											confirmText:'提交订单',
+											success: res => {
+													if(res.confirm) {
+														sendPicture.msg = false;
+														uni.setStorageSync('sendPicture',JSON.stringify(sendPicture))
+														let orderWay = 1;
+														route.orderOrSendPi(this.orderId, sendPicture, orderWay)
+														setTimeout(()=>{ 
+															uni.redirectTo({
+																url: 'orderpageinfo?orderNum=balance'
+															})
+														},1000)
+													}else{
+														sendPicture.msg = false;
+														uni.setStorageSync('sendPicture',JSON.stringify(sendPicture))
+														setTimeout(()=>{
+															uni.navigateTo({
+																url: 'details?orderid='+ detailsId 
+															})
+														},1000)
+														
+											}
+											}
+									})
+							},1100)
+							/* end 转化订单或上传图片*/
 						}else{
 							uni.showToast({
 								title: '支付失败，'+res.data.message,
 								icon: 'none'
 							})
+							this.reset();
 						}
 					},
 					fail:(res)=>{
@@ -267,19 +261,9 @@
 					}
 				})
 			},
-		},
-		// 返回：如果不支付直接点击返回的话 就直接跳转到我的订单页面
-		// onBackPress(options) {
-		//    if (options.from == "navigateBack" || options.from == "backButton") {
-		//    		uni.redirectTo({
-		//    			url: 'orderpageinfo?orderNum=balance'
-		//    		})
-		// 		return true;
-		//    }
-		// }
+		}
 	}
 </script>
-
 <style lang="scss" scoped>
 	@import "../../common/uni.css";
 	.situ{
@@ -306,9 +290,6 @@
 		background: #1D82FE;
 		color:#FFFFFF;
 	}
-	
-	
-	
 	.content {
 		width: 100%;
 		font-size: 28upx;
@@ -316,96 +297,56 @@
 		color: #555;
 		height: 100vh;
 		font-weight: 400;
-	
 		.keypan {
-			width: 100%;
-			height: 500upx;
+			width: 100vw;
+			height: 35vh;
 			position: fixed;
 			left: 0;
 			bottom: 0;
 			background: #E6E6E6;
-	
-		.titles {
-			width: 90%;
-			height: 80upx;
-			background: #E6E6E6;
-			display: flex;
-			justify-content: space-between;
-			line-height: 80upx;
-			padding: 0 5%;
-			font-size: 32upx;
-			color: #292824;
-
-			span {
-				width: 100upx;
-				height: 70upx;
-				display: inline-block;
-				padding-left: 30upx;
+			.pan_num_key {
+				width: 33vw;/*写给不支持calc()的浏览器*/
+				width: -moz-calc(33vw - 1px);
+				width: -webkit-calc(33vw - 1px);
+				width: calc(33vw - 1px);
+				height: 25%;
+				float: Left;
+				display: inline-flex;
+				justify-content: center;
+				align-items: center;
+				background: #fff;
+				border: 1px solid #f7f7f7;
+				font-size: 1rem;
+				font-weight: 600;
+				line-height: 25px;
 			}
-
+			.pan_num_key image{
+				width: 5vw;
+				height: 5vw;
+			}
+			
+			.pan_num_checked {
+				animation: checked_bg 0.08s ease;
+			}
 		}
-	
-		.pan_num_key {
-			width: 30%;
-			height: 80upx;
-			float: Left;
-			margin-left: 2.1%;
-			margin-top: 2.1%;
-			text-align: center;
-			background: #fff;
-			font-size: 30upx;
-			border-radius: 10upx;
-			font-size: 35upx;
-			line-height: 60upx;
-			box-shadow: 0 2upx 5upx rgba(0, 0, 0, 0.5);
-
-		}
-		.pan_num_key image{
-			width: 5vw;
-			height: 5vw;
-			position: relative;
-			top: 25%;
-			left: 40%;
-		}
-
-		.pan_num_checked {
-			width: 30%;
-			height: 80upx;
-			float: Left;
-			margin-left: 2.1%;
-			margin-top: 2.1%;
-			text-align: center;
-			font-size: 30upx;
-			border-radius: 10upx;
-			font-size: 35upx;
-			line-height: 60upx;
-			box-shadow: 0 2upx 5upx rgba(0, 0, 0, 0.5);
-			animation: checked_bg 0.08s ease;
-		}
-	}
-	
 	.navigation_bar {
 		display: flex;
 		flex-direction: row;
 		align-items: center;
 		padding-top: 60upx;
-
 		.back-icon {
 			width: 18upx;
 			height: 34upx;
 		}
 	}
-	
 	.login {
 		width: 100%;
 		height: 300upx;
-
 		.l_top {
 			width: 700upx;
 			height: 200upx;
 			margin: 0 auto;
 			position: relative;
-
 			.l_text {
 				width: 445upx;
 				height: 69upx;
@@ -414,9 +355,7 @@
 				margin: auto;
 				top: 144upx;
 				position: relative;
-
 			}
-
 			.lt {
 				margin-top: -20upx;
 				font-size: 25upx;
@@ -424,21 +363,18 @@
 			}
 		}
 	}
-	
 		.title {
 			color: #616161;
 			text-align: center;
 			font-size: 30upx;
 			margin-bottom: 34upx;
 		}
-	
 	.mima {
 		flex-direction: row;
 		width: 680upx;
 		height: 78upx;
 		margin: 0 auto;
 		position: relative;
-
 		.item {
 			width: 92upx;
 			height: 100%;
@@ -449,14 +385,12 @@
 			justify-content: center;
 			border-bottom: 1upx solid #E5E5E5;
 			margin-left: 20upx;
-
 			.line {
 				width: 2upx;
 				height: 40upx;
 				background: #979797;
 				animation: shan 1s ease infinite;
 			}
-
 			.dot {
 				width: 20upx;
 				height: 20upx;
@@ -464,7 +398,6 @@
 				background: black;
 			}
 		}
-
 		.trade_pwd {
 			position: absolute;
 			height: 78upx !important;
@@ -473,26 +406,21 @@
 		}
 	}
 }
-	
 	@keyframes shan {
 		from {
 			opacity: 1;
 		}
-	
 		to {
 			opacity: 0;
 		}
 	}
-	
 	@keyframes checked_bg {
 		0% {
 			background: #fff
 		}
-	
 		50% {
 			background: #D3D1E2
 		}
-	
 		100% {
 			background: #fff
 		}

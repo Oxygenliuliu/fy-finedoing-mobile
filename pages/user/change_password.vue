@@ -4,13 +4,13 @@
         	<loginheader></loginheader>
         	<view class="form re">
         		<view class="password">
-        			<input placeholder="请输入原登陆密码" v-model="oldpasswd" password=true placeholder-style="color: #cccccc;"/>
+        			<input placeholder="请输入原登录密码" v-model="oldpasswd" password=true placeholder-style="color: #cccccc;"/>
         		</view>
         		<view class="password">
-        			<input placeholder="请输入新登陆密码(至少6位)" v-model="newpasswd" password=true placeholder-style="color: #cccccc;"/>
+        			<input placeholder="请输入新登录密码(至少6位)" v-model="newpasswd" password=true placeholder-style="color: #cccccc;"/>
         		</view>
         		<view class="password">
-        			<input placeholder="请确认新登陆密码(至少6位)" v-model="confirmpasswd" password=true placeholder-style="color: #cccccc;"/>
+        			<input placeholder="请确认新登录密码(至少6位)" v-model="confirmpasswd" password=true placeholder-style="color: #cccccc;"/>
         		</view>
         		<view class="btn" @tap="doChange">修改密码</view>
         	</view>
@@ -41,7 +41,13 @@
 		},
 		onLoad() {
 				try {
-				    this.height = this.winHeight
+					// #ifndef APP-PLUS
+					this.height = this.winHeight - statusBarHeight
+					// #endif
+					// #ifdef APP-PLUS
+					let statusBarHeight = uni.getSystemInfoSync().statusBarHeight
+					this.height = this.winHeight - statusBarHeight
+					// #endif
 				} catch (e) {
 				    // error
 				}
@@ -57,15 +63,15 @@
 				uni.hideKeyboard()
 				
 				if(this.oldpasswd==''){
-					uni.showToast({title: '请输入原登陆密码',icon:"none"});
+					uni.showToast({title: '请输入原登录密码',icon:"none"});
 					return false; 
 				}
 				if(this.newpasswd==''){
-					uni.showToast({title: '请输入新登陆密码',icon:"none"});
+					uni.showToast({title: '请输入新登录密码',icon:"none"});
 					return false; 
 				}
 				if(this.confirmpasswd==''){
-					uni.showToast({title: '请确认新登陆密码',icon:"none"});
+					uni.showToast({title: '请确认新登录密码',icon:"none"});
 					return false; 
 				}
 				if(this.confirmpasswd!=this.newpasswd){
@@ -73,11 +79,11 @@
 					return false; 
 				}
 				if(this.newpasswd==this.oldpasswd){
-					uni.showToast({title: '不能和原登陆密码一致，请重新输入',icon:"none"});
+					uni.showToast({title: '不能和原登录密码一致，请重新输入',icon:"none"});
 					return false; 
 				}
 				if(!RegExp(/^.{6,}$/).test(this.oldpasswd)){
-					uni.showToast({title: '原登陆密码格式不对，密码至少6位数',icon:"none"});
+					uni.showToast({title: '原登录密码格式不对，密码至少6位数',icon:"none"});
 					return false; 
 				}
 				if(!RegExp(/^.{6,}$/).test(this.newpasswd)){
@@ -88,7 +94,7 @@
 					title: '修改中...'
 				})
 				uni.request({
-					url:route.variable+'/mobile/Security/updatePassword',
+					url:getApp().globalData.webUrl+'/mobile/Security/updatePassword',
 					method:'GET',
 					data:{
 						Ident_Signboard: this.Signboard,
@@ -99,26 +105,32 @@
 						Ident_Signguid: this.Signguid
 					},
 					success: (res) => {
-						console.log(res);
 						if (route.publicIf(res.data.status) == false){
 							return false;
 						}
 						if(res.data.status==0){
-							uni.showToast({title: '登陆密码修改成功',icon:"none",duration:4000});
+							uni.showToast({title: '登录密码修改成功',icon:"none",duration:4000});
+							uni.removeStorageSync('jsonList')
 							setTimeout(function(){
+								// #ifndef H5
+								uni.switchTab({
+									url: '/pages/index/index'
+								});
+								// #endif
+								// #ifdef H5
 								uni.redirectTo({
 									url: '/pages/index/index'
 								});
-							},4000)
+								// #endif
+							},1000)
 						}else{
 							uni.hideLoading()
-							uni.showToast({title: '登陆密码修改失败,'+res.data.message,icon:"none"});
+							uni.showToast({title: '登录密码修改失败,'+res.data.message,icon:"none"});
 						}
 					},
 					fail:(res)=>{
 						uni.hideLoading()
-						uni.showToast({title: '登陆密码修改失败'+'错误码201',icon:"none"});
-						console.log("fail: "+JSON.stringify(e));
+						uni.showToast({title: '登录密码修改失败'+'错误码201',icon:"none"});
 					}	
 				})	
 			},
@@ -129,4 +141,8 @@
 
 <style lang="scss">
 	@import "../../static/css/login.scss";
+	.uni-bottom {
+		position: absolute;
+		bottom: 10px;
+	}
 </style>

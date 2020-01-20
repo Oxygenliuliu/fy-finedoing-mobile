@@ -9,7 +9,7 @@
 				</view>
 				<view class="middle"></view>
 				<view class="icon-btn">
-					<view class="icon cart" @tap="GoBackCart"></view>
+					<view class="icon cart" @tap="goBackCart"></view>
 				</view>
 			</view>
 			<!-- 头部-滚动渐变显示 -->
@@ -21,22 +21,30 @@
 					<view v-for="(anchor,index) in anchorlist" :class="[selectAnchor==index ?'on':'']" :key="index" @tap="toAnchor(index)">{{anchor.name}}</view>
 				</view>
 				<view class="icon-btn">
-					<view class="icon cart" @tap="GoBackCart"></view>
+					<view class="icon cart" @tap="goBackCart"></view>
 				</view>
 			</view>
 		</view>
 		<!-- 底部菜单 -->
 		<view class="footer">
 			<view class="icons">
+				
+				<!-- #ifdef H5 -->
 				<view class="box" @tap="share">
 					<view class="icon fenxiang"></view>
 					<view class="text">分享</view>
 				</view>
+				<!-- #endif -->
+				
+				<!-- #ifndef H5 -->
+				<share  :screenData='screenInfo' :toShareData='shareData'></share>
+				<!-- #endif -->
+				
 				<view class="box" @tap="toChat">
 					<view class="icon kefu"></view>
 					<view class="text">客服</view>
 				</view>
-				<view class="box" @tap="GoBackCart">
+				<view class="box" @tap="goBackCart">
 					<view class="icon cart"><text class="jiaobiao" :class="{JBnum:subscript}">{{shop}}</text></view>
 					<view class="text">购物车</view>
 				</view>
@@ -48,22 +56,27 @@
 		</view>
 
 		<!-- 规格-模态层弹窗 组件 -->
-		<uni-makings ref="unimakings" @change="makchange" @tap="retPrice"></uni-makings>
-
+		<uni-makings ref="unimakings" @change="makchange" @changeInfo="retPrice" @goBackCart="goBackCart" @share="share" @toChat="toChat"></uni-makings>
 		<!-- 商品主图轮播 -->
 			<view>
 			<view class="swiper-box">
 				<swiper circular="true" autoplay="true" @change="swiperChange">
 					<swiper-item v-for="(swiper,item) in swiperList" :key="item">
+						<!-- #ifdef H5 -->
 						<img class="swiperImg" v-lazy="ImageUrl+swiperList[item].url" @tap='displayImg(item)'>
+						<!-- #endif -->
+						<!-- #ifndef H5 -->
+						<!-- v-if 判断src是否已经获取 防止小程序报错-->
+						<image v-if="swiperList[item].url" class="swiperImg" :src="ImageUrl+swiperList[item].url" @tap='displayImg(item)'></image>
+						<!-- #endif -->
 					</swiper-item>
 				</swiper>
 				<view class="indicator">{{currentSwiper+1}}/{{swiperList.length}}</view>
 			</view>
 			<!-- 标题 价格 -->
 			<view class="info-box goods-info">
-				<view class="price">￥ {{totalPrice}}</view>
-				<view class="title" :data-tyid="(productList.ty_id)" :data-typarId="(productList.ty_parentid)">{{productList.ty_name}}</view>
+				<view class="price">￥ {{totalPrice || ''}}</view>
+				<view class="title prodName" :data-tyid="(productList.ty_id)" :data-typarId="(productList.ty_parentid)">{{productList.ty_name}}</view>
 			</view>
 
 			<!-- 服务-规则选择 -->
@@ -100,16 +113,16 @@
 		</view>
 		<!-- 加入购物车动画 cartx 和 carty 是购物车位置在屏幕位置的比例 例如左上角x0.1 y0.1 右下角 x0.9 y0.9-->
 		<shopCarAnimation ref="carAnmation" cartx="0.2" carty="1.1"></shopCarAnimation>
-
+		<view class="productMark" :class="{proeuct:productMark}">注明:有部分图片来源于网路，如有侵权请联系我司删除</view>
 	</view>
 </template>
 
 <script>
-	import route from "@/common/public.js"
+	import share from "@/components/uni-share/share.vue"
+	import route from "../../common/public.js"
 	import uniPopup from "@/components/uni-popup/uni-popup.vue"
 	import Vue from 'vue'
 	import lazy from "@/common/vue-lazyload.js"
-	import NativeShare from "@/common/NativeShare.js" //分享组件
 	import shopCarAnimation from '@/components/fly-in-cart/fly-in-cart.vue' // 加入购物车动画组件
 	import uniMakings from "@/components/uni-makings/uni-makings.vue"
 	// import hm from "@/common/hm.js"
@@ -120,10 +133,13 @@
 			uniPopup,
 			shopCarAnimation,
 			uniMakings,
-			NativeShare
+			share
 		},
 		data() {
 			return {
+				productMark: false,  //底部注明
+				screenInfo: {screenWidth: '',screenHeight: ''},
+				shareData: {},//分享数据
 				// 购物车小球
 				ball: {
 					show: false,
@@ -133,7 +149,6 @@
 				//控制渐变标题栏的参数
 				beforeHeaderzIndex: 11, //层级
 				afterHeaderzIndex: 10, //层级
-				beforeHeaderOpacity: 1, //不透明度
 				afterHeaderOpacity: 0, //不透明度
 				//是否显示返回按钮
 				// #ifndef MP
@@ -145,8 +160,8 @@
 				currentSwiper: 0,
 				anchorlist: [], //导航条锚点
 				selectAnchor: 0, //选中锚点
-				specClass: '', //规格弹窗css类，控制开关动画
-				selectSpec: null, //选中规格
+				// specClass: '', //规格弹窗css类，控制开关动画
+				// selectSpec: null, //选中规格
 				//商品描述html
 				descriptionStr: '',
 				productInfo: '', //规格赋值(材料，规格，数量)
@@ -188,33 +203,37 @@
 				difNum: '', //判断是从哪个页面点击商品过来的
 				// isActive:false,//弹出遮罩层时，底部滚动是否禁止
 				shareClass: '', //分享弹窗css类，控制开关动画
+				// #ifdef H5
 				nativeShare: '', //分享
+				// #endif
 				layerHeight: 0,
 				stuffName: '', //材料显示
 				normsInfo: '', //规格显示
 				numInfo: '', //数量显示
 				normShow: false, //选择规格 是否显示
+				buyOrShopcart:0,//0代表都没点，1.购物车，2.直接购买,3.购物车页面发起
+				obj:{}
 			};
 		},
 		onLoad(options) {
+			uni.getSystemInfo({
+				success: (res)=> {
+					this.screenInfo.screenWidth = res.screenWidth
+					this.screenInfo.screenHeight = res.screenHeight
+				}
+			})
 			uni.removeStorage({
 				key: 'orders'
 			})
-			//小程序隐藏返回按钮
 			// #ifdef MP
 			//小程序隐藏返回按钮
 			this.showBack = false;
 			// #endif
-			this.ImageUrl = route.variable; //图片访问IP
+			this.ImageUrl = getApp().globalData.webUrl; //图片访问IP
 			this.prodOnLoad(options); //调用函数
-			var _hmt = _hmt || [];
-			(function() {
-				var hm = document.createElement("script");
-				hm.src = "https://hm.baidu.com/hm.js?d69321757dcfbfbe09dbddd4dca87b28";
-				var s = document.getElementsByTagName("script")[0];
-				s.parentNode.insertBefore(hm, s);
-			})();
+			// #ifdef H5
 			this.nativeShare = new NativeShare(); //定义分享
+			// #endif
 			// 动态添加 弹框高度
 			try {
 				const res = uni.getSystemInfoSync();
@@ -226,10 +245,25 @@
 		onReady() {
 			this.calcAnchor(); //计算锚点高度，页面数据是ajax加载时，请把此行放在数据渲染完成事件中执行以保证高度计算正确
 		},
+		// 微信右上角自带分享
+		// #ifdef MP-WEIXIN
+		onShareAppMessage(res) {
+		      return {
+		        title: this.shareData.goods.ty_name,
+		        path: 'pages/index/index'
+		      }
+		},
+		// #endif
 		onShow() {
 			let jsonList = uni.getStorageSync("jsonList"); //获取存储在Storage里的值
 			let data = JSON.parse(jsonList); //JSON字符串转对象
 			this.Partnerid = data.csid; //客户ID
+			this.shop = data.shop;
+			if (this.shop == 0) {
+				this.subscript = true;
+			} else {
+				this.subscript = false;
+			}
 		},
 		onPageScroll(e) {
 			//锚点切换
@@ -238,7 +272,6 @@
 			let tmpY = 375;
 			e.scrollTop = e.scrollTop > tmpY ? 375 : e.scrollTop;
 			this.afterHeaderOpacity = e.scrollTop * (1 / tmpY);
-			this.beforeHeaderOpacity = 1 - this.afterHeaderOpacity;
 			//切换层级
 			this.beforeHeaderzIndex = e.scrollTop > 0 ? 10 : 11;
 			this.afterHeaderzIndex = e.scrollTop > 0 ? 11 : 10;
@@ -247,26 +280,36 @@
 			displayImg(e) {// 点击图片放大
 				var urls = new Array;
 				for(var i = 0;i < this.swiperList.length;i++){
-					urls.push(route.variable + this.swiperList[i].url)
+					urls.push(getApp().globalData.webUrl + this.swiperList[i].url)
 				}
 				uni.previewImage({
 					urls:urls,
 					current:e
 				})
 			},
-			retPrice(e) {
+			retPrice(e) { // 向后台传数据
 				this.Price = e.Price;
 				this.totalPrice = e.totalPrice;
 				this.lpMoney = e.lpMoney;
-				console.log(e)
+				if(e.touches == undefined){
+					let arr = []
+					arr[0] = {
+						clientX: 185,
+						clientY: 632,
+						force: 1,
+						identifier: 0,
+						pageX: 185,
+						pageY: 632
+					}
+					e.touches = arr;
+				}
 				let Distinguish = uni.getStorageSync("Distinguish");
 				let jsonList = uni.getStorageSync("jsonList"); //获取存储在Storage里的值
 				let data = JSON.parse(jsonList); //JSON字符串转对象
 				// Distinguish==shopCart:做加入购物车操作
 				if (Distinguish == 'shopCart') {
-					console.log(this.number)
 					uni.request({
-						url: route.variable + '/mobile/Classification/joinShop',
+						url: getApp().globalData.webUrl + '/mobile/Classification/joinShop',
 						method: 'GET',
 						data: {
 							Ident_Signboard: this.Signboard, //令牌
@@ -277,8 +320,8 @@
 							qty: this.number, //数量
 							total: e.totalPrice, //总价
 							price: e.Price, //单价
-							gyid: this.gongYiId, //工艺id 
-							gyname: this.rSelect, //工艺名称
+							gyid: this.gongYiId.join(','), //工艺id 
+							gyname: this.rSelect.join(','), //工艺名称
 							lpmoney: e.lpMoney, //后期工艺金额
 							typeid: this.opType,  //类别id
 						},
@@ -312,10 +355,15 @@
 								})
 								setTimeout(function() {
 									uni.navigateTo({
-										url: '../index/login?typeid=' + this.opType
+										url: '../../pages/index/login?typeid=' + this.opType
 									})
 								}, 3000);
-							} else {
+							} else if(res.data.status == 2){
+								uni.showToast({
+									title: '金额超出限制范围',
+									icon: 'none'
+								})
+							}else {
 								uni.showToast({
 									title: '加入购物车失败',
 									icon: 'none'
@@ -356,7 +404,13 @@
 				this.checkNum = res.checkNum; //材料选中下标
 				this.Signguid = res.Signguid;
 				this.Signboard = res.Signboard;
-				console.log(res)
+				if(res.buyOrShopcart == 1){
+					this.joinCart(res);
+				}
+				if(res.buyOrShopcart == 2){
+					this.buy();
+				}
+				this.buyOrShopcart = 0;
 			},
 			// 进页面加载数据函数
 			prodOnLoad(options) {
@@ -383,18 +437,18 @@
 					}
 				}
 				uni.request({
-					url: route.variable + '/mobile/order/productInfo',  
+					url: getApp().globalData.webUrl + '/mobile/order/productInfo',  
 					method: 'GET',
 					data: {
 						gid: options.type
 					},
 					success: (res) => {
-						console.log(res)
 						let result = route.publicIf(res.data)
 						if (result == false) {
 							return false;
 						}
 						if (res.data.status == 0) {
+							this.shareData = res.data;//为分享页面传数据
 							if(res.data.dis != 1){  //判断是不是多级不是就给材料赋值
 								this.stuffList = res.data.stuff; //给stuffList(材料列表)赋值
 							}
@@ -407,6 +461,11 @@
 							this.shopImgs = res.data.shopimg[0].url; //弹出框图片
 							this.unitlist = res.data.unit; //给unitlist(规格列表)赋值
 							this.descriptionStr = res.data.Introduc.replace(/\<img/gi, '<img style="max-width:100%;height:auto" '); //给descriptionStr(商品详情)赋值
+							if(this.descriptionStr == ''){
+								this.productMark = true;
+							}else{
+								this.productMark = false;
+							}
 						}
 					},
 					fail: (res) => {
@@ -420,7 +479,7 @@
 			},
 			// 分享功能开始
 			share() {
-				console.log("分享")
+				this.$refs.unimakings.hideSpec();
 				var name = this.productList.ty_name;
 				var url = location.href;
 				var shareData = {
@@ -433,14 +492,13 @@
 					success: function() {},
 					fail: function() {}
 				}
+				// #ifdef H5
 				this.nativeShare.setShareData(shareData)
-				try {
-					this.nativeShare.call()
-				} catch (err) {}
+				 try {
+					 this.nativeShare.call() 
+				} catch (err) {} 
+				// #endif
 			},
-			
-			// 分享功能结束
-
 			moveHandle() {
 				return false;
 			},
@@ -450,15 +508,54 @@
 			},
 			// 客服: 打开qq聊天
 			toChat(e) {
-				window.location.href = "mqqwpa://im/chat?chat_type=wpa&uin=" + this.doubt_qq + "&version=1&src_type=web&web_src=oicqzone.com";
+				this.$refs.unimakings.hideSpec();
+				console.log('11')
+				// #ifdef H5
+				try{
+					window.location.href = "mqqwpa://im/chat?chat_type=wpa&uin=" + this.doubt_qq + "&version=1&src_type=web&web_src=oicqzone.com";
+				}catch(e){
+					//TODO handle the exception
+					uni.showToast({
+					    title: '错误!' + e,
+					    duration: 2000
+					});
+				}
+				// #endif
+				// #ifdef APP-PLUS
+				try{
+					plus.runtime.openURL("mqqwpa://im/chat?chat_type=wpa&uin=" + this.doubt_qq + "&version=1&src_type=web&web_src=oicqzone.com")
+				}catch(e){
+					//TODO handle the exception
+					uni.showToast({
+					    title: '错误!' + e,
+					    duration: 2000
+					});
+				}
+				// #endif
+				// #ifdef MP-WEIXIN
+				uni.showToast({
+					title: '小程序不支持该功能,请手动添加QQ:' + this.doubt_qq,
+					icon: 'none',
+					duration: 5000
+				})
+				// #endif
 			},
 			// 点击购物车图标 跳转购物车页面        
-			GoBackCart() {
+			goBackCart() {
+				this.$refs.unimakings.hideSpec();
 				uni.setStorageSync('pageNum', 1);
 				uni.setStorageSync('typeid', this.opType);
-				uni.navigateTo({
-					url: '../shopping/shopping'
+				// #ifndef H5
+				uni.switchTab({
+					url: '../../pages/shopping/shopping'
 				})
+				// #endif
+				// #ifdef H5
+				uni.navigateTo({
+					url: '../../pages/shopping/shopping'
+				})
+				// #endif
+				
 			},
 			// 请求参数 第二次点击加入购物车或者立即购买时 调用一次报价接口
 			requestFun(e = '') {
@@ -485,7 +582,7 @@
 			// 加入购物车
 			joinCart(e) {
 				let _that = this;
-				this.result = route.checkStatus();
+				this.result = route.checkStatus();//用户信息
 				uni.setStorageSync('Distinguish', 'shopCart'); //存储Distinguish的值 在报价返回函数里面做区分操作
 				if (this.result.userName != '') {
 					let jsonList = uni.getStorageSync("jsonList"); //获取存储在Storage里的值
@@ -497,83 +594,69 @@
 					this.Signboard = data.Ident_Signboard; //令牌
 					this.Signguid = data.Ident_Signguid; //用户id
 					this.shop = data.shop; //购物车数量
-					if (this.stuffName == '' || this.normsInfo == '' || this.numInfo == '') {
-						uni.showToast({
-							title: '请选择规格',
-							icon: 'none',
-							duration:1000,
-						});
-						setTimeout(function(fun) {
-							_that.prodShow(fun);  //直接调起规格选择组件
-						}, 1000);
+					if (this.stuffName == '' || this.normsInfo == '' || this.numInfo == '') { //材料显示 规格显示 数量显示
+						this.buyOrShopcart = 1;
+						_that.prodShow(e);  //直接调起规格选择组件
+						// setTimeout(function(fun) {
+						// 	_that.prodShow(fun);  //直接调起规格选择组件
+						// }, 1000);
 						return false;
 					} else {
 						this.$refs.unimakings.offer(this.requestFun(e)); //调用子组件里面的报价函数（参数e：是加入购物车动画时需要的参数）
 					}
 				} else {
-					uni.showToast({
-						title: '账户未登录，请前往登录' + '错误码201',
-						icon: 'none',
-						duration: 3000
-					})
 					setTimeout(function() {
 						uni.navigateTo({
-							url: '../index/login?typeid=' + this.opType
+							url: '../../pages/index/login?typeid=' + this.opType
 						})
-					}, 3000)
+					}, 500)
 				}
 			},
 			//立即购买
 			buy(fun) {
 				let _that = this;
-				this.result = route.checkStatus();
+				_that.result = route.checkStatus();
 				uni.setStorageSync('Distinguish', 'purchase'); //存储Distinguish的值 在报价返回函数里面做区分操作
-				if (this.result.userName != '') {
-					let jsonList = uni.getStorageSync("jsonList"); //获取存储在Storage里的值
-					let data = JSON.parse(jsonList); //JSON字符串转对象
-					this.dbname = data.dbname; //数据库
-					this.token = data.softdog; //加密狗
-					this.org = data.org; //访问IP地址
-					this.Partnerid = data.csid; //客户ID
-					this.Signboard = data.Ident_Signboard; //令牌
-					this.Signguid = data.Ident_Signguid; //用户id
-					this.shop = data.shop; //购物车数量
-					if (this.stuffName == '' || this.normsInfo == '' || this.numInfo == '') {
-						uni.showToast({
-							title: '请选择规格',
-							icon: 'none',
-							duration:1000,
-						});
-						setTimeout(function(fun) {
-							_that.prodShow(fun);  //直接调起规格选择组件
-						}, 1000);
-						return false;
-					} else {
-						this.rqt()
+				if (_that.result.userName == '') {
 						uni.navigateTo({
-							url: '../order/payment?Ident_Signboard=' + this.Signboard + '&Ident_Signguid=' + this.Signguid + '&long=' +
-								this.guigWidth + '&kuan=' + this.guigHeight +
-								'&clid=' + this.caiLiaoId + '&qty=' + this.number + '&total=' + this.totalPrice + '&price=' + this.Price + '&gyid=' +
-								this.gongYiId + '&gyname=' + this.rSelect +
-								'&spid=' + this.productList.ty_id + '&lpmoney=' + this.lpMoney + '&l=2'
-						});
-					}
-				} else {
-					uni.showToast({
-						title: '账户未登录，请前往登录' + '错误码201',
-						icon: 'none',
-						duration: 3000
-					})
-					setTimeout(function() {
-						uni.navigateTo({
-							url: '../index/login?typeid=' + this.opType
+							url: '../../pages/index/login?typeid=' + _that.opType
 						})
-					}, 3000)
-				}
+					return false;
+				} 
+				let jsonList = uni.getStorageSync("jsonList"); //获取存储在Storage里的值
+				let data = JSON.parse(jsonList); //JSON字符串转对象
+				_that.dbname = data.dbname; //数据库
+				_that.token = data.softdog; //加密狗
+				_that.org = data.org; //访问IP地址
+				_that.Partnerid = data.csid; //客户ID
+				_that.Signboard = data.Ident_Signboard; //令牌
+				_that.Signguid = data.Ident_Signguid; //用户id
+				_that.shop = data.shop; //购物车数量
+				if (_that.stuffName == '' || _that.normsInfo == '' || _that.numInfo == '') {
+					_that.buyOrShopcart = 2;
+					_that.prodShow(fun);  //直接调起规格选择组件
+					// setTimeout(function(fun) {
+					// 	_that.prodShow(fun);  //直接调起规格选择组件
+					// }, 1000);
+					return false;
+				} 
+				_that.rqt();
+				uni.navigateTo({
+					url: '../../pages/order/payment?Ident_Signboard=' + _that.Signboard + '&Ident_Signguid=' + _that.Signguid + '&long=' +
+						_that.guigWidth + '&kuan=' + _that.guigHeight +
+						'&clid=' + _that.caiLiaoId + '&qty=' + _that.number + '&total=' + _that.totalPrice + '&price=' + _that.Price + '&gyid=' +
+						_that.gongYiId + '&gyname=' + _that.rSelect +
+						'&spid=' + _that.productList.ty_id + '&lpmoney=' + _that.lpMoney + '&l=2'
+				});
 			},
 			rqt:async function(){
 				var [error, res] = await uni.request({
-				        url: "http://" + this.org + "/services/order/query",
+						// #ifndef MP-WEIXIN
+						 url: "http://" + this.org + "/services/order/query",
+						// #endif
+						// #ifdef MP-WEIXIN
+						url: route.varCsQuery + "/services/order/query",
+						// #endif
 				        method: 'GET',
 				        data: {
 				        	token: this.token, //令牌
@@ -582,7 +665,6 @@
 					'","h": "' + this.offerHeight + '","LpidList":"' + this.LpidList + '","qty": "' + this.number + '"}]}', //其他参数
 				        },
 				    });
-				    console.log(res.data);
 					if (res.data.status == 0) {
 						this.lpMoney = res.data.QueryResults[0]['lpmoney']; //工艺价格
 						// 判断: 折扣后单价是否为空
@@ -635,16 +717,29 @@
 			//返回上一页
 			back(e) {
 				// 判断:是否从登录页面跳转过来
-				if (this.log == '1') {
+				if (this.log == '1' || this.log == '2') {
 					uni.navigateTo({
-						url: '../index/index'
+						url: '../../pages/index/index'
 					})
-				} else if (this.log == '2') {
-					uni.navigateTo({
-						url: '../index/index'
-					})
-				} else {
-					history.go(-1)
+				}else {
+					let pages = getCurrentPages();
+					let prevPage = 
+					// #ifdef H5
+					pages[pages.length - 2];
+					// #endif
+					// #ifndef H5
+					pages[pages.length - 2].$vm;
+					// #endif
+					if(prevPage == undefined){
+						uni.navigateTo({
+							url: '../../pages/index/index'
+						})
+					}else{
+						uni.navigateBack();	
+					}
+					//history.go(-1)
+					 //window.history.back()
+					
 				}
 			},
 			//点击选择规格 弹窗组件弹起
@@ -674,6 +769,7 @@
 					"org": this.org,
 					"userName": results.userName,
 					'type_id':this.opType,
+					'buyOrShopcart':this.buyOrShopcart
 				}
 				this.$refs.unimakings.show(productArray); //调用子组件的show()函数 调起子组件	
 			},
@@ -691,7 +787,17 @@
 	page {
 		background-color: #f8f8f8;
 	}
-
+	// 底部注明
+	.productMark{
+		text-align: center;
+		color: #999;
+		font-size: 12px;
+		margin-top: -12px;
+		height: 76px;
+	}
+	.proeuct{
+		display: none;
+	}
 	// 数字角标
 	.jiaobiao {
 		width: 0.9rem;
@@ -710,149 +816,10 @@
 	.JBnum {
 		display: none;
 	}
-
-	// 数字角标结束
-	.fix {
-		position: fixed;
-	}
-
-	.addToCart button {
-		padding: 0 1rem;
-	}
-
-	.immediatePayment button {
-		padding: 0 1rem;
-	}
-
 	.swiperImg {
 		width: 100%;
 		height: 100%;
 	}
-
-	.cur {
-		background-color: #FF0000 !important;
-		color: #FFF;
-	}
-
-	.technoList {
-		text-align: left;
-		padding: 10px;
-	}
-
-	.scroll-Y {
-
-		box-sizing: border-box;
-		max-height: 379px;
-		padding-bottom: 100px;
-	}
-
-	.scroll-view-item {
-		height: 86vh;
-	}
-
-	.specsList {
-		padding: 10px 0 10px 10px;
-	}
-
-	.specImg image {
-		width: 5rem;
-		height: 5rem;
-		position: relative;
-		top: -1.5rem;
-		background: #FFF;
-		border-radius: 4px;
-		border: #e5e5e5 solid 1px;
-	}
-
-	.specsName {
-		width: 100%;
-		color: #666;
-		font-size: 12px
-	}
-
-	/* 伪元素是行内元素 正常浏览器清除浮动方法 */
-	.clearfix:after {
-		content: "";
-		display: block;
-		height: 0;
-		clear: both;
-		visibility: hidden;
-	}
-
-	/* ie6清除浮动的方式 *号只有IE6-IE7执行，其他浏览器不执行 */
-	.clearfix {
-		zoom: 1;
-	}
-
-	// 弹出框-宽高输入框样式
-	.enter {
-		width: 18.4rem;
-		margin: 0px !important;
-		padding: 0px !important;
-		display: flex !important;
-		background: transparent !important;
-		height: 40px;
-		line-height: 40px;
-		padding-bottom: 1px !important;
-	}
-
-	.enter>input {
-		width: 106px;
-		margin: 0px;
-		border: none;
-		border-bottom: #E5E5E5 solid 1px;
-		height: 39px;
-		line-height: 39px;
-		text-align: center;
-		font-size: 0.7rem;
-		color: #000000;
-	}
-
-	// 弹出框-选择工艺的样式
-	.gyshow {
-		display: none
-	}
-
-	@keyframes showPopup {
-		0% {
-			opacity: 0;
-		}
-
-		100% {
-			opacity: 1;
-		}
-	}
-
-	@keyframes hidePopup {
-		0% {
-			opacity: 1;
-		}
-
-		100% {
-			opacity: 0;
-		}
-	}
-
-	@keyframes showLayer {
-		0% {
-			transform: translateY(0);
-		}
-
-		100% {
-			transform: translateY(-100%);
-		}
-	}
-
-	@keyframes hideLayer {
-		0% {
-			transform: translateY(-100%);
-		}
-
-		100% {
-			transform: translateY(0);
-		}
-	}
-
 	.icon {
 		font-size: 26upx;
 	}
@@ -870,14 +837,6 @@
 		background-color: #f1f1f1;
 		transition: opacity 0.05s linear;
 	}
-
-	// .isActive {
-	// 	width: 100%;
-	// 	position:fixed;
-	// 	top:0;
-	// 	height: 100%;
-	// 	overflow: hidden;
-	// }
 	// 选择规格是否显示
 	.norm {
 		display: none;
@@ -1054,6 +1013,13 @@
 			font-size: 30upx;
 			padding: 0 0 0 12upx;
 		}
+		/* #ifdef MP-WEIXIN */
+		.prodName{
+			position: relative;
+			right: -10px;
+			padding: 0 0 2% 0;
+		}
+		/* #endif */
 	}
 
 	// 主页面-规则选择样式
@@ -1062,13 +1028,13 @@
 			width: 100%;
 			display: flex;
 			align-items: center;
-			margin: 0 0 30upx 20upx;
+			// margin: 0 0 30upx 20upx;
 			height: 50px;
 			.text {
 				width: 11%;
 				font-size: 24upx;
 				color: #a2a2a2;
-				margin-right: 20upx;
+				margin: 20upx;
 			}
 			.content {
 				font-size: 28upx;
@@ -1115,7 +1081,7 @@
 			color: #999;
 		}
 		.content {
-			padding-bottom: 3rem;
+			padding-bottom: 2rem;
 		}
 	}
 

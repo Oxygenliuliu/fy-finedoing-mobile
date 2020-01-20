@@ -4,14 +4,13 @@
 		<view class="payment" :class="{actives: addressActive }">
 			<!-- 收货地址 -->
 			<view class="flex-row uni-bgc address_view" style="display: flex;flex-direction: row;"  @tap="addressClick">
-				<view class="flex-view-item" style="width: 86%;">
-					<view class="uni-addressRight">
+				<view class="flex-view-item" style="width: 86%;" v-show="displayNone?false:true">
+					<view class="uni-addressRight" >
 						<view class="uni-addressName" :data-cnId="(defAddress.addid)"><text>{{defAddress.name}} </text></view>
 						<view class="uni-sddressPhone"><text>{{defAddress.telephone}}</text> </view>
 					</view>
-					<view class="address">{{defAddress.address}}</view>
-				</view>
-							
+					<view class="address">{{defAddress.address}}</view>	
+			</view>
 				<view class="addressMsg" :class="{dizhiMsg:addressMsg}">
 					<view class="add-image">
 						<image src="../../static/image/address.png"></image>
@@ -19,7 +18,7 @@
 					<text>添加收货地址</text>
 				</view>
 				<view class="moren">
-					<uni-icon class="jiantou" type="arrowright" size="30"></uni-icon>
+					<uni-icons class="jiantou" type="arrowright" size="30"></uni-icons>
 				</view>
 			</view>
 			<!-- 商品视图 -->
@@ -49,7 +48,7 @@
 				<view>发票信息<text>{{invoTypeName}}<uni-icon class="jiantou" type="arrowright" size="19"></uni-icon></text></view>
 			</view>
 			<!-- 备注 -->
-			<view class="remarks">
+			<view class="remarks" v-show="textareaIsShow">
 				<text>备注:</text>
 				<textarea rows="5" cols="30" maxlength="320" placeholder="请输入备注信息" @input="remarks" v-model="desc"></textarea>
 				<view>
@@ -57,29 +56,60 @@
 				</view>
 			</view>
 			<view class="paymentMethod">
-				<view class="flex-row" style="display: flex;flex-direction: row;height: 4vh;line-height: 4vh;padding: 0.2rem 0;" v-for="(pay, index) in payList" :key="index" @tap="paymentTap(index,pay)">
-					<view class="flex-view-item" style="padding: 0.2rem 0.4rem 0 0;"><image :src="iconFor(pay.name)" style="width: 1rem;height: 1rem;;"></image></view>
-					<view class="flex-view-item" style="width: 90vw;">{{pay.name}}支付<text style="color: #0081FF;margin-left: 0.8rem;">{{AccountBalance(pay.name)}}</text></view>
-					<view class="flex-view-item" style="width: 10vw;"><text class="iconfont" :class="{'icon-round-check':index == paychenkNum ? true : false}" style="color: #333333;font-size: 14px;"></text></view>
+				<!-- #ifdef MP-WEIXIN -->
+				<view class="flex-row"  v-if="pay.name=='支付宝'?false:true" style="display: flex;flex-direction: row;height: 4vh;line-height: 4vh;padding: 0.2rem 0;" v-for="(pay, index) in payList" :key="index" @tap="paymentTap(index,pay)">
+						<view class="flex-view-item" style="padding: 0.2rem 0.4rem 0 0;">
+								<!-- #ifdef H5 -->
+								<image :src="iconFor(pay.name)" style="width: 1rem;height: 1rem;;"></image>
+								<!-- #endif -->
+								<!-- #ifndef H5 -->
+								<image src="../../static/image/weixin.png" v-if="pay.name == '微信'" style="width: 1rem;height: 1rem;;"></image>
+								<image src='../../static/image/zhifu.png' v-if="pay.name == '支付宝'" style="width: 1rem;height: 1rem;;"></image>
+								<image src='../../static/image/xianjin.png' v-if="pay.name == '现金'" style="width: 1rem;height: 1rem;;"></image>
+								<image src='../../static/image/guazhang.png' v-if="pay.name == '挂账'" style="width: 1rem;height: 1rem;;"></image>
+								<image src='../../static/image/yue.png' v-if="pay.name == '余额'" style="width: 1rem;height: 1rem;;"></image>
+								<!-- #endif -->
+								</view>
+								<view class="flex-view-item" style="width: 90vw;">{{pay.name}}支付<text style="color: #0081FF;margin-left: 0.8rem;">{{AccountBalance(pay.name)}}</text></view>
+							<view class="flex-view-item" style="width: 10vw;"><text class="iconfont" :class="{'icon-round-check':index == paychenkNum ? true : false}" style="color: #333333;font-size: 14px;"></text></view>
+						</view>
 				</view>
-			</view>
+				<!-- #endif -->
+				<!-- #ifndef MP-WEIXIN -->
+				<view class="flex-row" style="display: flex;flex-direction: row;height: 4vh;line-height: 4vh;padding: 0.2rem 0;" v-for="(pay, index) in payList" :key="index" @tap="paymentTap(index,pay)">
+						<view class="flex-view-item" style="padding: 0.2rem 0.4rem 0 0;">
+								<!-- #ifdef H5 -->
+								<image :src="iconFor(pay.name)" style="width: 1rem;height: 1rem;;"></image>
+								<!-- #endif -->
+								<!-- #ifndef H5 -->
+								<image src="../../static/image/weixin.png" v-if="pay.name == '微信'" style="width: 1rem;height: 1rem;;"></image>
+								<image src='../../static/image/zhifu.png' v-if="pay.name == '支付宝'" style="width: 1rem;height: 1rem;;"></image>
+								<image src='../../static/image/xianjin.png' v-if="pay.name == '现金'" style="width: 1rem;height: 1rem;;"></image>
+								<image src='../../static/image/guazhang.png' v-if="pay.name == '挂账'" style="width: 1rem;height: 1rem;;"></image>
+								<image src='../../static/image/yue.png' v-if="pay.name == '余额'" style="width: 1rem;height: 1rem;;"></image>
+								<!-- #endif -->
+								</view>
+								<view class="flex-view-item" style="width: 90vw;">{{pay.name}}支付<text style="color: #0081FF;margin-left: 0.8rem;">{{AccountBalance(pay.name)}}</text></view>
+							<view class="flex-view-item" style="width: 10vw;"><text class="iconfont" :class="{'icon-round-check':index == paychenkNum ? true : false}" style="color: #333333;font-size: 14px;"></text></view>
+						</view>
+				</view>
+				<!-- #endif -->
 			<!-- 订单金额信息-->
 			<view class="orderAmount">
 				<view><text class="orderAmount_left">运费</text><text class="orderAmount_right">￥ {{kuaiDiMoney}}</text></view>
 				<view><text class="orderAmount_left">税费</text><text class="orderAmount_right">￥ {{taxpointMoney}}</text></view>
 				<view class="tomor">总价:<text style="margin-left: 0.4rem;">￥ {{subTotal}}</text></view>
-				<text style="font-size: 10px;color: #999999;position: relative;left: 14rem;top: -0.6rem;">(模拟支付0.01元)</text>
+				<text style="font-size: 10px;color: #999999;position: relative;left: 14rem;top: -0.6rem;" v-show="isTest=='1'?true:false">(模拟支付0.01元)</text>
 				<view style="height: 50px;"></view>
 			</view>
 			
 			<view class="dv_footer">
-				<view class="payFuKuan">实付款：<text style="color: red;">￥ 0.01</text></view>
+				<view class="payFuKuan">实付款：<text style="color: red;">￥ {{isTest=='1'?'0.01':subTotal}}</text></view>
+				<!-- <view class="payFuKuan">实付款：<text style="color: red;">￥ {{subTotal}}</text></view> -->
 				<view class="OrderPayment" @tap="OrderPayment">{{paychenkName}}支付</view>
 			</view>
 		</view>
-		
-		<!-- 物流配送服务界面弹出 -->
-		<!-- #ifndef MP-WEIXIN -->
+		<!-- 物流配送服务界面弹出 --> 
 		<uni-popup :show="delivery" type="bottom" position="bottom" @hidePopup="ClosePopup">
 			<view class="delivery_view" >
 				<view class="dv_mode">
@@ -101,28 +131,22 @@
 				</view>
 			</view>
 		</uni-popup>
-		<!-- #endif -->
-		<!-- 返回按钮：遮罩层 -->
-		<mask v-if="showMask"></mask>
+		<view v-show='payShow' >
+			<unipay @payResult='payResult'  :webData='webData' goOrder="true"></unipay>
+		</view>
 	</view>
 </template>
-
 <script>
+	import unipay from "@/components/uni-popup/uni-isPay.vue"
 	import route from "@/common/public.js"
-	import uniAddress from "@/components/uni-address/uni-address.vue"  //编辑地址公共组件我是隔壁的泰山
-	import uniIcon from "@/components/uni-icon/uni-icon.vue"
+	import uniIcons from "@/components/uni-icon/uni-icons.vue"
 	import uniPopup from '@/components/uni-popup/uni-popup.vue'
-	import mpvueCityPicker from '@/components/mpvue-citypicker/mpvueCityPicker.vue'
 	import mpviePicker from '@/components/mpvue-picker/mpvuePicker.vue'
-	import cityData from '@/common/city.data.js'
 	export default {
 		components: {
-			uniAddress,
-			'mpvue-city-picker':mpvueCityPicker,
 			'mpvue-picker':mpviePicker,
-			mpviePicker,mpvueCityPicker,
-			uniIcon,uniPopup,
-			cityData
+			mpviePicker,
+			uniIcons,uniPopup,unipay,
 		},
 		data() {
 			return {
@@ -130,10 +154,15 @@
 					old: {
 						scrollTop: 0
 				},
+				webData:{},// webView需要的数据
+				displayNone: true,
+				payAgain: false,
+				payShow: false,
+				payUrl: '',// 跳转支付地址
+				textareaIsShow: true,
 				payType: '' ,  // 判断从哪个页面过来的标识
 				Balance: '',  //余额：账户余额
 				backNum: '',  //返回的赋值变量
-				showMask:false, //返回按钮：遮罩层的显示隐藏
 				addressMsg: true,  //没有收货地址时显示
 				imgUrl :'',  //图片访问ip
 				isshow: false,
@@ -182,12 +211,10 @@
 				Remarks: '',  //订单主体备注
 				// remarksContent: '',  //订单明细备注
 				remarksindex: '',  //替换点击当前明细下标
-				
 				xiuGaiActive: true,  //定义的是修改地址时绑定的数据变量
 				deepLength: 1,
 				pickerValueDefault: [0],
 				pickerValueArray:[],
-				mulLinkageTwoPicker: cityData,
 				cityPickerValueDefault: [0, 0, 1],
 				themeColor: '#007AFF',
 				pickerText: '',
@@ -196,15 +223,19 @@
 				Signguid: '',  //guid
 				Distinguish: '',  //区分是从哪个页面过来的
 				payOrderid: '',  //去支付的orderid
-				DateRand: '',  //随机单号
 				judgeItems: [],
 				figureid: '',
 				invoiceInfo:[],  //发票
 				myAddress: [],  //收货地址
-				isCreateOrder:false
+				isCreateOrder:false,// 订单是否生成
+				isTest:0,//1是模拟支付，其他就是原价
+				isChecked: {'window':false,'select':false},// 弹窗是否弹起 是否手动查询?
 			}
 		},
 		methods: {
+			leave(ee){ //webView回调函数
+				this.webData = ee;
+			},
 			// 发票空回调函数
 			myInvoice(parameter){},
 			// 点击选择发票
@@ -222,10 +253,9 @@
 					this.subTotal = parseFloat(parameter.selectSubTotal)+parseFloat(parameter.selectShuiMoney)+parseFloat(this.kuaiDiMoney);   //总价
 					this.processing(this.subTotal);   //总价计算方式
 					this.invoiceInfo = parameter;
-					// console.log(this.invoiceInfo)
 				}
 				uni.navigateTo({
-					url: 'invoice'
+					url: '../../pages/order/invoice'
 				})
 			},
 			// 判断 支付方式 显示余额
@@ -245,7 +275,8 @@
 			// 配送方式的 取消函数
 			ClosePopup(e){
 				this.delivery = false;
-				this.payment = false
+				this.payment = false;
+				this.textareaIsShow = !this.textareaIsShow;
 			},
 			// 价格换算 公共函数
 			processing(event){
@@ -265,6 +296,7 @@
 					title: '物流'
 				})
 				this.delivery=true;
+				this.textareaIsShow = !this.textareaIsShow;
 			},
 			// 点击选择 配送方式
 			logisticsTap(evt){
@@ -277,6 +309,7 @@
 			// 配送方式的 确定 按钮
 			Determine(e){
 				this.delivery=false;
+				this.textareaIsShow = !this.textareaIsShow;
 				this.kuaiDi = this.LogName;  //给kuaiDi（快递方式显示）赋值
 				this.kuaiDiMoney = parseFloat(this.logPrice).toFixed(2);  //给kuaiDiMoney（快递价格显示）赋值   
 				this.subTotal = parseFloat(this.TotalMoney) + parseFloat(this.taxpointMoney) + parseFloat(this.kuaiDiMoney);  //总价
@@ -335,58 +368,33 @@
 				return classInof;
 			},
 			// 地址回调函数
-			myAddressBack(param){},
+			myAddressBack(param){
+			},
 			// 点击地址 跳转至 user的地址列表
 			addressClick(evt){
 				uni.setStorageSync('select','select');
 				this.myAddressBack=function(param){
 					this.defAddress = param;
+						this.displayNone = false;
 				}
 				uni.navigateTo({
-					url: '../user/useraddress'
+					url: '../../pages/user/useraddress'
 				})
 			},
 			// 订单主体备注
 			remarks(e){
-                if(this.beiZhuNum == 320){
-                    uni.showToast({
-                        icon: 'none',
-                        title: '最多只能輸入320個字'
-                    });
-                }
+                if(this.beiZhuNum == 320){
+                    uni.showToast({
+                        icon: 'none',
+                        title: '最多只能輸入320個字'
+                    });
+                }
 				this.beiZhuNum = e.detail.value.length;  //给Remarks（订单主体明细）赋值
 				this.Remarks = e.detail.value;
 			},
-			// 支付 公共函数
-			PaymentFun(res){
-				console.log(res)
-				uni.setStorageSync('orderCreation', 'orderCreation');
-				if(this.payNum == 1){  //微信支付
-					uni.setStorageSync('OddNumbers', res.data.orderNum);
-					let j = 'Wxpay';
-					uni.setStorageSync('PayMethod', j);
-					let i = encodeURI(route.variable+'/h5/pages/order/payResults');
-					location.href = res.data.response.mweb_url+'&redirect_url='+i;
-				}else if(this.payNum == 2){  //支付宝支付
-					let i = 'Alipay';
-					uni.setStorageSync('PayMethod', i);
-					uni.setStorageSync('DateRand',this.DateRand)
-					let div = document.createElement('div')
-					div.innerHTML = res.data //此处form就是后台返回接收到的数据
-					document.body.appendChild(div);
-					document.forms[0].submit();
-				}else{  //余额支付
-					uni.navigateTo({
-						url: 'balance?orderNum='+ res.data.orderNum +'&money='+res.data.money+'&amount='+res.data.amount+'&usable='+res.data.usable
-					})
-				}	
-			},
 			// 总订单支付
 			OrderPayment(e){
-				let date = new Date().getTime();  //获取时间戳
-				let rand = Math.floor(Math.random()*9999);  //随机数
-				this.DateRand = (date +''+ rand);  //随机单号
-				if(this.defAddress.name == '' && this.defAddress.address == '' && this.defAddress.telephone == ''){
+				if(this.defAddress.name == undefined && this.defAddress.address == undefined && this.defAddress.telephone == undefined){
 					uni.showToast({
 						title: '请添加收货地址',
 						icon: 'none'
@@ -413,47 +421,248 @@
 					}else{
 						this.getWay = 0
 					}
-					if(this.Distinguish == 3){
-						let url = route.variable+'/mobile/order/orderAgain';
-						this.OrderPayFun(url);
+					if(this.Distinguish == 3){ 
+						let url = getApp().globalData.webUrl+'/mobile/order/orderAgain';
+						// this.OrderPayFun(url);
 					}else{
-						let urls = route.variable+'/mobile/order/orderPay';
+						if(this.payAgain){// 再次生成新单子
+							uni.showToast({
+								title:'订单已生成，请前往订单页面支付！',
+								duration:2000,
+								icon:'none'
+							})
+							setTimeout(function(){
+								uni.redirectTo({
+									url: '../../pages/order/orderpageinfo'
+								});
+							},2100)
+							return false;
+						}
+						let urls = getApp().globalData.webUrl+'/mobile/order/orderPay';
 						this.OrderPayFun(urls)
 					}
 				}
 			},
 			// 订单总支付的 公共请求参数
 			OrderPayFun(e){
-				if(!this.isCreateOrder){
+				if(this.isCreateOrder){
+					uni.redirectTo({
+						url: 'orderpageinfo?orderNum=balance'
+					})
+					return false;
+				}
+				// #ifdef MP-WEIXIN
+				var _that = this;
+				wx.login({
+				  success: res => {
+				    var code = res.code;
 					uni.request({
-						url: e,
-						method: 'POST',
-						data: {
-							Ident_Signboard: this.Signboard,
-							Ident_Signguid: this.Signguid,
-							shifukuan: this.subTotal,  //付款总金额（后期不要）
-							kuaidi: this.logSubscript,  //快递方式
-							invoice_type: this.invoTypeNum,  //是否开票
-							invoice: this.faPiaoNum,  //发票：公司或者个人
-							title: this.corporateName,  //发票抬头（公司/个人）
-							taxcode: this.TaxpayerNum,  //税号（公司）
-							qyaddress: this.addressPhone,  //公司地址
-							qykaihu: this.openBankNum,  //公司开户行
-							remarks: this.Remarks,  //订单主体备注
-							address: this.defAddress.address,  //收货人地址
-							linkman: this.defAddress.name,  //收货人姓名 
-							linkPhone: this.defAddress.telephone,  //收货人电话
-							chunkmoney: this.kuaiDiMoney,  //快递运费
-							taxpoint: this.shuiMoney,  //发票税收
-							zhifu: this.payNum,  //支付方式
-							detailed: this.shopList,  //明细数组信息
-							getWay: this.getWay,  //辨别是否 挂账
-							orderid: this.payOrderid,  //订单id
-							serial_num: this.DateRand,  //随机生成的单号
-							detailremark: '',   //明细备注
-						},
-						success: (res) => {
-							this.isCreateOrder = true
+					url: e,
+					method: 'POST',
+					data: {
+						Ident_Signboard: _that.Signboard,
+						Ident_Signguid: _that.Signguid,
+						shifukuan: _that.isTest==1?0.01:_that.subTotal,  //付款总金额（后期不要）
+						kuaidi: _that.logSubscript,  //快递方式
+						invoice_type: _that.invoTypeNum,  //是否开票
+						invoice: _that.faPiaoNum,  //发票：公司或者个人
+						title: _that.corporateName,  //发票抬头（公司/个人）
+						taxcode: _that.TaxpayerNum,  //税号（公司）
+						qyaddress: _that.addressPhone,  //公司地址
+						qykaihu: _that.openBankNum,  //公司开户行
+						remarks: _that.Remarks,  //订单主体备注
+						address: _that.defAddress.address,  //收货人地址
+						linkman: _that.defAddress.name,  //收货人姓名 
+						linkPhone: _that.defAddress.telephone,  //收货人电话
+						chunkmoney: _that.kuaiDiMoney,  //快递运费
+						taxpoint: _that.shuiMoney,  //发票税收
+						zhifu: _that.payNum,  //支付方式
+						detailed: _that.shopList,  //明细数组信息
+						getWay: _that.getWay,  //辨别是否 挂账
+						orderid: _that.payOrderid,  //订单id
+						trade_type: 'JSAPI',
+						detailremark: '',   //明细备注
+						code: code
+					},
+					success: (res) => {
+						_that.payAgain = true;// 不允许形成新单子
+						if(res.data.state ==200){
+							_that.isCreateOrder = true;
+							_that.payOrder = res.data.orderNum;
+							if(_that.Distinguish==1){
+								var wulala=uni.getStorageSync("jsonList");  //获取存储在Storage里的值
+								var data = JSON.parse(wulala); //JSON字符串转对象
+								data.shop=data.shop-_that.shopList.length;
+								uni.setStorageSync('shop',data.shop);
+								let json = JSON.stringify(data);  //对象转字符串
+								uni.setStorageSync('jsonList',json) //将shop数据库数量从新存储进去
+							}
+							if(_that.payNum == 1){
+								var data = res.data;
+								uni.requestPayment({
+									provider: 'wxpay',
+								    timeStamp: res.data.timeStamp,
+								    nonceStr: res.data.nonceStr,
+								    package: res.data.package,
+								    signType: res.data.signType,
+								    paySign: res.data.paySign,
+								    success: function (res) {
+										uni.showLoading({
+											title:'支付结果查询中...',
+										})
+										if (res.errMsg == 'requestPayment:ok'){
+											setTimeout(function(){
+												uni.request({
+													url: getApp().globalData.webUrl+'/mobile/wechat/Repquery',
+													method: 'GET',
+													data:{
+														Ident_Signboard: _that.Signboard,
+														Ident_Signguid: _that.Signguid,
+														tradeno: data['out_trade_no']
+													},
+													success: (res) => {
+														var state = res.data.status;
+														if(state == 0){
+															uni.showToast({title: '订单完成!',icon:"none",duration:1000});
+															/* stat 转化订单或上传图片*/
+															setTimeout(()=>{
+																let sendPicture = {
+																	"msg":true,
+																	"data":{
+																		'tradeno': this.orderId,
+																		'status': 1,
+																	}
+																}
+																	uni.setStorageSync('sendPicture',JSON.stringify(sendPicture))
+																	uni.showModal({
+																			title:"提示",
+																			content: '是否立即提交订单',
+																			cancelText:'等待传图',
+																			confirmText:'提交订单',
+																			success: res => {
+																					if(res.confirm) {
+																						sendPicture.msg = false;
+																						uni.setStorageSync('sendPicture',JSON.stringify(sendPicture))
+																						route.orderOrSendPi(this.orderId,sendPicture)
+																					}else{
+																						sendPicture.msg = false;
+																						uni.setStorageSync('sendPicture',JSON.stringify(sendPicture))
+																			}
+																			}
+																	})
+															},1100)
+															/* end 转化订单或上传图片*/
+														}else{
+															uni.showToast({title: '订单支付失败!',icon:"none"});
+														}
+													},
+													fail:(res)=>{
+														uni.showToast({
+															title: '接口连不上!' + res.errMsg,
+															icon: 'none'
+														});
+													},
+													complete() {
+														setTimeout(function(){
+															uni.redirectTo({
+																url:'/pages/order/orderpageinfo'
+															})
+														},1000)
+													}
+												})
+											},1000)
+										}
+								    },
+								    fail: function (err) {
+								        uni.showToast({
+								        	title: '支付已取消',
+								        });
+								    }
+								})
+							}else{
+								uni.navigateTo({
+									url: 'balance?orderNum='+ res.data.orderNum +'&money='+res.data.money+'&amount='+res.data.amount+'&usable='+res.data.usable
+								})
+							}
+						}else if(res.data.status == 0){
+								_that.isCreateOrder = true;
+								_that.payOrder = res.data.orderNum;
+								if(_that.Distinguish==1){
+									var wulala=uni.getStorageSync("jsonList");  //获取存储在Storage里的值
+									var data = JSON.parse(wulala); //JSON字符串转对象
+									data.shop=data.shop-_that.shopList.length;
+									uni.setStorageSync('shop',data.shop);
+									let json = JSON.stringify(data);  //对象转字符串
+									uni.setStorageSync('jsonList',json) //将shop数据库数量从新存储进去
+								}
+								if (_that.payNum == 3){
+									uni.navigateTo({
+										url: 'balance?orderNum='+ res.data.orderNum +'&money='+res.data.money+'&amount='+res.data.amount+'&usable='+res.data.usable
+									})
+								}
+						}
+						else {
+							uni.showToast({
+								title: res.data.RETURN_MSG,
+								duration: 2000,
+								icon:'none'
+							})
+							setTimeout(()=>{
+								uni.redirectTo({
+									url: '/pages/order/orderpageinfo'
+								});
+							},1000)
+						}
+					},
+					fail:(res)=>{
+						uni.hideLoading()
+						uni.showToast({title: '请求失败'+'错误码201',icon:"none"});
+					}
+				})
+				},
+			});
+				// #endif
+				// #ifndef MP-WEIXIN
+				uni.request({
+					url: e,
+					method: 'POST',
+					data: {
+						Ident_Signboard: this.Signboard,
+						Ident_Signguid: this.Signguid,
+						shifukuan: this.isTest==1?0.01:this.subTotal,  //付款总金额（后期不要）
+						kuaidi: this.logSubscript,  //快递方式
+						invoice_type: this.invoTypeNum,  //是否开票
+						invoice: this.faPiaoNum,  //发票：公司或者个人
+						title: this.corporateName,  //发票抬头（公司/个人）
+						taxcode: this.TaxpayerNum,  //税号（公司）
+						qyaddress: this.addressPhone,  //公司地址
+						qykaihu: this.openBankNum,  //公司开户行
+						remarks: this.Remarks,  //订单主体备注
+						address: this.defAddress.address,  //收货人地址
+						linkman: this.defAddress.name,  //收货人姓名 
+						linkPhone: this.defAddress.telephone,  //收货人电话
+						chunkmoney: this.kuaiDiMoney,  //快递运费
+						taxpoint: this.shuiMoney,  //发票税收
+						zhifu: this.payNum,  //支付方式
+						detailed: this.shopList,  //明细数组信息
+						getWay: this.getWay,  //辨别是否 挂账
+						orderid: this.payOrderid,  //订单id
+						// #ifdef H5
+						trade_type: 'MWEB',
+						// #endif
+						// #ifndef H5
+						trade_type: 'NATIVE',
+						// #endif
+						//getApp().globalData.webUrl //成功返回页面
+						//redirect_url:encodeURI(getApp().globalData.webUrl+'/h5/pages/order/orderpageinfo'),
+						//'http://192.168.199.213:80'
+						detailremark: '',   //明细备注
+					},
+					success: (res) => {
+						this.payAgain = true;// 不允许形成新单子
+						if(res.data.status ==0){
+							this.isCreateOrder = true;
+							this.payOrder = res.data.orderNum;
 							if(this.Distinguish==1){
 								var wulala=uni.getStorageSync("jsonList");  //获取存储在Storage里的值
 								var data = JSON.parse(wulala); //JSON字符串转对象
@@ -462,18 +671,74 @@
 								let json = JSON.stringify(data);  //对象转字符串
 								uni.setStorageSync('jsonList',json) //将shop数据库数量从新存储进去
 							}
-							this.PaymentFun(res);   //调用支付封装函数接口
-						},
-						fail:(res)=>{
-							uni.hideLoading()
-							uni.showToast({title: '请求失败'+'错误码201',icon:"none"});
+							let checkPayResult = {
+								'payOrder': res.data.orderNum,
+								'pmtNum': '',
+								'webUrl': '',
+								'isPayTrue':false,
+								'sendPicture':true
+							}
+							 /* 1是微信,2是支付宝 */
+							 let webUrl = '';
+							if(this.payNum == 1 || this.payNum == 2){
+								if(this.payNum == 1){
+									webUrl = res.data.pay_link;
+									checkPayResult.pmtNum = 1;
+								}else{
+									webUrl = res.data.pay_form;
+									checkPayResult.pmtNum = 2;
+								}
+								checkPayResult.webUrl = webUrl;
+								this.webData = checkPayResult;
+								// #ifdef APP-PLUS
+								uni.navigateTo({
+									url: '../../pages/user/payWebView',
+								})
+								// #endif
+								// #ifdef H5
+								if(this.payNum == 1){
+									uni.navigateTo({
+										url: '../../pages/user/payWebView',
+									})
+								}else if(this.payNum == 2){ //不走payWevView
+									let div = document.createElement('div')
+									div.innerHTML = webUrl //此处form就是后台返回接收到的数据
+									document.body.appendChild(div);
+									document.forms[0].submit();
+									setTimeout(()=>{
+										this.payShow = true
+									},1000)
+								}
+								// #endif
+							}else{
+								uni.navigateTo({
+									url: 'balance?orderNum='+ res.data.orderNum +'&money='+res.data.money+'&amount='+res.data.amount+'&usable='+res.data.usable
+								})
+							}
 						}
-					})
-				}else{
-					uni.redirectTo({
-						url: 'orderpageinfo?orderNum=balance'
-					})
-				}
+						else if(res.data.status == 1){
+							uni.showToast({
+								title: '订单异常！',
+								duration: 1000,
+								icon:'none'
+							})
+							setTimeout(()=>{
+								uni.redirectTo({
+									url: '/pages/order/orderpageinfo'
+								});
+							},1000)
+						}
+					},
+					fail:(res)=>{
+						uni.hideLoading()
+						uni.showToast({title: '请求失败'+'错误码201',icon:"none"});
+					}
+				})
+				// #endif
+			},
+			payResult() {
+				this.payShow = false
+				this.isChecked.select = true
 			},
 			onLoadFun(res,payType){
 				if(res.data.status == 0){
@@ -497,12 +762,14 @@
 						// if(res.data.address[0].patientia == 1){  //判断是否存在默认收货地址
 						this.defAddress = res.data.address[0];  //给defAddress（默认收货地址）赋值
 						this.addressMsg = true
+						this.displayNone = false;
 						// }else{
 						// 	this.defAddress = res.data.address[0];  //给defAddress（默认收货地址）赋值
 						// 	this.addressMsg = true
 						// }
 					}else{
-						this.addressMsg = false
+						this.addressMsg = false;
+						this.displayNone = true;
 					}
 					this.addressList = res.data.address;  //给addressList（地址列表信息）赋值
 					this.logwayList = res.data.logway;  //给logwayList（物流方式列表信息）赋值
@@ -530,47 +797,50 @@
 					this.invoiceInfo.selectTaxpoint = '0.00';  //税点
 					this.invoiceInfo.selectShuiMoney = parseFloat(0.00).toFixed(2);  //税费
 					this.invoiceInfo.selectSubTotal = parseFloat(this.TotalMoney).toFixed(2);  //总价
-					
-					if(payType == 3){  //我的订单（去支付点击过来的）
-						if(res.data.payData.length != 0){
-							if(res.data.payData.remark != null){
-								this.desc = res.data.payData.remark;  //订单主体备注
-							}
-							this.kuaiDi = res.data.logway[res.data.payData.delivery].wayname;  //快递方式
-							this.logchenkNum = res.data.payData.delivery;  //选择快递方式的列表
-							this.logPrice = parseFloat(res.data.payData.chunkmoney).toFixed(2);  //快递费用  (页面)
-							this.kuaiDiMoney = parseFloat(res.data.payData.chunkmoney).toFixed(2);  //快递费用  (弹出层)
-							this.invoTypeName = res.data.fapiao[res.data.payData.invoice_type].name;  //默认发票 (页面)
-							this.taxpointMoney = parseFloat(res.data.payData.taxpoint).toFixed(2);  //税费 (页面)
-							this.invoiceInfo.invoiceisShow = false;
-							this.invoiceInfo.VATisShow = false;
-							this.invoiceInfo.selectInvoice_type = res.data.payData.invoice_type;  //是否开票下标
-							this.invoiceInfo.selectInvoTypeName = res.data.fapiao[res.data.payData.invoice_type].name;  //发票类型 名称
-							this.invoiceInfo.selectFaPiaoNum = res.data.payData.invoice;  //公司还是个人
-							this.invoiceInfo.selectCorporateName = res.data.payData.title;  //公司名称
-							this.invoiceInfo.selectTaxpayerNum = res.data.payData.tax_code;  //纳税人识别号
-							this.invoiceInfo.selectaddressPhone = res.data.payData.address;  //电话和地址
-							this.invoiceInfo.selectopenBankNum = res.data.payData.bank;  //开户行及账户
-							this.invoiceInfo.selectTaxpoint = res.data.fapiao[res.data.payData.invoice_type].taxpoint;  //税点
-							this.invoiceInfo.selectShuiMoney = parseFloat(res.data.payData.taxpoint).toFixed(2);  //税费
-							this.invoiceInfo.selectSubTotal = parseFloat(res.data.payData.total).toFixed(2);  //总价
-						}
-					}
+					// if(payType == 3){  //我的订单（去支付点击过来的）
+					// 	if(res.data.payData.length != 0){
+					// 		if(res.data.payData.remark != null){
+					// 			this.desc = res.data.payData.remark;  //订单主体备注
+					// 		}
+					// 		this.kuaiDi = res.data.logway[res.data.payData.delivery].wayname;  //快递方式
+					// 		this.logchenkNum = res.data.payData.delivery;  //选择快递方式的列表
+					// 		this.logPrice = parseFloat(res.data.payData.chunkmoney).toFixed(2);  //快递费用  (页面)
+					// 		this.kuaiDiMoney = parseFloat(res.data.payData.chunkmoney).toFixed(2);  //快递费用  (弹出层)
+					// 		if(res.data.payData.invoice_type != 2){
+					// 			this.invoTypeName = res.data.fapiao[res.data.payData.invoice_type].name;  //默认发票 (页面)
+					// 		}
+					// 		this.taxpointMoney = parseFloat(res.data.payData.taxpoint).toFixed(2);  //税费 (页面)
+					// 		this.invoiceInfo.invoiceisShow = false;
+					// 		this.invoiceInfo.VATisShow = false;
+					// 		this.invoiceInfo.selectInvoice_type = res.data.payData.invoice_type;  //是否开票下标
+					// 		if(res.data.payData.invoice_type != 2){
+					// 			this.invoiceInfo.selectInvoTypeName = res.data.fapiao[res.data.payData.invoice_type].name;  //发票类型 名称
+					// 		}
+					// 		this.invoiceInfo.selectFaPiaoNum = res.data.payData.invoice;  //公司还是个人
+					// 		this.invoiceInfo.selectCorporateName = res.data.payData.title;  //公司名称
+					// 		this.invoiceInfo.selectTaxpayerNum = res.data.payData.tax_code;  //纳税人识别号
+					// 		this.invoiceInfo.selectaddressPhone = res.data.payData.address;  //电话和地址
+					// 		this.invoiceInfo.selectopenBankNum = res.data.payData.bank;  //开户行及账户
+					// 		if(res.data.payData.invoice_type != 2){
+					// 			this.invoiceInfo.selectTaxpoint = res.data.fapiao[res.data.payData.invoice_type].taxpoint;  //税点
+					// 		}
+					// 		this.invoiceInfo.selectShuiMoney = parseFloat(res.data.payData.taxpoint).toFixed(2);  //税费
+					// 		this.invoiceInfo.selectSubTotal = parseFloat(res.data.payData.total).toFixed(2);  //总价
+					// 	}
+					// }
 				}
 			},
 		}, 
 		onShow(e){
-			// uni.getStorage({
-			// 	key:'orders',
-			// 	success: (e) => {
-			// 		uni.removeStorage({
-			// 			key:'orders'
-			// 		})
-			// 		uni.redirectTo({
-			// 			url: 'orderpageinfo?orderNum=balance'
-			// 		})
-			// 	},
-			// });
+			// #ifndef MP-WEIXIN
+				if(this.webData.isPayTrue==true){// 是否弹起完成支付弹窗
+						this.payAgain = true;// 不允许形成新单子
+						this.isChecked.window = true
+						this.payShow = true;
+						this.webData.isPayTrue = false;
+				}
+			// #endif
+			
 			// 判断是否存在地址 :不存在就显示提示  存在就将提示隐藏
 			if(this.defAddress.addid == null){
 				this.addressMsg = false;
@@ -588,11 +858,11 @@
 			var data = JSON.parse(wulala); //JSON字符串转对象
 			this.Signboard = data.Ident_Signboard;  //给Signboard 赋值最近更新
 			this.Signguid = data.Ident_Signguid;  //给Signguid 赋值
-			this.imgUrl = route.variable;  //图片访问IP
+			this.imgUrl = getApp().globalData.webUrl;  //图片访问IP
 			
 			if (options.l == 2){  //下单页 直接购买
 				uni.request({
-					url: route.variable+'/mobile/order/conOrder',
+					url: getApp().globalData.webUrl+'/mobile/order/conOrder',
 					method: 'GET',
 					data: {
 						Ident_Signboard: options.Ident_Signboard,  //令牌
@@ -609,6 +879,7 @@
 						l: 2,  //标识：区分是购物车发起的支付还是下单页直接过去的
 					},
 					success: (res) => {
+						this.isTest = res.data.isTest;
 						this.onLoadFun(res,options.l);  //调用公共函数
 					},
 					fail:(res)=>{
@@ -618,7 +889,7 @@
 				})
 			}else if(options.l == 1) {  //购物车过来
 				uni.request({
-					url: route.variable+'/mobile/order/conOrder',
+					url: getApp().globalData.webUrl+'/mobile/order/conOrder',
 					method: 'POST',
 					data:{
 						serial: options.serial,  //购物车选中的商品序号
@@ -636,7 +907,7 @@
 			}else{
 				this.payOrderid = options.orderid;
 				uni.request({
-					url: route.variable+'/mobile/order/Payagain',
+					url: getApp().globalData.webUrl+'/mobile/order/Payagain',
 					method: 'POST',
 					data: {
 						Ident_Signboard: options.Ident_Signboard,  //令牌
@@ -653,10 +924,14 @@
 				})
 			}
 		},
+		onUnload(){// 用户离开此页面
+		// #ifndef MP-WEIXIN
+			route.comCheckout(this.isChecked.select,this.isChecked.window,this.webData); //自动轮询
+		// #endif
+		},
 	}
 </script>
-
-<style>
+<style scoped lang="scss">
 	@import "../../common/uni.css";
 	@import "../../common/iconfont.css";
 	@import "../../common/css/useraddress.css";
@@ -766,7 +1041,10 @@
 		line-height: 24px;
 	}
 	.jiantou{
-		color: #C3C3C3;
+		// color: #C3C3C3;
+		position: absolute;
+		right: 0;
+		line-height: initial;
 	}
 	/* 商品视图 */
 	.commodity_view{
@@ -820,6 +1098,7 @@
 	/* 配送服务 的样式 */
 	.delivery_view{
 		height: 70vh;
+		z-index: 999;
 	}
 	.delivery{
 		background: #FFFFFF;
@@ -856,6 +1135,7 @@
 		font-size: 0.7rem;
 		width: 98%;
 		background: #F7F7F7;
+		z-index: 0;
 	}
 	.remarks>view{
 		text-align: right;
@@ -970,69 +1250,4 @@
 	.dv_GoBack {
 		background-color: #dcdbdb;
 	}
-	/* radio按钮的样式 */
-	/* .uni-list-cell {
-		justify-content: flex-start
-	}
-	.uni-list::before,.uni-list::after,.uni-list-cell::before,.uni-list-cell::after,.uni-collapse::before,.uni-collapse::after{
-		background: #FFFFFF;
-	}
-	.uni-list[data-v-1c42fea2]::before{
-		background-color: none !important;
-		height: 0 !important;
-	}
-	.uni-collapse[data-v-719bab91]:before{
-		background-color: none !important;
-		height: 0px !important;
-	}
-	.uni-list[data-v-1c42fea2]:after{
-		background-color: none !important;
-		height: 0px !important;
-	}
-	.uni-list-cell[data-v-1c42fea2]::after{
-		position: none !important;
-		height: 0px !important;
-	}
-	.uni-collapse .uni-collapse-cell__title{
-		background: #ffffff;
-		border-bottom: 1px #F7F7F7 solid;
-	}
-	.uni-list-cell-pd {
-		padding: 5px 12px;
-	} */
-
-	/* 发票类型 */
-	/* .invo{
-		display: none;
-	} */
-	/* 企业发票内容 */
-	/* .enterprise{
-		width: 100%;
-		background: #FFFFFF;
-		height: 300px;
-	}
-	.enterpriseContent{
-		font-size: 0.7rem;
-		height: 46px;
-		border-bottom: 1px solid #F7F7F7;
-		line-height: 46px;
-	}
-	.enterpriseContent text{
-		text-align: center;
-		width: 30%;
-		display: inline-block;
-		height: 46px;
-		line-height: 46px;
-	}
-	.enterpriseContent input{
-		width: 69%;
-		height: 38px;
-		line-height: 38px;
-		float: right;
-		background-color: #F7F7F7;
-		margin-top: 0.2rem;
-	}
-	.uni-collapse[data-v-719bab91]:after{
-		content: none;
-	} */
 </style>

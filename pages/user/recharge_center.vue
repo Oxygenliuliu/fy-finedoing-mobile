@@ -54,6 +54,7 @@
 								<radio :checked="paytype=='1'" color="#FF0000" style="transform:scale(0.7)"/>
 							</view>
 					</view>
+					<!-- #ifndef MP-WEIXIN -->
 					<view class="row" @tap="paytype='2'">
 							<view class="left">
 								<image src="../../static/image/zhifu.png"></image>
@@ -65,57 +66,77 @@
 								<radio :checked="paytype=='2'" color="#FF0000" style="transform:scale(0.7)"/>
 							</view>
 					</view>
+					<!-- #endif -->
 				</view>
 			</view>
 		</view>
 		<!-- 优惠活动 -->
-		<view class="rechargeMode" @tap="hdClick">
+		<view class="rechargeMode">
 			<view class="odes">优惠活动<text>{{rueles == '' ? '无优惠' : '满'+rueles.recharge+'送'+rueles.send}}</text></view>
+			<view style="font-size: 0.7rem;display: flex;justify-content: center;padding-bottom: 10px;">
+				<text>{{message}}</text>
+			</view>
 			<view class="hd_cont" v-for="(ruelesInfo,index) in ruelesInfo" :key="index" :class="{'hd_active':ruelesInfo.r_id==rueles.r_id}">
 				<view >
 					<text style="float: left;">满{{ruelesInfo.recharge}}送{{ruelesInfo.send}}</text>
-					<!-- <text style="float: left;color: #222222;font-weight:600 ;" :style="{display:(index == ruelesNum?'inline-flex':'none')}">(当前最大优惠)</text> -->
-					</view>
+				</view>
 			</view>
 		</view>
-		
 		<view class="pay">
-			<view class="btn" @tap="doDeposit">立即充值</view>
-			<!-- <view class="tis">
-				点击立即充值，即代表您同意<view class="terms">
-					《条款协议》
-				</view>
-			</view> -->
+			<view class="btn" @tap="doDeposit">立即充值<text v-show='isTest'>(模拟支付0.01)</text></view>
+		</view>
+		<view v-show='payShow' >
+		<unipay @payResult='payResult' :webData='webData' :payFromCz='payFromCz'></unipay>
 		</view>
 	</view>
 </template>
 
 <script>
+	import unipay from "@/components/uni-popup/uni-isPay.vue"
 	import route from "@/common/public.js"
 	export default {
+		components:{unipay},
 		data() {
 			return {
-				inputAmount:'0.00',//金额
+				webData: {},
+				inputAmount:'',//金额
 				amountList:[500,1000,2000],//预设3个可选快捷金额
 				amountList2:[5000,10000],//预设3个可选快捷金额
-				paytype:'1',//支付类型
+				paytype:'',//支付类型
 				Signboard:'', //token令牌
 				Signguid:'', //用户标识
 				balance:"", //当前余额
 				rueles:"", //当前优惠活动的数组
-				ruelesInfo: '',
-				actaul_money:'0.00'//实际到账金额
-			};
+				ruelesInfo: [],
+				actaul_money:'0.00',//实际到账金额
+				message:'',
+				payUrl: '',
+				payShow: false,
+				payOrder: '',
+				payWayNum: '',
+				payFromCz: true,
+				isChecked: {'window':false,'select':false},// 弹窗是否弹起 是否手动查询?
+				isTest:false,
+				};
 		},
 		methods:{
-			hdClick() {
-				console.log("点击优惠")
+			leave(ee){//webView回调函数
+				this.webData = ee;
 			},
-			select(amount){
+			payResult() {
+				this.payShow = false;
+				this.isChecked.select = true;
+			},
+			select(amount){// 获取用户选择的充值金额
 				this.inputAmount = amount.toFixed(2);
 				this.discount(amount)
 			},
 			change(inputAmount){
+				// (/^(((([1-9]([0-9]{0,8}))|0)\.([0-9]{1,2}))|([1-9]([0-9]{0,8})))$/) 判断输入的是否为金额
+				if(!(/^(((([1-9]([0-9]{0,8}))|0)\.([0-9]{1,2}))|([1-9]([0-9]{0,8})))$/).test(inputAmount))
+				{
+					this.inputAmount = inputAmount = 1;
+				}
 				this.discount(inputAmount)
 			},
 			discount(inputAmount){
@@ -138,9 +159,7 @@
 				}else{
 					this.actaul_money=(parseFloat(inputAmount)+parseFloat(this.rueles.send)).toFixed(2);
 				}
-				console.log(this.rueles)
 			},
-
 			doDeposit(){
 				if (parseFloat(this.inputAmount).toString() == "NaN") {
 					uni.showToast({title:'请输入充值金额',icon:'none'});
@@ -154,115 +173,247 @@
 					uni.showToast({title:'最多只能输入两位小数哦~',icon:'none'});
 					return ;
 				}
-				let date = new Date().getTime(); //获取时间戳
-				let rand = Math.floor(Math.random()*9999);//随机数
-				let rdmSingleNum='',
-				tradeno='';  
-				rdmSingleNum = (date +''+ rand);  //随机单号
+				uni.showLoading({
+					title:'支付中...',
+				})
+				setTimeout(function(){
+					uni.hideLoading()
+				},1000)
+				// #ifdef MP-WEIXIN
+				var _that = this;
+				wx.login({
+				  success: res => {
+				    var code = res.code;
+					uni.request({
+						url:getApp().globalData.webUrl+'/mobile/recharge/Wapay',
+						method:'POST',
+						data: {
+							Ident_Signboard: _that.Signboard,
+							Ident_Signguid: _that.Signguid,
+							moneys:_that.inputAmount,
+							zhifu:_that.paytype,
+							r_id:_that.rueles.r_id,
+							trade_type: 'JSAPI',
+							code: code
+						},
+						header: {
+						  'content-type': 'application/x-www-form-urlencoded' // 默认值
+						},
+						success: res=> {
+							if (res.data.state == 200){
+								var data = res.data;
+								uni.requestPayment({
+									provider: 'wxpay',
+								    timeStamp: res.data.timeStamp,
+								    nonceStr: res.data.nonceStr,
+								    package: res.data.package,
+								    signType: res.data.signType,
+								    paySign: res.data.paySign,
+								    success: function (res) {
+										uni.showLoading({
+											title:'支付结果查询中...',
+										})
+										if (res.errMsg == 'requestPayment:ok'){
+											uni.request({
+													url:getApp().globalData.webUrl+'/mobile/wechat/orderquery',
+													method:'GET',
+													data:{
+														Ident_Signboard: _that.Signboard,
+														Ident_Signguid: _that.Signguid,
+														tradeno:data['out_trade_no'],
+													},
+													success: (res) => {
+														var state = res.data.status;
+														uni.hideLoading()
+														if(state == 0){
+															uni.showToast({title: '充值成功!',icon:"none"});
+															setTimeout(function(){
+																	uni.redirectTo({
+																		url:'/pages/user/bill'
+																	})
+																},1000)
+														}else{
+															uni.showToast({title: '充值失败!', icon:"none"});
+														}
+														
+													},
+													fail:(res)=>{
+														uni.showToast({
+															title: '接口连不上!' + res.errMsg,
+															icon: 'none'
+														});
+														uni.hideLoading()
+													}
+												})
+										}
+								    },
+								    fail: function (err) {
+								        uni.showToast({
+								        	title: '支付已取消',
+											icon: 'none'
+								        });
+								    }
+								})
+							}else{
+								uni.showToast({
+									title: res.data.RETURN_MSG,
+								});
+							}
+						}
+					})
+				  }
+				})
+				// #endif
+				// #ifndef MP-WEIXIN
+				let tradeno='';
 				uni.request({
-					url:route.variable+'//mobile/recharge/Wapay',
-					method:'GET',
-					data:{
+					url:getApp().globalData.webUrl+'//mobile/recharge/Wapay',
+					data: {
 						Ident_Signboard: this.Signboard,
 						Ident_Signguid: this.Signguid,
 						moneys:this.inputAmount,
 						zhifu:this.paytype,
 						r_id:this.rueles.r_id,
-						serial_num:rdmSingleNum
+						// #ifdef H5
+						trade_type: 'MWEB',
+						// #endif
+						// #ifndef H5
+						trade_type: 'NATIVE',
+						// #endif
 					},
-					success: (res) => {
+					success: res=> {
 						if (route.publicIf(res.data.status) == false){
 							return false;
-						}
-						tradeno=res.data.orderNum;
-						uni.setStorageSync('pmtNum',this.paytype) //充值方式 1-微信 2-支付宝
-						uni.setStorageSync('tradeno',tradeno) //充值单号
-						uni.setStorageSync('rdmSingleNum',rdmSingleNum) //随机生成的单号
-						
-						 /* 1是微信,2是支付宝 */
-						if(this.paytype==1){
-							let i = encodeURI(route.variable+'/h5/pages/user/weChat');
-							location.href = res.data.objectxml.mweb_url+'&redirect_url='+i;
-							// this.wctPolling(); //调用微信轮询
-						}else{
-							const div = document.createElement('div')
-							div.innerHTML = res.data //此处form就是后台返回接收到的数据
-							document.body.appendChild(div);
-							document.forms[0].submit();
-							//this.apyPolling(); //调用支付宝轮询
-						}
+							}
+							tradeno=res.data.orderNum;
+							let checkPayResult = {
+								'payOrder': res.data.orderNum,
+								'pmtNum': this.paytype,
+								'webUrl': '',
+								'isPayTrue':false
+							}
+							 /* 1是微信,2是支付宝 */
+							 let webUrl = '';
+							if(this.paytype == 1){
+								webUrl = res.data.pay_link;
+							}else{
+								webUrl = res.data.pay_form;
+								}
+							checkPayResult.webUrl = webUrl;
+							this.webData = checkPayResult;
+							
+							// #ifdef APP-PLUS
+							uni.navigateTo({
+								url: '../../pages/user/payWebView',
+							})
+							
+							// #endif
+							// #ifdef H5
+							if(this.paytype == 1){
+								uni.navigateTo({
+									url: '../../pages/user/payWebView',
+								})
+							}
+							else if(this.paytype == 2){
+								let div = document.createElement('div')
+								div.innerHTML = webUrl //此处form就是后台返回接收到的数据
+								document.body.appendChild(div);
+								document.forms[0].submit();
+								setTimeout(()=>{
+									this.payShow = true
+								},1000)
+							}
+							
+							// #endif
 					}
 				})
-			}
+				// #endif
+			},
 		},
 		onLoad() {
 			var jsonList=uni.getStorageSync("jsonList");
 			var data = JSON.parse(jsonList); //JSON字符串转对象
-			var _that = this;
-			_that.Signboard = data.Ident_Signboard;
-			_that.Signguid = data.Ident_Signguid;
+			this.Signboard = data.Ident_Signboard;
+			this.Signguid = data.Ident_Signguid;
 			route.checkCsid(data.csid);
-			// console.log(result)
 			//获取当前账户余额,并显示在页面中
 			uni.request({
-				url:route.variable+'/mobile/recharge/getRecharge',  //获取当前账户余额的接口地址
+				url:getApp().globalData.webUrl+'/mobile/recharge/getRecharge',  //获取当前账户余额的接口地址
 				method:'GET',
 				data:{
-					Ident_Signboard: _that.Signboard,
-					Ident_Signguid: _that.Signguid
+					Ident_Signboard: this.Signboard,
+					Ident_Signguid: this.Signguid
 				},
 				success: (res) => {
 					if (route.publicIf(res.data.status) == false){
 						return false;
 					}
-					console.log(res)
+					if(res.data.isTest == 1){
+						this.isTest = true;
+					}
 					if(res.data.status==0){
-						// if(res.data.balance){
-						// 	_that.balance=res.data.balance.account; //获取当前余额并将其存入this.balance
-						// 	console.log(_that.balance);
-						// }else{
-						// 	uni.showToast({title: '请完善公司信息',icon:"none"});
-						// }
-						_that.balance=res.data.balance.account; //获取当前余额并将其存入this.balance
-						console.log(_that.balance);
+						this.balance=res.data.balance.account; //获取当前余额并将其存入this.balance
 					}
 				},
 				fail:(res)=>{
 					uni.hideLoading()
 					uni.showToast({title: '数据加载失败'+'错误码201',icon:"none"});
-					// console.log("fail: "+JSON.stringify(e));
 				}
 			}),
 			/* 获取活动信息,满减活动 */
 			uni.request({
-				url:route.variable+'/mobile/recharge/rueles',
+				url:getApp().globalData.webUrl+'/mobile/recharge/rueles',
 				method:'GET',
 				data:{
-					Ident_Signboard: _that.Signboard,
-					Ident_Signguid: _that.Signguid
+					Ident_Signboard: this.Signboard,
+					Ident_Signguid: this.Signguid
 				},
 				success: (res) => {
 					if (route.publicIf(res.data.status) == false){
 						return false;
 					}
 					if(res.data.status==0){
-						// _that.rueles=res.data.data;
-						_that.ruelesInfo=res.data.data;
-						console.log(_that.rueles);
-						console.log(_that.ruelesInfo);
+						this.ruelesInfo=res.data.data;
+					}
+					if(res.data.data.length){
+						this.message = '(活动时间：' + res.data.start_time + '至' + res.data.end_time + ')';
+					}else{
+						this.message = res.data.message;
 					}
 				},
 				fail:(res)=>{
 					uni.hideLoading()
 					uni.showToast({title: '数据加载失败'+'错误码201',icon:"none"});
-					// console.log("fail: "+JSON.stringify(e));
 				}
 			})
 		},
+		onShow() {
+			// #ifndef MP-WEIXIN
+				if(this.webData.isPayTrue==true){
+					this.payShow = true;
+					this.isChecked.window = true;
+					this.webData.isPayTrue = false;
+				}
+			// #endif
+		},
+		beforeDestroy(){// 用户离开此页面
+			// #ifndef MP-WEIXIN
+			// 用户不点击窗口自动轮询
+			if(!this.isChecked.select && this.isChecked.window){//弹窗弹起但为查询
+					let wulala=JSON.parse(uni.getStorageSync("jsonList"));  //获取存储在Storage里的值JSON字符串转对象
+					let Signboard = wulala.Ident_Signboard;
+					let Signguid = wulala.Ident_Signguid;
+					let payOrder = this.webData.payOrder;
+					let paytype = this.webData.pmtNum;
+					let gowhere = true;
+					route.selectIsPay(paytype,Signboard,Signguid,payOrder,gowhere,'false');
+				}
+			// #endif
+			}
 	}
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 	// 顶部当前余额
 	.back{
 		margin: 0.3rem 0.5rem;
@@ -342,6 +493,9 @@
 			background: #06b4fd;
 			color: #FFFFFF;
 		}
+	}
+	.box input{
+		text-align: center;
 	}
 	.block{
 		width: 94%;

@@ -10,7 +10,7 @@
 
 <script>
 	import route from "@/common/public.js"
-	import uniIcon from "@/components/uni-icon/uni-icon.vue"
+	import uniIcon from "@/components/uni-icon/uni-icons.vue"
     export default {
 		components: {uniIcon},
         data() {
@@ -106,7 +106,7 @@
 				var rdmSingleNum=uni.getStorageSync('rdmSingleNum');//随机生成的单号
 				if(pmtNum==1){ //充值方式 1-微信 2-支付宝
 					uni.request({
-							url:route.variable+'/mobile/wechat/orderquery',
+							url:getApp().globalData.webUrl+'/mobile/wechat/orderquery',
 							method:'GET',
 							data:{
 								Ident_Signboard: Signboard,
@@ -126,7 +126,7 @@
 						})
 				}else{
 					uni.request({
-						url:route.variable+'/mobile/Alipay/trade_query',
+						url:getApp().globalData.webUrl+'/mobile/Alipay/trade_query',
 						method:'GET',
 						data:{
 							Ident_Signboard: Signboard,

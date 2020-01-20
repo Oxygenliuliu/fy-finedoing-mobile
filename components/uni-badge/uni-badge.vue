@@ -1,5 +1,5 @@
 <template>
-	<text class="uni-badge" v-if="text" :class="inverted ? 'uni-badge-' + type + ' uni-badge--' + size + ' uni-badge-inverted' : 'uni-badge-' + type + ' uni-badge--' + size" @click="onClick()">{{text}}</text>
+	<text class="uni-badge" style='color: #fff'  v-if="text" :class="inverted ? 'uni-badge-' + type + ' uni-badge--' + size + ' uni-badge-inverted' : 'uni-badge-' + type + ' uni-badge--' + size" @click="onClick()">{{text}}</text>
 </template>
 
 <script>
@@ -43,7 +43,13 @@
 		padding: 3px 6px;
 		color: #333;
 		border-radius: 100px;
-		background-color: #f1f1f1
+		/* #ifdef H5 */
+		background-color: #f1f1f1;
+		/* #endif */
+		/* #ifndef H5 */
+		background-color:#ff0000;
+		/* #endif */
+		
 	}
 
 	.uni-badge.uni-badge-inverted {
@@ -56,7 +62,6 @@
 		color: #fff;
 		background-color: #007aff
 	}
-
 	.uni-badge-primary.uni-badge-inverted {
 		color: #007aff;
 		background-color: transparent

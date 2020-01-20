@@ -1,15 +1,15 @@
 <template>
 	<view class="now" :style="{height:(height)+'px'}">
 		<!-- 子账号个人信息显示块 -->
-		<view class="uni-padding-wrap">
+		<view class="uni-padding-wrap" style="height: 540px;">
 			<uni-view class="uni-active">
 				<uni-view class="uni-list-cell" @tap="nameAndTelClick('name')">
 					<uni-view class="uni-list-cell-navigate informationName">用户名：</uni-view>
-					<input type="text" v-model="name" :disabled="disUser" placeholder="请填写用户名">
+					<input type="text" v-model="name" :disabled="disUser" placeholder="请填写用户名" @change="stateChange">
 				</uni-view>
 				<uni-view class="uni-list-cell" @tap="nameAndTelClick('telphone')">
 					<uni-view class="uni-list-cell-navigate informationName">联系电话：</uni-view>
-					<input type="text" v-model="telephone" disabled="true" placeholder="请填写联系电话">
+					<input type="text" v-model="telephone" disabled="true" placeholder="请填写联系电话" @change="stateChange">
 				</uni-view>
 				<uni-view class="uni-list-cell">
 					<uni-view class="uni-list-cell-navigate informationName">性别：</uni-view>
@@ -19,15 +19,15 @@
 				</uni-view>
 				<uni-view class="uni-list-cell">
 					<uni-view class="uni-list-cell-navigate informationName">微信：</uni-view>
-					<input type="text" v-model="wechat" placeholder="请填写微信">
+					<input type="text" v-model="wechat" placeholder="请填写微信" @change="stateChange">
 				</uni-view>
 				<uni-view class="uni-list-cell">
 					<uni-view class="uni-list-cell-navigate informationName">QQ：</uni-view>
-					<input type="text" v-model="qq" placeholder="请填写QQ">
+					<input type="text" v-model="qq" placeholder="请填写QQ" @change="stateChange">
 				</uni-view>
 				<uni-view class="uni-list-cell" >
 					<uni-view class="uni-list-cell-navigate informationName">地址：</uni-view>
-					<input type="text" v-model="address" placeholder="请填写地址">
+					<input type="text" v-model="address" placeholder="请填写地址" @change="stateChange">
 				</uni-view>
 			</uni-view>	
 		</view>
@@ -39,11 +39,10 @@
 	
 <script>
 	import route from "@/common/public.js"
-	import Prompt from '@/components/zz-prompt/index.vue'
 	import uniPopup from '@/components/uni-popup/uni-popup.vue'
 	export default {
 	  components: {
-		Prompt,uniPopup
+		uniPopup
 	  },
 	  data() {
 		return {
@@ -56,18 +55,20 @@
 		  qq:'', //qq号
 		  address:'', //地址
 		  sexFrame:false, /* 修改性别的弹出框 */
-		  /* popupmodel: '', */
 		  dis:'', //判断是公司账号还是user账号
-		  array: ['女', '男'], //性别数组
-		  /* unicommonHeight: false, */
-		  /* windowHeight: '', */
+		  array: ['女','男'], //性别数组
 		  disUser:'', //是否禁用输入框
-		  height:''
+		  height:'',
+		  state: false,
 		}
 	},
 	methods: {
-		bindPickerChange: function(e) {
-			 this.sex = e.target.value
+		stateChange(e){
+			this.state = true;
+		},
+		bindPickerChange(e) {
+			 this.sex = e.detail.value;
+			 this.state = true;
 		 },
 		nameAndTelClick(val){
 			if(val=='name'){
@@ -83,18 +84,9 @@
 		
 		/* 点击保存按钮触发的事件 */
 		changePersonal(evt){
-			// if(this.wechat==""){
-			// 	uni.showToast({title:'请填写微信号',icon:'none'})
-			// 	return false;
-			// }
-			// if(this.qq==""){
-			// 	uni.showToast({title:'请填写QQ号',icon:'none'})
-			// 	return false;
-			// }
-			// if(this.address==""){
-			// 	uni.showToast({title:'请填写公司地址信息',icon:'none'})
-			// 	return false;
-			// }
+			if(this.state == false){
+				return false;
+			}
 			if(this.name==""){
 				uni.showToast({title:'请填写用户名',icon:'none'})
 				return false;
@@ -102,7 +94,6 @@
 			
 			if(this.wechat!=""){
 				if(!RegExp(/^[-_a-zA-Z0-9]{5,19}$/).test(this.wechat)){
-					console.log("进来查看微信")
 					uni.showToast({title:'微信号格式不正确',icon:'none'})
 					return false;
 				}
@@ -115,7 +106,7 @@
 				}
 			}
 			uni.request({
-				url:route.variable+'/mobile/personal/altering_info',
+				url:getApp().globalData.webUrl+'/mobile/personal/altering_info',
 				method:'POST',
 				data:{
 					Ident_Signboard: this.Signboard,
@@ -144,7 +135,12 @@
 		isNull(userInfo){ //判断返回的数据是否为空，如果为空则将null换成字符串的空
 			this.name=userInfo.name;
 			this.telephone=userInfo.telephone;
+			// #ifdef MP-WEIXIN||APP-PLUS
+			this.sex=userInfo.sex.toString();
+			// #endif
+			// #ifdef H5
 			this.sex=userInfo.sex;
+			// #endif
 			this.wechat=userInfo.wechat;
 			this.qq=userInfo.qq;
 			this.address=userInfo.address;
@@ -161,7 +157,13 @@
 	  },
 	onLoad:function(){
 		try {
-		    this.height = this.winHeight
+			// #ifndef APP-PLUS
+			this.height = this.winHeight - statusBarHeight
+			// #endif
+			// #ifdef APP-PLUS
+			let statusBarHeight = uni.getSystemInfoSync().statusBarHeight
+			this.height = this.winHeight - statusBarHeight
+			// #endif
 		} catch (e) {
 		    // error
 		}
@@ -171,7 +173,7 @@
 		this.Signguid = data.Ident_Signguid;
 		this.dis=data.dis;
 		uni.request({
-			url:route.variable+'/mobile/personal/get_user_info',
+			url:getApp().globalData.webUrl+'/mobile/personal/get_user_info',
 			method: 'GET',
 			data:{
 				Ident_Signguid: this.Signguid,

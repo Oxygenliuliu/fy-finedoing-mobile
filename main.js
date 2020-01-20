@@ -3,12 +3,12 @@ import App from './App'
 
 Vue.config.productionTip = false
 /* Vue.http.options.withCredentials = true */
-
 App.mpType = 'app'
 
 const app = new Vue({
-    ...App
+    ...App,
 })
+export default app
 const res = uni.getSystemInfoSync();
 Vue.prototype.winHeight = res.windowHeight * 0.93;				
 app.$mount()

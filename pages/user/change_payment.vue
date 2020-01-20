@@ -1,76 +1,76 @@
 <template>
 	<view class="content" :style="{height:(height)+'px'}">
-		<view class="login">
-			<view class="l_top" style="margin-bottom:100upx;">
-				<view class="l_text">{{tips[cztime].msg}}</view>
-			</view>
-			<view class="l_top">
-				<view class="mima">
-					<view class="item">
-						<view v-if="len<=0" :class="{line:show}"></view>
-						<view v-if="len>=1" class="dot"></view>
-					</view>
-					<view class="item">
-						<view v-if="len==1" :class="{line:show}"></view>
-						<view v-if="len>=2" class="dot"></view>
-					</view>
-					<view class="item">
-						<view v-if="len==2" :class="{line:show}"></view>
-						<view v-if="len>=3" class="dot"></view>
-					</view>
-					<view class="item">
-						<view v-if="len==3" :class="{line:show}"></view>
-						<view v-if="len>=4" class="dot"></view>
-					</view>
-					<view class="item">
-						<view v-if="len==4" :class="{line:show}"></view>
-						<view v-if="len>=5" class="dot"></view>
-					</view>
-					<view class="item">
-						<view v-if="len==5" :class="{line:show}"></view>
-						<view v-if="len>=6" class="dot"></view>
-
-					</view>
-					<view v-if="len>5" class="dot">{{numlength}}</view>
-					<input class="trade_pwd" disabled="disabled" maxlength="6" id="targetInput" @focus="focus1" @blur="blur1" type="number"
-					 v-model="trade_pwd" />
+		<view style="height: 100%;">
+			<view class="login">
+				<view class="l_top" style="margin-bottom:100upx;">
+					<view class="l_text">{{tips[cztime].msg}}</view>
 				</view>
-			</view>
-		</view>
-		<view class="keypan">
-			<view class="titles">
-				<span @click="back()">取消</span>
-				<span @click='setpwd'>确认</span>
-			</view>
-			<view class="pan_num_key" :class="[items.checked?'pan_num_checked':'pan_num_key']" v-for="(items,index) in boardlists"
-			 :key="index" @click="writepwd(items.id)"><image class="" src="../../static/image/delete.png" :style="{display:(items.id == '12'?'block':'none')}"></image>{{items.con}}</view>
-		</view>
-		<!-- #ifndef MP-WEIXIN -->
-		<uni-popup ref="popup" type="bottom" :show="showPopup" custom="true">
+				<view class="l_top">
+					<view class="mima">
+						<view class="item">
+							<view v-if="len<=0" :class="{line:show}"></view>
+							<view v-if="len>=1" class="dot"></view>
+						</view>
+						<view class="item">
+							<view v-if="len==1" :class="{line:show}"></view>
+							<view v-if="len>=2" class="dot"></view>
+						</view>
+						<view class="item">
+							<view v-if="len==2" :class="{line:show}"></view>
+							<view v-if="len>=3" class="dot"></view>
+						</view>
+						<view class="item">
+							<view v-if="len==3" :class="{line:show}"></view>
+							<view v-if="len>=4" class="dot"></view>
+						</view>
+						<view class="item">
+							<view v-if="len==4" :class="{line:show}"></view>
+							<view v-if="len>=5" class="dot"></view>
+						</view>
+						<view class="item">
+							<view v-if="len==5" :class="{line:show}"></view>
+							<view v-if="len>=6" class="dot"></view>
 			
-			<view class="layer uni-flex uni-column">
-				<view class="flex-item flex-item-V layer_item layer_header">
-					<text>验证手机号</text>
-				</view>
-				<view class="flex-item flex-item-V layer_item">
-					<text>请输入尾号({{(telephone).substring(7, 11)}})的短信验证码</text>
-				</view>
-				<view class="flex-item flex-item-V layer_item code">
-					<view class="get-code" :style="{'color':getCodeBtnColor}" @click.stop="getCode()">{{getCodeText}}</view>
-					<input placeholder="输入验证码" type="number" v-model="code" placeholder-style="color: #cccccc;"/>
-				</view>
-				<view class="flex-item flex-item-V layer_item">
-					<button class="mini-btn" type="default" size="mini" @tap="back()">取消</button>
-					<button class="mini-btn" type="default" size="mini" @tap="codeBtn()">确定</button>
+						</view>
+						<view v-if="len>5" class="dot">{{numlength}}</view>
+						<input class="trade_pwd" disabled="disabled" maxlength="6" id="targetInput" @focus="focus1" @blur="blur1" type="number"
+						 v-model="trade_pwd" />
+					</view>
 				</view>
 			</view>
-		</uni-popup>
-		<!-- #endif -->
+			<view class="keypan">
+				<!-- <view class="titles">
+					<span @click="back()">取消</span>
+					<span @click='setpwd'>确认</span>
+				</view> -->
+				<view class="pan_num_key" :class="[items.checked?'pan_num_checked':'pan_num_key']" v-for="(items,index) in boardlists"
+				 :key="index" @click="writepwd(items.id)"><image class="" src="../../static/image/delete.png" :style="{display:(items.id == '12'?'block':'none')}"></image>{{items.con}}</view>
+			</view>
+			<uni-popup ref="popup" type="bottom" :show="showPopup" custom="true">
+				<view class="layer uni-flex uni-column">
+					<view class="flex-item flex-item-V layer_item layer_header">
+						<text>验证手机号</text>
+					</view>
+					<view class="flex-item flex-item-V layer_item">
+						<text>请输入尾号({{(telephone).substring(7, 11)}})的短信验证码</text>
+					</view>
+					<view class="flex-item flex-item-V layer_item code">
+						<view class="get-code" :style="{'color':getCodeBtnColor}" @click.stop="getCode()">{{getCodeText}}</view>
+						<input placeholder="输入验证码" type="number" v-model="code" placeholder-style="color: #cccccc;"/>
+					</view>
+					<view class="flex-item flex-item-V layer_item">
+						<button class="mini-btn" type="default" size="mini" @tap="back()">取消</button>
+						<button class="mini-btn" type="default" size="mini" @tap="codeBtn()">确定</button>
+					</view>
+				</view>
+			</uni-popup>
+		</view>
 	</view>
 </template>
 <script>
 	import uniPopup from "@/components/uni-popup/uni-popupPayResults.vue"
 	import route from "@/common/public.js"
+	import copyright from "@/components/customize/copyright.vue"
 	import {
 		mapGetters,
 		mapActions
@@ -78,7 +78,7 @@
 
 
 	export default {
-		components: {uniPopup},
+		components: {uniPopup,copyright},
 		computed: {
 			...mapGetters(['statusBarHeight'])
 		},
@@ -155,7 +155,7 @@
 					},
 				],
 				tips:[
-					{msg:'请输入旧支付密码'},
+					{msg:'请输入原支付密码'},
 					{msg:'请输入新支付密码'},
 					{msg:'请再次输入新支付密码'},
 					{msg:'请输入新支付密码'},
@@ -173,7 +173,13 @@
 		},
 		onLoad(e) {
 			try {
-			    this.height = this.winHeight
+				// #ifndef APP-PLUS
+				this.height = this.winHeight - statusBarHeight
+				// #endif
+				// #ifdef APP-PLUS
+				let statusBarHeight = uni.getSystemInfoSync().statusBarHeight
+				this.height = this.winHeight - statusBarHeight
+				// #endif
 			} catch (e) {
 			    // error
 			}
@@ -190,14 +196,13 @@
 			this.Signboard = data.Ident_Signboard;
 			this.Signguid = data.Ident_Signguid;
 			uni.request({
-				url:route.variable+'/mobile/Subaccount/getMain', //获取验证时调用的接口
+				url:getApp().globalData.webUrl+'/mobile/Subaccount/getMain', //获取验证时调用的接口
 				method:'POST',
 				data:{
 					Ident_Signboard: this.Signboard,
 					Ident_Signguid: this.Signguid,
 				},
 				success: (result) => {
-					console.log(result.data.telephone);
 					if(result.data.status==0){
 						this.telephone=result.data.telephone;
 					}else{
@@ -206,7 +211,6 @@
 				},
 				fail:(e)=>{
 					uni.showToast({title: '获取原手机号失败'+'错误码201',icon:"none"});
-					console.log("fail: "+'错误码201');
 				}
 			})
 		},
@@ -242,13 +246,12 @@
 				//示例用定时器模拟请求效果
 				setTimeout(()=>{
 					uni.request({
-						url:route.variable+'/mobile/security/verCode', //获取验证时调用的接口
+						url:getApp().globalData.webUrl+'/mobile/security/verCode', //获取验证时调用的接口
 						method:'POST',
 						data:{
 							telephone:this.telephone
 						},
 						success: (result) => {
-							console.log(result);
 							if(result.data.status==0){
 								uni.showToast({title: '验证码已发送',icon:"none"});
 							}else{
@@ -258,7 +261,6 @@
 						},
 						fail:(res)=>{
 							uni.showToast({title: '获取验证码失败'+'错误码201',icon:"none"});
-							console.log("fail: "+JSON.stringify(e));
 							this.changeStatus(0);
 						}
 					})
@@ -291,7 +293,7 @@
 				}
 				
 				uni.request({
-					url:route.variable+'/mobile/security/validation',
+					url:getApp().globalData.webUrl+'/mobile/security/validation',
 					method:'POST',
 					data:{
 						Ident_Signboard: this.Signboard,
@@ -300,7 +302,6 @@
 						vercode:this.code
 					},
 					success: (res) =>{
-						console.log(res);
 						if(res.data.status==0){
 							this.showPopup =false
 						}else{
@@ -310,7 +311,6 @@
 					fail:(e)=>{
 						uni.hideLoading()
 						uni.showToast({title: '修改支付密码失败'+'错误码201',icon:"none"});
-						console.log("fail: "+JSON.stringify(e));
 					}
 				})
 			},
@@ -329,9 +329,8 @@
 					this.boardlists[num - 1].checked = true;
 				}
 				this.numarr.push(num);
-				if (this.numarr.length > 6) {
-					return
-				}
+				
+				
 				var that = this;
 				setTimeout(function() {
 					for (var i = 0; i < that.boardlists.length; i++) {
@@ -339,8 +338,9 @@
 					}
 				}, 200)
 				this.trade_pwd = this.numarr.join("");
-
-
+				if (this.numarr.length == 6) {
+					this.setpwd();
+				}
 			},
 			//密码框
 			back() {
@@ -376,7 +376,7 @@
 					case 0:
 						this.old_pwd = this.trade_pwd;
 						uni.request({
-							url:route.variable+'/mobile/security/check_pass',
+							url:getApp().globalData.webUrl+'/mobile/security/check_pass',
 							method:'GET',
 							data:{
 								Ident_Signboard: this.Signboard,
@@ -384,6 +384,7 @@
 								oldpay:this.old_pwd,
 							},
 							success: (res) => {
+								console.log(res)
 								uni.hideLoading();
 								if (route.publicIf(res.data.status) == false){
 									return false;
@@ -393,14 +394,13 @@
 									++this.cztime;
 									this.reset()
 								}else{
-									uni.showToast({title: '原支付密码不正确,请重新输入'+res.data.message,icon:"none"});
+									uni.showToast({title: '原支付密码不正确,请重新输入',icon:"none"});
 									this.reset();
 								}
 							},
 							fail:(res)=>{
 								uni.hideLoading()
 								uni.showToast({title: '原支付密码验证失败,请重新输入'+'错误码201',icon:"none"});
-								console.log("fail: "+JSON.stringify(e));
 								this.reset();
 							}	
 						})	
@@ -426,7 +426,7 @@
 							title: '修改中...'
 						})
 						uni.request({
-							url:route.variable+'/mobile/Modify/updatePayPwd',
+							url:getApp().globalData.webUrl+'/mobile/Modify/updatePayPwd',
 							method:'GET',
 							data:{
 								Ident_Signboard: this.Signboard,
@@ -439,22 +439,28 @@
 									return false;
 								}
 								if(res.data.status==0){
-									uni.showToast({title: '支付密码修改成功，返回首页',icon:"none",duration:4000});
+									uni.showToast({title: '支付密码修改成功，返回首页',icon:"none",duration:1000});
 									setTimeout(function(){
+										// #ifndef H5
+										uni.switchTab({
+											url: '../../pages/index/index'
+										})
+										// #endif
+										// #ifdef H5
 										uni.redirectTo({
-											url: '/pages/index/index'
+											url: '../../pages/index/index'
 										});
-									},4000)
+										// #endif
+									},1100)
 								}else{
 									uni.hideLoading();
-									uni.showToast({title: '支付密码修改失败,'+res.data.message,icon:"none"});
+									uni.showToast({title: '支付密码修改失败',icon:"none"});
 									this.reset();
 								}
 							},
 							fail:(res)=>{
 								uni.hideLoading()
 								uni.showToast({title: '支付密码修改失败'+'错误码201',icon:"none"});
-								console.log("fail: "+JSON.stringify(e));
 								this.reset();
 							}	
 						})	
@@ -462,7 +468,7 @@
 					case 3:
 						this.new_pwd = this.trade_pwd;
 						uni.request({
-							url:route.variable+'/mobile/security/resetpayment',
+							url:getApp().globalData.webUrl+'/mobile/security/resetpayment',
 							method:'POST',
 							data:{
 								Ident_Signboard: this.Signboard,
@@ -470,14 +476,21 @@
 								password:this.new_pwd
 							},
 							success: (res) =>{
-								console.log(res);
 								if(res.data.status==0){
 									uni.showToast({title:'重设支付密码成功，返回首页',icon:'none',duration:4000})
 									setTimeout(function(){
+										// #ifndef H5
+										uni.switchTab({
+											url: '../../pages/index/index'
+										})
+										// #endif
+										// #ifdef H5
 										uni.redirectTo({
-											url: '/pages/index/index'
+											url: '../../pages/index/index'
 										});
-									},4000)
+										// #endif
+										
+									},1100)
 								}else{
 									uni.showToast({title:'重设支付密码失败，请重新输入密码',icon:'none'})
 									this.reset();
@@ -486,7 +499,6 @@
 							fail:(e)=>{
 								uni.hideLoading()
 								uni.showToast({title:'重设支付密码失败'+'错误码201',icon:'none'})
-								console.log("fail: "+JSON.stringify(e));
 								this.reset();
 							}
 						})
@@ -494,9 +506,6 @@
 					default:
 						break;
 				}
-				console.log(this.old_pwd);
-				console.log(this.new_pwd);
-				console.log(this.comfirm_pwd);
 				
 			},
 
@@ -506,6 +515,7 @@
 </script>
 <style lang="scss" scoped>
 	@import "../../common/uni.css";
+	page{overflow: hidden;height: calc(100% - 44px);}
 	.content {
 		width: 100%;
 		font-size: 28upx;
@@ -515,67 +525,34 @@
 		font-weight: 400;
 
 		.keypan {
-			width: 100%;
-			height: 500upx;
+			width: 100vw;
+			height: 35vh;
 			position: fixed;
 			left: 0;
 			bottom: 0;
 			background: #E6E6E6;
-
-			.titles {
-				width: 90%;
-				height: 80upx;
-				background: #E6E6E6;
-				display: flex;
-				justify-content: space-between;
-				line-height: 80upx;
-				padding: 0 5%;
-				font-size: 32upx;
-				color: #292824;
-
-				span {
-					width: 100upx;
-					height: 70upx;
-					display: inline-block;
-					padding-left: 30upx;
-				}
-
-			}
-
 			.pan_num_key {
-				width: 30%;
-				height: 80upx;
+				width: 33vw;/*写给不支持calc()的浏览器*/
+				width: -moz-calc(33vw - 1px);
+				width: -webkit-calc(33vw - 1px);
+				width: calc(33vw - 1px);
+				height: 25%;
 				float: Left;
-				margin-left: 2.1%;
-				margin-top: 2.1%;
-				text-align: center;
+				display: inline-flex;
+				justify-content: center;
+				align-items: center;
 				background: #fff;
-				font-size: 30upx;
-				border-radius: 10upx;
-				font-size: 35upx;
-				line-height: 60upx;
-				box-shadow: 0 2upx 5upx rgba(0, 0, 0, 0.5);
-				image{
-					width: 6vw;
-					height: 5vw;
-					position: relative;
-					top: 25%;
-					left: 40%;
-				}
+				border: 1px solid #f7f7f7;
+				font-size: 1rem;
+				font-weight: 600;
+				line-height: 25px;
+			}
+			.pan_num_key image{
+				width: 5vw;
+				height: 5vw;
 			}
 			
 			.pan_num_checked {
-				width: 30%;
-				height: 80upx;
-				float: Left;
-				margin-left: 2.1%;
-				margin-top: 2.1%;
-				text-align: center;
-				font-size: 30upx;
-				border-radius: 10upx;
-				font-size: 35upx;
-				line-height: 60upx;
-				box-shadow: 0 2upx 5upx rgba(0, 0, 0, 0.5);
 				animation: checked_bg 0.08s ease;
 			}
 		}

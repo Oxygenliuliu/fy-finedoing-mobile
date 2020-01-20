@@ -8,6 +8,12 @@
 	}
 	.btns {
 		width: 180upx;
+		/* #ifdef APP-PLUS */
+		width: 200upx;
+		/* #endif */
+		/* #ifdef MP-WEIXIN */
+		width: 90px;
+		/* #endif */
 		min-width: 120upx;
 		line-height: 2;
 		font-size: 0.7rem;
@@ -90,14 +96,15 @@
 	}
 
 	/* 商品信息详情 */
-	.commodity {
+	/* .commodity {
 		margin: 0 0 35upx 0;
 		background-color: #FFF;
 		width: 100%;
-	}
+	} */
+
 
 	/* 商品名样式 */
-	.sp_tite {
+	/* .sp_tite {
 		padding: 0.5rem;
 		font-weight: 400;
 		font-size: 0.8rem;
@@ -134,7 +141,7 @@
 		border-right: 1px solid #f7f7f7;
 	}
 	
-	.sp_cont_content uni-view {
+	.sp_cont_content view {
 		overflow: hidden;
 		white-space: nowrap;
 		text-overflow: ellipsis;
@@ -160,12 +167,6 @@
 		text-overflow: ellipsis; 
 		display: -webkit-box; 
 	}
-/* 	.cur_progress{
-		position: relative;
-		top: -4vw;
-		color: #999999;
-		font-weight: 600;
-	} */
 	.progressBtn{
 		border: 1px solid #f7f7f7;
 		width: 18vw;
@@ -177,7 +178,7 @@
 	}
 	.progressBtn::after{
 		display: none;
-	}
+	} */
 
 	/* 商品订单详情 */
 	.information {

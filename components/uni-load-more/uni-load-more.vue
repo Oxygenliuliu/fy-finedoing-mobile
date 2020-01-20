@@ -66,9 +66,10 @@
 	.uni-load-more {
 		display: flex;
 		flex-direction: row;
-		height: 80upx;
+		line-height: 40px;
 		align-items: center;
 		justify-content: center
+		
 	}
 
 	.uni-load-more__text {

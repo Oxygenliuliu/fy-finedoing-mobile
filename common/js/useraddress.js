@@ -46,7 +46,7 @@
 		methods: {
 			//失去焦点时验证手机号
 			VerInfoPhone(){
-				if(!RegExp(/^(13[0-9]|14[5|7]|15[0|1|2|3|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9]|17[0|1|2|3|5|6|7|8|9])\d{8}$/).test(this.upPhone)){
+				if(!(/^[1][3,4,5,6,7,8,9][0-9]{9}$/).test(this.upPhone)){
 					uni.showToast({
 						title:'手机号码格式不正确',
 						icon:'none'
@@ -99,14 +99,14 @@
 							title:"用户名只能包含中文，字母，数字",
 							icon: "none"
 						})
-					}else if(!RegExp(/^(13[0-9]|14[5|7]|15[0|1|2|3|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9]|17[0|1|2|3|5|6|7|8|9])\d{8}$/).test(this.upPhone)){
+					}else if(!(/^[1][3,4,5,6,7,8,9][0-9]{9}$/).test(this.upPhone)){
 						uni.showToast({
 							title:"手机号码格式不正确",
 							icon: "none"
 						})
 					}else{
 						uni.request({
-							url:route.variable+'/mobile/personal/updateAdd',
+							url:getApp().globalData.webUrl+'/mobile/personal/updateAdd',
 							method:'GET',
 							data:{
 								addid:this.addressId,
@@ -134,7 +134,7 @@
 			},
 			onAddress(){
 				uni.request({
-					url: route.variable+'/mobile/personal/getAddress',
+					url: getApp().globalData.webUrl+'/mobile/personal/getAddress',
 					method: 'GET',
 					data:{ 
 						Ident_Signboard: this.Signboard,

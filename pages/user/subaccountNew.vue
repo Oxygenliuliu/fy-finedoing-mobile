@@ -83,7 +83,7 @@
 				})
 				
 					uni.request({
-						url:route.variable+'/mobile/subaccount/creSubAccount', //注册接口地址
+						url:getApp().globalData.webUrl+'/mobile/subaccount/creSubAccount', //注册接口地址
 						method:'POST',
 						data:{  
 							Ident_Signboard: this.Signboard,

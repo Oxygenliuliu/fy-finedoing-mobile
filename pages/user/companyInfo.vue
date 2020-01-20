@@ -1,7 +1,7 @@
 <template>
 	<view class="now" :style="{height:(height)+'px'}">
 		<!-- 公司账号显示的个人信息块 -->
-		<view class="uni-padding-wrap">
+		<view class="uni-padding-wrap" style="height: 540px;">
 			<uni-view class="uni-active">
 				<uni-view class="uni-list-cell">
 					<uni-view class="uni-list-cell-navigate" style="letter-spacing: 5px;color: #999999;">基本信息</uni-view>
@@ -47,26 +47,24 @@
 	
 <script>
 	import route from "@/common/public.js"
-	import Prompt from '@/components/zz-prompt/index.vue'
 	export default {
-	  components: {
-		Prompt
-	  },
 	  data() {
 		return {
-		  Signboard:'',
-		  Signguid:'',
-		  companyName:'', //用户名
-		  telephone:'', //手机号
-		  phone:'', //座机号
-		  bank:'', //开户行/账号
-		  title:'', //开票抬头
-		  taxcode:'', //税号
-		  address:'', //地址
-		  disabledValue:false ,//是否禁用
-		  unicommonHeight: false,
-		  windowHeight: '',
-		  dis:'', //用于判断是公司 还是 个人
+			Signboard:'',
+			Signguid:'',
+			
+			companyName:'', //用户名
+			telephone:'', //手机号
+			phone:'', //座机号
+			bank:'', //开户行/账号
+			title:'', //开票抬头
+			taxcode:'', //税号
+			address:'', //地址
+			disabledValue:false ,//是否禁用
+			
+			unicommonHeight: false,
+			windowHeight: '',
+			dis:'', //用于判断是公司 还是 个人
 		  // btnActive:true,
 		}
 	},
@@ -81,12 +79,12 @@
 			// 监听窗口高度变化事件
 			uni.onWindowResize((res) => {
 				// 判断页面高度是否改变
-		        if(res.size.windowHeight != this.windowHeight){
-		            this.unicommonHeight = true;
-		        }else{
+		        if(res.size.windowHeight != this.windowHeight){
+		            this.unicommonHeight = true;
+		        }else{
 					this.unicommonHeight = false;
-		        }
-		    });
+		        }
+		    });
 		},
 		companyClick(){
 			if(this.dis!='COMPANY'){
@@ -113,7 +111,7 @@
 			// 	uni.showToast({title:'请填写座机号',icon:'none'})
 			// 	return false;
 			// }
-			if(!RegExp(/^1([38][0-9]|4[579]|5[0-3,5-9]|6[6]|7[0135678]|9[89])\d{8}$/).test(this.telephone)){
+			if(!(/^1[3456789]\d{9}$/).test(this.telephone)){
 				uni.showToast({title:'手机号格式不正确',icon:'none'})
 				return false;
 			}
@@ -138,7 +136,7 @@
 			}
 			
 			uni.request({
-				url:route.variable+'/mobile/personal/updUserInfo',
+				url:getApp().globalData.webUrl+'/mobile/personal/updUserInfo',
 				method:'POST',
 				data:{
 					Ident_Signboard: this.Signboard,
@@ -188,7 +186,7 @@
 		 /* 判断csid是否存在 */
 		 if(data.csid!=null){
 			 uni.request({
-			 	url:route.variable+'/mobile/personal/getPersonInfo',
+			 	url:getApp().globalData.webUrl+'/mobile/personal/getPersonInfo',
 			 	method: 'GET',
 			 	data:{
 			 		Ident_Signboard: this.Signboard,

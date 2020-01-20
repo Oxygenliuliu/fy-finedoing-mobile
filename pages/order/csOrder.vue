@@ -1,19 +1,16 @@
 <template>
   <view>
-		<!-- <view class="search">
-			<input type="text" value="" placeholder="请输入商品名称或单号" placeholder-style="font-size:0.6rem;color:#bbb;text-align:center;" />
-		</view> -->
 		<view class="navList"  >
 			<view class="navItem" @tap="switchType(key)" v-for="(items,key) in items" :key="key">
 				<text :class="{active:(key == checkNum ? true : false)}">{{items.name}}</text>
 				<view class="" v-if="key==0">
-					<uni-badge v-if="totalCount>0" :text="totalCount" type="danger" size="small" style="height: 20px;background: #ff0000;color: #ffffff;position: relative;top: -6px;left: -3px;"/>
+					<uni-badge v-if="totalCount>0" :text="totalCount" type="danger" size="small" class="bage-style"/>
 				</view>
 				<view class="" v-else-if="key==1">
-					<uni-badge v-if="paidCount>0" :text="paidCount" type="danger" size="small" style="height: 20px;background: #ff0000;color: #ffffff;position: relative;top: -6px;left: -3px;"/>
+					<uni-badge v-if="paidCount>0" :text="paidCount" type="danger" size="small" class="bage-style"/>
 				</view>
 				<view class="" v-else>
-					<uni-badge v-if="leftCount>0" :text="leftCount" type="danger" size="small" style="height: 20px;background: #ff0000;color: #ffffff;position: relative;top: -6px;left: -3px;"/>
+					<uni-badge v-if="leftCount>0" :text="leftCount" type="danger" size="small" class="bage-style"/>
 				</view>
 			</view>
 		</view>
@@ -39,7 +36,6 @@
 						未结清
 					</view>
 				</view>
-				
 				<view class="uni-flex uni-row">
 					<view class="ohBody flex-item" >
 						<view class="oh_body">下单日期:<text>{{row.BILL_DATE_STR}}</text></view>
@@ -51,22 +47,17 @@
 						<button class="btnDetails" type="primary" size="mini" @tap="getDetails(row.BILL_ID)">查看明细</button>
 					</view>
 				</view>
-				
 			</view>
 		</view>
 		<uni-load-more :status="status" :content-text="contentText" />
 		<view class="gotop">
-			
 		</view>
   </view>
 </template>
-
-
 <script>
 	import route from "@/common/public.js"
 	import uniBadge from '@/components/uni-badge/uni-badge.vue'
 	import uniLoadMore from '@/components/uni-load-more/uni-load-more.vue';
-	
 	export default {
 		components: {uniBadge,uniLoadMore},
 		data() {
@@ -151,14 +142,24 @@
 				}else{
 					this.status = 'noMore';
 				}
+				// 针对ios无法转码%22
+				let url = route.varCsQuery+ "/services/Query?dbname=" + datas.dbname + "&token=" + datas.softdog + "&params={%22QUERY_ID%22:1,%22PAGE_SIZE%22:10,%22PAGE_INDEX%22:"+_that.pagesIndex+",%22BEGINDATE%22:%221900-01-01%22,%22ENDDATE%22:%223000-01-01%22,%22Status%22:0,%22PARTNER_ID%22:" + datas.csid + "}";;
+				uni.getSystemInfo({
+				    success: (res)=>{
+				       if( res.platform == 'ios'){
+						url = route.varCsQuery+ "/services/Query?dbname=" + datas.dbname + "&token=" + datas.softdog + "&params={%22QUERY_ID%22:1,%22PAGE_SIZE%22:10,%22PAGE_INDEX%22:"+_that.pagesIndex+",%22BEGINDATE%22:%221900-01-01%22,%22ENDDATE%22:%223000-01-01%22,%22Status%22:0,%22PARTNER_ID%22:" + datas.csid + "}";
+						url = url.replace(/\%22/g,'"')
+					   }
+				    }
+				});
 				uni.request({
 					method: "GET",
-					url: "http://" + datas.org + "/services/Query?dbname=" + datas.dbname + "&token=" + datas.softdog + "&params={%22QUERY_ID%22:1,%22PAGE_SIZE%22:10,%22PAGE_INDEX%22:"+_that.pagesIndex+",%22BEGINDATE%22:%221900-01-01%22,%22ENDDATE%22:%223000-01-01%22,%22Status%22:0,%22PARTNER_ID%22:" + datas.csid + "}",
+					url: url,
 					data: {},
-					success: function (msg) {
+					success:  (msg)=> {
+						console.log(msg.data)
 					  if(msg.data.count!=0){
 						  _that.baseInfo = _that.reload ? msg.data.data:_that.baseInfo.concat(msg.data.data);
-						  console.log(_that.baseInfo)
 						  _that.totalIndex = Math.ceil(msg.data.data[0].SUMMARY_BILLCOUNT/10)
 						  _that.summaryTotal=msg.data.data[0].SUMMARY_TOTALMONEY;
 						  _that.summaryLeft=msg.data.data[0].SUMMARY_LEFTMONEY;
@@ -167,7 +168,7 @@
 						  _that.leftCount=msg.data.data[0].SUMMARY_BILLCOUNT_HASLEFT;
 						  _that.paidCount=(_that.totalCount-_that.leftCount).toString();
 						  _that.switchType(_that.checkNum)
-						  this.reload = false;
+						  _that.reload = false;
 					  }else{
 						  this.status = 'noMore';
 						  // uni.showToast({title:'未查询到CS订单',icon:'none'});
@@ -209,7 +210,6 @@
 		}
 	};
 </script>
-
 <style lang="scss">
 	@import "../../common/uni.css";
 	page {
@@ -217,6 +217,16 @@
 		flex-direction: column;
 		box-sizing: border-box;
 		background-color: #F7F7F7
+	}
+	.bage-style{
+		height: 20px;
+		/* #ifdef H5 */
+		background: #ff0000;
+		/* #endif */
+		color: #ffffff;
+		position: relative;
+		top: -6px;
+		left: -3px;
 	}
 	view {
 		font-size: 28upx;
@@ -255,7 +265,6 @@
 			align-items: center;
 			height: 100%;
 			text{
-				color: #444444;
 				display: inline-flex;
 				align-items: center;
 				height: 100%;

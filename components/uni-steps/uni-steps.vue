@@ -17,7 +17,7 @@
 </template>
 
 <script>
-	import uniIcons from '../uni-icon/uni-icon.vue'
+	import uniIcons from '../uni-icon/uni-icons.vue'
 	export default {
 		name: 'UniSteps',
 		components: {

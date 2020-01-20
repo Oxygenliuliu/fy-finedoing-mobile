@@ -1,9 +1,9 @@
 {
-    "name" : "印客宝-广告行业电商平台",
-    "appid" : "__UNI__ED7FFFF",
+    "name" : "印客宝",
+    "appid" : "__UNI__E0284F1",
     "description" : "为广告行业打造专属的电商平台",
-    "versionName" : "1.0.0",
-    "versionCode" : "100",
+    "versionName" : "4.0.835",
+    "versionCode" : 40835,
     "transformPx" : false,
     "app-plus" : {
         /* 5+App特有相关 */
@@ -14,40 +14,124 @@
             "autoclose" : true,
             "delay" : 0
         },
-        "modules" : {},
+        "modules" : {
+            "OAuth" : {},
+            "Share" : {},
+            "Payment" : {}
+        },
+        // "safearea": {  
+        //     "bottom": {  
+        //         "offset": "none"  
+        //     }  
+        // },
         /* 模块配置 */
         "distribute" : {
             /* 应用发布信息 */
             "android" : {
                 /* android打包配置 */
                 "permissions" : [
+                    "<uses-feature android:name=\"android.hardware.camera\"/>",
+                    "<uses-feature android:name=\"android.hardware.camera.autofocus\"/>",
+                    "<uses-permission android:name=\"android.permission.ACCESS_COARSE_LOCATION\"/>",
+                    "<uses-permission android:name=\"android.permission.ACCESS_FINE_LOCATION\"/>",
+                    "<uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\"/>",
+                    "<uses-permission android:name=\"android.permission.ACCESS_WIFI_STATE\"/>",
+                    "<uses-permission android:name=\"android.permission.CALL_PHONE\"/>",
+                    "<uses-permission android:name=\"android.permission.CAMERA\"/>",
                     "<uses-permission android:name=\"android.permission.CHANGE_NETWORK_STATE\"/>",
+                    "<uses-permission android:name=\"android.permission.CHANGE_WIFI_STATE\"/>",
+                    "<uses-permission android:name=\"android.permission.FLASHLIGHT\"/>",
+                    "<uses-permission android:name=\"android.permission.GET_ACCOUNTS\"/>",
+                    "<uses-permission android:name=\"android.permission.INTERNET\"/>",
+                    "<uses-permission android:name=\"android.permission.MODIFY_AUDIO_SETTINGS\"/>",
                     "<uses-permission android:name=\"android.permission.MOUNT_UNMOUNT_FILESYSTEMS\"/>",
                     "<uses-permission android:name=\"android.permission.READ_CONTACTS\"/>",
-                    "<uses-permission android:name=\"android.permission.VIBRATE\"/>",
                     "<uses-permission android:name=\"android.permission.READ_LOGS\"/>",
-                    "<uses-permission android:name=\"android.permission.ACCESS_WIFI_STATE\"/>",
-                    "<uses-feature android:name=\"android.hardware.camera.autofocus\"/>",
-                    "<uses-permission android:name=\"android.permission.WRITE_CONTACTS\"/>",
-                    "<uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\"/>",
-                    "<uses-permission android:name=\"android.permission.CAMERA\"/>",
-                    "<uses-permission android:name=\"android.permission.RECORD_AUDIO\"/>",
-                    "<uses-permission android:name=\"android.permission.GET_ACCOUNTS\"/>",
-                    "<uses-permission android:name=\"android.permission.MODIFY_AUDIO_SETTINGS\"/>",
                     "<uses-permission android:name=\"android.permission.READ_PHONE_STATE\"/>",
-                    "<uses-permission android:name=\"android.permission.CHANGE_WIFI_STATE\"/>",
+                    "<uses-permission android:name=\"android.permission.RECORD_AUDIO\"/>",
+                    "<uses-permission android:name=\"android.permission.VIBRATE\"/>",
                     "<uses-permission android:name=\"android.permission.WAKE_LOCK\"/>",
-                    "<uses-permission android:name=\"android.permission.CALL_PHONE\"/>",
-                    "<uses-permission android:name=\"android.permission.FLASHLIGHT\"/>",
-                    "<uses-permission android:name=\"android.permission.ACCESS_COARSE_LOCATION\"/>",
-                    "<uses-feature android:name=\"android.hardware.camera\"/>",
-                    "<uses-permission android:name=\"android.permission.ACCESS_FINE_LOCATION\"/>",
+                    "<uses-permission android:name=\"android.permission.WRITE_CONTACTS\"/>",
+                    "<uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\"/>",
                     "<uses-permission android:name=\"android.permission.WRITE_SETTINGS\"/>"
                 ]
             },
             "ios" : {},
             /* ios打包配置 */
-            "sdkConfigs" : {}
+            "sdkConfigs" : {
+                "oauth" : {},
+                "share" : {
+                    "qq" : {
+                        "appid" : "101828934"
+                    },
+                    "weixin" : {
+                        "appid" : "wxd8cf4dde511e62c5",
+                        "UniversalLinks" : "https://cloud.fydlsoft.com/newsCenter/"
+                    }
+                },
+                "payment" : {
+                    "weixin" : {
+                        "appid" : "wxd8cf4dde511e62c5",
+                        "UniversalLinks" : "https://cloud.fydlsoft.com/newsCenter/"
+                    }
+                }
+            },
+            "icons" : {
+                "android" : {
+                    "hdpi" : "unpackage/res/icons/72x72.png",
+                    "xhdpi" : "unpackage/res/icons/96x96.png",
+                    "xxhdpi" : "unpackage/res/icons/144x144.png",
+                    "xxxhdpi" : "unpackage/res/icons/192x192.png"
+                },
+                "ios" : {
+                    "appstore" : "unpackage/res/icons/1024x1024.png",
+                    "ipad" : {
+                        "app" : "unpackage/res/icons/76x76.png",
+                        "app@2x" : "unpackage/res/icons/152x152.png",
+                        "notification" : "unpackage/res/icons/20x20.png",
+                        "notification@2x" : "unpackage/res/icons/40x40.png",
+                        "proapp@2x" : "unpackage/res/icons/167x167.png",
+                        "settings" : "unpackage/res/icons/29x29.png",
+                        "settings@2x" : "unpackage/res/icons/58x58.png",
+                        "spotlight" : "unpackage/res/icons/40x40.png",
+                        "spotlight@2x" : "unpackage/res/icons/80x80.png"
+                    },
+                    "iphone" : {
+                        "app@2x" : "unpackage/res/icons/120x120.png",
+                        "app@3x" : "unpackage/res/icons/180x180.png",
+                        "notification@2x" : "unpackage/res/icons/40x40.png",
+                        "notification@3x" : "unpackage/res/icons/60x60.png",
+                        "settings@2x" : "unpackage/res/icons/58x58.png",
+                        "settings@3x" : "unpackage/res/icons/87x87.png",
+                        "spotlight@2x" : "unpackage/res/icons/80x80.png",
+                        "spotlight@3x" : "unpackage/res/icons/120x120.png"
+                    }
+                }
+            },
+            "splashscreen" : {
+                "android" : {
+                    "hdpi" : "C:/Users/Administrator/Desktop/APP加载页面图片-red/480-762.png",
+                    "xhdpi" : "C:/Users/Administrator/Desktop/APP加载页面图片-red/720-1242.png",
+                    "xxhdpi" : "C:/Users/Administrator/Desktop/APP加载页面图片-red/1080-1882.png"
+                },
+                "ios" : {
+                    "iphone" : {
+                        "portrait-896h@3x" : "C:/Users/Administrator/Desktop/APP加载页面图片-red/1242-2688.png",
+                        "landscape-896h@3x" : "C:/Users/Administrator/Desktop/APP加载页面图片-red/1242-2688.png",
+                        "portrait-896h@2x" : "C:/Users/Administrator/Desktop/APP加载页面图片-red/828-1792.png",
+                        "landscape-896h@2x" : "C:/Users/Administrator/Desktop/APP加载页面图片-red/828-1792.png",
+                        "iphonex" : "C:/Users/Administrator/Desktop/APP加载页面图片-red/1125-2436.png",
+                        "iphonexl" : "C:/Users/Administrator/Desktop/APP加载页面图片-red/1125-2436.png",
+                        "retina55" : "C:/Users/Administrator/Desktop/APP加载页面图片-red/1242-2208.png",
+                        "retina47" : "C:/Users/Administrator/Desktop/APP加载页面图片-red/750-1334.png",
+                        "retina55l" : "C:/Users/Administrator/Desktop/APP加载页面图片-red/1242-2208.png",
+                        "retina47l" : "C:/Users/Administrator/Desktop/APP加载页面图片-red/750-1334.png",
+                        "retina40" : "C:/Users/Administrator/Desktop/APP加载页面图片-red/640-1136.png",
+                        "retina40l" : "C:/Users/Administrator/Desktop/APP加载页面图片-red/640-1136.png",
+                        "retina35" : "C:/Users/Administrator/Desktop/APP加载页面图片-red/640-960.png"
+                    }
+                }
+            }
         }
     },
     /* SDK配置 */
@@ -55,17 +139,17 @@
     /* 快应用特有相关 */
     "mp-weixin" : {
         /* 小程序特有相关 */
-        "appid" : "",
+        "appid" : "wx07e514b92c8290a6",
         "setting" : {
             "urlCheck" : false,
-            "es6" : true,
+            "es6" : false,
             "minified" : true
         },
-        "usingComponents" : true
+        "usingComponents" : false
     },
     "h5" : {
         "title" : "印客宝-广告行业电商平台",
-        "domain" : "ht.finedoing.com",
+        "domain" : "erdoscxgg.com",
         "router" : {
             "mode" : "history",
             "base" : "/h5/"
@@ -74,7 +158,7 @@
             "https" : false,
             "port" : 80
         },
-        "template" : "template.h5.html",
+        "template" : "",
         "async" : {
             //页面js异步加载配置
             "loading" : "AsyncLoading", //页面js加载时使用的组件（需注册为全局组件）

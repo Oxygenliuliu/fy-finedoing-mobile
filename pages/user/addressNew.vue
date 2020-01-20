@@ -37,7 +37,7 @@
 				</view>
 			</view>
 		</view>
-		
+		<copyright></copyright>
 		<mpvue-picker :themeColor="themeColor" ref="mpvuePicker" :mode="mode" :deepLength="deepLength" :pickerValueDefault="pickerValueDefault" @onConfirm="onConfirm" @="" :pickerValueArray="pickerValueArray"></mpvue-picker>
 		<mpvue-city-picker :themeColor="themeColor" ref="mpvueCityPicker" :pickerValueDefault="cityPickerValueDefault" @="" @onConfirm="onConfirm"></mpvue-city-picker>
 	</view>
@@ -47,10 +47,12 @@
 	import mpvueCityPicker from '@/components/mpvue-citypicker/mpvueCityPicker.vue'
 	import mpviePicker from '@/components/mpvue-picker/mpvuePicker.vue'
 	import cityData from '@/common/city.data.js'
+	import copyright from "@/components/customize/copyright.vue"
 	export default{
 		components: {
 			'mpvue-city-picker':mpvueCityPicker,
 			'mpvue-picker':mpviePicker,
+			copyright
 		},
 		data(){
 			return{
@@ -96,7 +98,7 @@
 					uni.showToast({title:'请将信息填写完整，不允许为空',icon:'none'})
 				}else if(!RegExp(/^[\u4E00-\u9FA5A-Za-z0-9]+$/).test(this.istName)){
 					uni.showToast({title:"用户名只能包含中文，字母，数字",icon: "none"})
-				}else if(!RegExp(/^(13[0-9]|14[5|7]|15[0|1|2|3|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9]|17[0|1|2|3|5|6|7|8|9])\d{8}$/).test(this.istPhone)){
+				}else if(!(/^[1][3,4,5,6,7,8,9][0-9]{9}$/).test(this.istPhone)){
 					uni.showToast({title:"手机号码格式不正确",icon: "none"})
 				}else{
 					var wulala=uni.getStorageSync("jsonList");  //获取存储在Storage里的值
@@ -105,7 +107,7 @@
 					var Signguid = data.Ident_Signguid;  //给Signguid 赋值
 					this.addressDetailed=this.insertAddress+" "+this.istDetailed;
 					uni.request({
-						url:route.variable+'/mobile/personal/createAdd',
+						url:getApp().globalData.webUrl+'/mobile/personal/createAdd',
 						method:'GET',
 						data:{
 							Ident_Signboard: Signboard,

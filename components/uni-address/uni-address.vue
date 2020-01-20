@@ -111,7 +111,7 @@
 						title:"用户名只能包含中文，字母，数字",
 						icon: "none"
 					})
-				}else if(!RegExp(/^(13[0-9]|14[5|7]|15[0|1|2|3|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9]|17[0|1|2|3|5|6|7|8|9])\d{8}$/).test(this.upPhone)){
+				}else if(!(/^[1][3,4,5,6,7,8,9][0-9]{9}$/).test(this.upPhone)){
 					uni.showToast({
 						title:"手机号码格式不正确",
 						icon: "none"
@@ -120,7 +120,7 @@
 					this.addressDetailed=this.upAddress+" "+this.upDeDetailed;   //拼接：所在地址+详细地址
 					console.log(this.addressDetailed);
 					uni.request({
-						url:route.variable+'/mobile/personal/createAdd',
+						url:getApp().globalData.webUrl+'/mobile/personal/createAdd',
 						method:'GET',
 						data:{
 							Ident_Signboard: this.Signboard,
@@ -155,38 +155,9 @@
 					})
 				}
 			},
-			// 删除/修改后的信息改动接口
-			// onAddress(){
-			// 	uni.request({
-			// 		url: route.variable+'/mobile/personal/getAddress',
-			// 		method: 'GET',
-			// 		data:{ 
-			// 			Ident_Signboard: this.Signboard,
-			// 			Ident_Signguid: this.Signguid
-			// 		},
-			// 		success: (res) => {
-			// 			console.log("删除之后调接口")
-			// 			console.log(res)
-			// 			if(res.data.default.length == 0){
-			// 				this.defAddre = true
-			// 			}else{
-			// 				this.defAddre = false
-			// 				this.addressDef = res.data.default;	//给默认地址addressDef赋值
-			// 			}
-			// 			/* 判断如果默认地址数组里面没有值且地址信息里面只有一条信息时即设置为默认地址 */
-			// 			if(res.data.default.length == 0 && res.data.address.length==1){
-			// 				this.defAddre = false
-			// 				this.addressDef = res.data.address;	//给默认地址addressDef赋值
-			// 			}else{
-			// 				this.addressList = res.data.address;	//给默认地址addressDef赋值
-			// 			}
-			// 			
-			// 		}
-			// 	})
-			// },
 			//失去焦点时验证手机号
 			VerInfoPhone(){
-				if(!RegExp(/^(13[0-9]|14[5|7]|15[0|1|2|3|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9]|17[0|1|2|3|5|6|7|8|9])\d{8}$/).test(this.upPhone)){
+				if(!(/^[1][3,4,5,6,7,8,9][0-9]{9}$/).test(this.upPhone)){
 					uni.showToast({
 						title:'手机号码格式不正确',
 						icon:'none'
@@ -212,7 +183,7 @@
 						if (res.confirm) {
 							//当用户点击确定,便调用删除地址的接口
 							uni.request({
-								url:route.variable+'/mobile/personal/deleteAdd',
+								url:getApp().globalData.webUrl+'/mobile/personal/deleteAdd',
 								method:'GET',
 								data:{
 									addid:_that.addressId,
@@ -267,14 +238,14 @@
 							title:"用户名只能包含中文，字母，数字",
 							icon: "none"
 						})
-					}else if(!RegExp(/^(13[0-9]|14[5|7]|15[0|1|2|3|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9]|17[0|1|2|3|5|6|7|8|9])\d{8}$/).test(this.upPhone)){
+					}else if(!(/^[1][3,4,5,6,7,8,9][0-9]{9}$/).test(this.upPhone)){
 						uni.showToast({
 							title:"手机号码格式不正确",
 							icon: "none"
 						})
 					}else{
 						uni.request({
-							url:route.variable+'/mobile/personal/updateAdd',
+							url:getApp().globalData.webUrl+'/mobile/personal/updateAdd',
 							method:'GET',
 							data:{
 								addid:this.addressId,

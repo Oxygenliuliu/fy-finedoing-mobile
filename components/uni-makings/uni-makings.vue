@@ -4,25 +4,26 @@
 		<view class="mask"></view>
 		<view class="layer" v-bind:style="{ height: wholeHeight+ 'px', bottom:- wholeHeight + 'px' }" @tap.stop="discard">
 			<view class="content">
-				<view class="flex-row" style="display: flex;flex-direction: row;">
+				<view class="flex-row headerList" style="display: flex;flex-direction: row;">
 					<view class="flex-view-item specImg">
-						<image :src="ImageUrl+this.shopImgs"></image>
+						<!-- v-if 判断src是否已经获取 防止小程序报错-->
+						<image v-if='shopImgs' :src="ImageUrl+shopImgs"></image>
 					</view>
 					<view class="flex-view-item specsList">
 						<text class="uni-goodsPrice" style="color: red;">
 							<text>￥ {{totalPrice}}</text>
 						</text>
-						<text style="position: fixed;right: 44px;" @tap="hideSpec"><i class="uni-icon uni-icon-close"></i></text>
+						<text class="iconClose" @tap="hideSpec"><text class="iconfont icon-fork"></text></text>
 						<view class="specsName"><text>材料：</text><text>{{cailList}}</text></view>
-						<view class="specsName" style="width: 96%;"><text>工艺：</text><text v-for="(ite, index) in gongYiName" :key="index">{{gongYiLen == index+1?ite:ite+','}}</text></view>
+						<view class="specsName" style="width: 100%;word-break: break-all;"><text>工艺：</text><text v-for="(ite, index) in gongYiName" :key="index">{{gongYiLen == index+1?ite:ite+','}}</text></view>
 						<view class="specsName"><text>规格：</text><text>{{guigWidth}}*{{guigHeight}}{{guigMonad}}</text></view>
 					</view>
 				</view>
 				<scroll-view :scroll-top="scrollTop" scroll-y="true" class="scroll-Y" @scroll="scroll" @scrolltolower="lower" @scrolltoupper="upper">
 					<view class="scroll-view-item">
 						<!-- 选择规格 -->
-						<view class="clearfix" style="border-top: 1px solid #aaa;margin-top: 15px;">
-							<view class="title">选择规格：</view>
+						<view class="clearfix specs">
+							<view class="title titleList">选择规格：</view>
 							<view style="padding: 0 10px 10px 0;">
 								<view class="enter">
 									<text>宽</text>
@@ -36,14 +37,14 @@
 									<text style="margin-left: 7px;">mm</text>
 								</view>
 							</view>
-							<view class="sp">
+							<view class="sp arrangement">
 								<view @tap="norms(index)" v-for="(ggList,index) in unitlist" :key="index" :style="{color:(((ggList.width == guigWidth && ggList.height == guigHeight) || index == ggcheckNum)?'#FFF':'#000000'),background:(((ggList.width == guigWidth && ggList.height == guigHeight) || index == ggcheckNum)?'#FF0000':'#f3f2f8')}">{{ggList.width}}*{{ggList.height}}
 									{{ggList.monad}}</view>
 							</view>
 						</view>
 						<!-- 选择全部分类 -->
 						<view v-for="(item,index) in allLevel" :key="index" style="border-bottom: 1px solid #aaa;margin-top: 15px;">
-							<view class="title">{{item.name}}：</view>
+							<view class="title titleList">{{item.name}}：</view>
 							<view class="sp">
 								<view @tap="levelTap(index,ite.tid,inde)" v-for="(ite,inde) in item.items" :key="inde" :style="{color:(inde == item.checked ?'#FFF':'#000000'),background:(inde == item.checked ? '#FF0000':'#f3f2f8')}">{{ite.dname}}</view>
 							</view>
@@ -51,7 +52,7 @@
 
 						<!-- 选择材料 -->
 						<view>
-							<view class="title">选择材料：</view>
+							<view class="title titleList">选择材料：</view>
 							<view class="sp">
 								<view @tap="makings(index)" :data-gid="(stuffList.g_id)" v-for="(item,index) in stuffList" :key="index" :style="{color:((item.g_id == caiLiaoId || index == checkNum)?'#FFF':'#000000'),background:((item.g_id == caiLiaoId || index == checkNum)?'#FF0000':'#f3f2f8')}">{{item.g_name}}</view>
 							</view>
@@ -59,11 +60,11 @@
 						
 						<!-- 选择工艺 -->
 						<view style="border-top: 1px solid #aaa;margin-top: 15px;">
-							<view class="title">选择工艺：</view>
+							<view class="title titleList">选择工艺：</view>
 							<view class="sp">
-								<view @tap="craftTap(index,item)" :data-thid="(item.th_id)" v-for="(item, index) in craft" :key="index" :class="{'cur': gongYiName.indexOf(item.th_name)!=-1 || gongYiId.indexOf(item.th_id) != -1}">{{item.th_name}}</view>
+								<view @tap="craftTap(index,item)" :data-thid="(item.th_id)" v-for="(item, index) in craft" :key="index" :class="{'cur': item.action == 'false' ? false : true}">{{item.th_name}}</view>
 							</view>
-							<view style="color: #C0C0C0;" :class="{gyshow: gongYiShow}">该材料没有可选择的工艺</view>
+							<view style="color: #C0C0C0;padding: 0 2%;" :class="{gyshow: gongYiShow}">该材料没有可选择的工艺</view>
 						</view>
 						<view class="length" style="height: 60%;">
 							<view class="text">数量：</view>
@@ -72,7 +73,7 @@
 									<view class="icon jian"></view>
 								</view>
 								<view class="input" @tap.stop="discard">
-									<input type="number" :value="(number)" @blur="numberInput" />
+									<input type="number"  v-model="number" @blur="numberInput" />
 								</view>
 								<view class="add" @tap.stop="add">
 									<view class="icon jia"></view>
@@ -82,8 +83,42 @@
 					</view>
 				</scroll-view>
 			</view>
-			<view class="btn">
-				<view class="button end" @tap="makingshideSpec">完成</view>
+			<view class="footer">
+				<view class="btn" :style="{display:(buyOrShopcart==3?'':'none')}">
+					<view class="button end" @tap="makingshideSpec">完成</view>
+				</view>
+				<!-- <view class="btn2" :style="{display:(buyOrShopcart==3?'none':'')}">
+					<view class="joinCart" @tap="makingshideSpec(1)">加入购物车</view>
+					<view class="buy end" @tap="makingshideSpec(2)">立即购买</view>
+				</view> -->
+				<view class="footer" :style="{display:(buyOrShopcart==3?'none':'')}">
+					<view class="icons">
+						
+						<!-- #ifdef H5 -->
+						<view class="box" @tap="share">
+							<view class="icon fenxiang"></view>
+							<view class="text">分享</view>
+						</view>
+						<!-- #endif -->
+						
+						<!-- #ifndef H5 -->
+						<share  :screenData='screenInfo' :toShareData='shareData' style="z-index: 1001;"></share>
+						<!-- #endif -->
+						
+						<view class="box" @tap="toChat">
+							<view class="icon kefu"></view>
+							<view class="text">客服</view>
+						</view>
+						<view class="box" @tap="goBackCart">
+							<view class="icon cart"><text class="jiaobiao" :class="{JBnum:subscript}">{{shop}}</text></view>
+							<view class="text">购物车</view>
+						</view>
+					</view>
+					<view class="btns">
+						<view class="joinCart" @tap="makingshideSpec(1)">加入购物车</view>
+						<view class="buy end" @tap="makingshideSpec(2)">立即购买</view>
+					</view>
+				</view>
 			</view>
 		</view>
 	</view>
@@ -91,10 +126,16 @@
 
 <script>
 	import route from "@/common/public.js"
+	import share from "@/components/uni-share/share.vue"
 	export default {
+		components:{
+			share
+		},
 		name: "uni-makings",
 		data() {
 			return {
+				shop: 0,
+				subscript: true, //购物车数量角标是否显示
 				scrollTop: 0,
 				old: {
 					scrollTop: 0
@@ -131,7 +172,6 @@
 				checkCraft: -1,
 				gongYiId: [], //工艺id
 				gongYiName: [], //工艺名称
-
 				width: '', // 输入框 宽
 				height: '', //输入框 高
 				gongYiShow: false, //是否存在工艺提示
@@ -139,22 +179,37 @@
 				totalPrice: '', //商品总价
 				result: '', //判断是否存在登录的用户名
 				RequestArray: '', //报价需要的参数json数组
-				reqPrice: '', //未登录的情况下 从新登陆点击立即购买或者加入购物车时 返回价格的参数值
+				reqPrice: '', //未登录的情况下 从新登录点击立即购买或者加入购物车时 返回价格的参数值
 				wholeHeight: 0, //页面高度（动态赋值）
 				allLevel: [], //全部分类
 				allSort: [], //分类替换数据数组
 				allSortLen: '', //数组长度
 				// levelSubscript: 0,  //下标
+				buyOrShopcart:0,//0代表都没点，1.购物车，2.直接购买,3.购物车页面发起
 			}
 		},
 		methods: {
+			goBackCart(){
+				this.$emit('goBackCart');
+			},
+			share(){
+				this.$emit('share');
+			},
+			toChat(){
+				this.$emit('toChat');
+			},
 			show(res) {
 				setTimeout(() => {
 					const larheight = uni.getSystemInfoSync();
+					// #ifdef MP-WEIXIN
+					this.wholeHeight = larheight.windowTop + larheight.windowBottom + larheight.windowHeight * 0.8 + 50; //动态设置页面高度
+					// #endif
+					// #ifndef MP-WEIXIN
 					this.wholeHeight = larheight.windowTop + larheight.windowBottom + larheight.windowHeight * 0.8; //动态设置页面高度
+					// #endif
 					this.layerHeight = larheight.windowHeight * 0.8; //加入购物车动画加载
 					this.specClass = 'show';
-					this.ImageUrl = route.variable;
+					this.ImageUrl = getApp().globalData.webUrl;
 					this.Signboard = res.Signboard; //令牌
 					this.Signguid = res.Signguid; //用户id
 					this.shopImgs = res.shopImgs; //商品图片
@@ -167,9 +222,9 @@
 					this.token = res.token; //令牌
 					this.org = res.org; //加密狗
 					this.result = res.userName; //判断是否存在登录的用户名
+					this.typeid = res.type_id;
+					this.buyOrShopcart = res.buyOrShopcart;
 					if (res.product != 'product') { //判断:this.product不等于product 就从购物车过来的数据
-					console.log("啊哈哈")
-					console.log(res)
 						this.cailList = res.caiLInfo; //材料列表
 						this.unitlist = res.unitlist; //规格列表
 						this.gongYiFun(res.caiLiaoId); //调用工艺函数
@@ -177,20 +232,23 @@
 						this.guigHeight = res.guigHeight; //高
 						this.offerWidth = res.guigWidth / 1000; //报价请求 ：宽
 						this.offerHeight = res.guigHeight / 1000; //报价请求 :高
-						this.caiLiaoId = res.caiLiaoId; //材料ID
-						this.gongYiId = res.gongYiId; //工艺ID
-						this.gongYiName = res.rSelect; //工艺名称
+						this.caiLiaoId = res.caiLiaoId; //材料IDS
 						this.gongYiLen = res.rSelect.length; //工艺名称长度
 						this.width = res.guigWidth;
 						this.height = res.guigHeight;
 						this.checkNum = res.checkNum;
 						this.ggcheckNum = res.ggcheckNum;
 						this.number = res.number;
+						if(res.gongYiId != ''){
+							this.gongYiId = res.gongYiId; //工艺ID
+						}
+						if(res.rSelect != ''){
+							this.gongYiName = res.rSelect; //工艺名称
+						}
 					}
-
 					// 获取全部分类数据
 					uni.request({
-						url: route.variable + '/pc/cds/cxxc',
+						url: getApp().globalData.webUrl + '/pc/cds/cxxc',
 						method: 'GET',
 						data: {gid: res.type_id},
 						success: (res) => {
@@ -206,6 +264,18 @@
 							}
 						}
 					})
+					let jsonList = uni.getStorageSync("jsonList"); //获取存储在Storage里的值
+					let data = JSON.parse(jsonList); //JSON字符串转对象
+					this.shop = data.shop; //购物车数量
+					if (this.shop == 0) {
+						this.subscript = true;
+						this.Signboard, this.Signguid
+					} else {
+						this.subscript = false;
+					}
+					// #ifdef H5
+					this.nativeShare = new NativeShare(); //定义分享
+					// #endif
 				}, 0);
 			},
 			//levles = 4  数据循环函数
@@ -252,9 +322,8 @@
 			},
 			// 请求材料公共函数
 			stuffFun(tid){
-				console.log(tid)
 				uni.request({
-					url: route.variable + '/pc/cds/getStuff',
+					url: getApp().globalData.webUrl + '/pc/cds/getStuff',
 					method: 'GET',
 					data: {
 						goods_id:tid,
@@ -295,7 +364,12 @@
 					let urlInfo = '{"params": [{"goodsid": "' + e.caiLiaoId + '","partnerid": "' + e.Partnerid + '","w": "' + e.offerWidth +
 						'","h": "' + e.offerHeight + '","LpidList":"' + e.LpidList + '","qty": "' + e.number + '"}]}';
 					uni.request({
+						// #ifndef MP-WEIXIN
 						url: "http://" + e.org + "/services/order/query",
+						// #endif
+						// #ifdef MP-WEIXIN
+						url: route.varCsQuery + "/services/order/query",
+						// #endif
 						method: 'GET',
 						data: {
 							token: e.token, //令牌
@@ -310,35 +384,30 @@
 								let totalMoney = res.data.QueryResults[0]['totalmoney']; //当前行的小计（以指导单价计算）+ 后期工艺价格
 								this.lpMoney = res.data.QueryResults[0]['lpmoney']; //工艺价格
 								// 判断: 折扣后单价是否为空
-								// if (typeof(res.data.QueryResults[0]['discprice']) == 0) {
 								if (res.data.QueryResults[0]['discprice'] == 0) {
 									// 总价-工艺价格 = 单价
 									this.totalPrice = totalMoney.toFixed(2);  //总价
 									this.Price = price.toFixed(2);  //单价
+									
 								}else {
 									this.totalPrice = discMoney.toFixed(2);  //总价
 									this.Price = price.toFixed(2);  //单价
 								}
-								// 未登录的情况下 从新登陆点击立即购买或者加入购物车时 返回价格的参数值
+								// 未登录的情况下 从新登录点击立即购买或者加入购物车时 返回价格的参数值
 								this.reqPrice = {
 									'lpMoney': this.lpMoney,
 									'Price': this.Price,
 									'totalPrice': this.totalPrice,
 									'touches': e.touches
 								};
-
 								if (e.clickNum == '1') { // clickNum：判断是否点击过加入购物车或者立即购买按钮（1为点击过）
-									this.$emit("click", this.reqPrice); //返回主页面 （传参数）
+									this.$emit("changeInfo", this.reqPrice); //返回主页面 （传参数）
 								}
 							} else if (res.data.status == 4) {
-								uni.showToast({
-									title: '请选择材料或规格',
-									icon: 'none'
-								})
+								uni.showToast({title: '请选择材料或规格',icon: 'none'})
 							}
 						},
 						fail: (res) => {
-							console.log(res)
 							// uni.showToast({
 							// 	title: '请求失败' + '错误码201',
 							// 	icon: 'none'
@@ -354,10 +423,13 @@
 					this.checkNum = -1;
 					this.cailList = ''; //将选中的材料 打印到上面显示
 					this.caiLiaoId = ''; //获取材料id
-					this.craft = '';
+					this.craft = [];
 					this.gongYiShow = false;
 					return false;
 				}
+				this.craft = [];
+				this.gongYiId = [];
+				this.gongYiName = [];
 				this.checkNum = index;
 				this.cailList = this.stuffList[index].g_name; //将选中的材料 打印到上面显示
 				this.caiLiaoId = this.stuffList[index].g_id; //获取材料id
@@ -372,7 +444,7 @@
 			gongYiFun(gyId) {
 				// 请求工艺接口
 				uni.request({
-					url: route.variable + '/mobile/order/shiftsTechelog',
+					url: getApp().globalData.webUrl + '/mobile/order/shiftsTechelog',
 					method: 'GET',
 					data: {
 						gid: gyId
@@ -385,12 +457,24 @@
 						if (res.data.status == 0) {
 							// 判断工艺是否为空， null代表没有工艺
 							if (res.data.technology == null) {
-								this.craft = ''; //将数组赋值为空
+								this.craft = []; //将数组赋值为空
 								this.gongYiName = [];
 								this.gongYiId = [];
 								this.gongYiShow = false;
 							} else {
 								this.gongYiShow = true;
+								for(var i in res.data.technology){
+									res.data.technology[i].action = 'false';
+								}
+								// 购物车点击判断是否存在该工艺,如果存在就选中
+								for(var p in res.data.technology){
+									for(var j in this.gongYiName){
+										if(res.data.technology[p].th_name == this.gongYiName[j]){
+											res.data.technology[p].action = 'true';
+										}
+									}
+								}
+								this.craft = [];
 								this.craft = res.data.technology; //给craft（工艺数组）赋值
 							}
 						}
@@ -434,6 +518,9 @@
 			},
 			// 自定义规格:宽
 			widthInput(e) {
+				e.detail.value = e.detail.value.replace(/^0+/,"")
+				//e.detail.value
+				this.width = e.detail.value
 				this.guigWidth = e.detail.value;
 				this.offerWidth = e.detail.value / 1000; //mm换算成m
 				let RequestArray = this.requestFun();
@@ -441,6 +528,8 @@
 			},
 			// 自定义规格:高
 			heightInput(e) {
+				e.detail.value = e.detail.value.replace(/^0+/,"")
+				this.height = e.detail.value
 				this.guigHeight = e.detail.value;
 				this.offerHeight = e.detail.value / 1000; //mm换算成m
 				this.guigMonad = 'mm';
@@ -454,12 +543,14 @@
 					this.gongYiId.splice(this.gongYiId.indexOf('~' + evt.th_id + '~'), 1);
 					this.gongYiName.splice(this.gongYiName.indexOf(evt.th_name), 1); //工艺名称 存在的话就不添加
 					this.gongYiLen = this.gongYiName.length;
+					this.craft[index].action = 'false';
 					let RequestArray = this.requestFun();
 					this.offer(RequestArray); //调用报价接口
 				} else {
 					this.gongYiId.push('~' + evt.th_id + '~'); //获取工艺ID 添加到yongYiId
 					this.gongYiName.push(evt.th_name); //获取工艺名称 添加到gongYiName
 					this.gongYiLen = this.gongYiName.length;
+					this.craft[index].action = 'true';
 					let RequestArray = this.requestFun();
 					this.offer(RequestArray); //调用报价接口
 				}
@@ -476,18 +567,30 @@
 			//增加数量
 			add() {
 				this.number++;
-				console.log('123')
 				let RequestArray = this.requestFun();
 				this.offer(RequestArray); //调用报价接口
 			},
 			// 输入框数量
 			numberInput(e) {
-				this.number = e.target.value;
+				 if(!(/^\d+$/.test(e.detail.value)) || /\b(0+)/gi.test(e.detail.value)){
+					this.number = '1'
+				 }
+				if(this.number == ''){
+					this.number = '1'
+				}
+				if(this.number.length >=10 ){
+					uni.showToast({
+						title: '超出最大数量',
+						icon: 'none'
+					});
+					this.number = '1';
+				}
 				let RequestArray = this.requestFun();
 				this.offer(RequestArray); //调用报价接口
 			},
-			// 规格选中完后 点击完成按钮
+			// 规格选中完后 点击加入购物车按钮
 			makingshideSpec(e) {
+				this.buyOrShopcart = e;
 				this.result = route.checkStatus();
 				if (this.checkNum == -1) {
 					uni.showToast({
@@ -517,6 +620,7 @@
 					let RequestArray = this.requestFun();
 					this.offer(RequestArray); //调用报价接口
 					this.specClass = 'hide';
+					this.allLevel = [];
 					//回调
 					this.selectSpec && this.specCallback && this.specCallback();
 					this.specCallback = false;
@@ -525,6 +629,25 @@
 					}, 200);
 				}
 				this.isActive = false;
+				// uni.navigateTo({
+				// 	url:'../../pages/order/payment'
+				// })
+				// switch (this.buyOrShopcart){
+				// 	case 2:
+				// 		uni.navigateTo({
+				// 			url: '../../pages/order/payment?Ident_Signboard=' + this.Signboard + '&Ident_Signguid=' + this.Signguid + '&long=' +
+				// 				this.guigWidth + '&kuan=' + this.guigHeight +
+				// 				'&clid=' + this.caiLiaoId + '&qty=' + this.number + '&total=' + this.totalPrice + '&price=' + this.Price + '&gyid=' +
+				// 				this.gongYiId + '&gyname=' + this.rSelect +
+				// 				'&spid=' + this.typeid + '&lpmoney=' + this.lpMoney + '&l=2'
+				// 		});
+				// 		// uni.navigateTo({
+				// 		// 	url:'../../pages/order/payment'
+				// 		// })
+				// 		break;
+				// 	default:
+				// 		break;
+				// }
 				this.$emit("change", this.retmakings()); //返回主页面 （传参数）
 			},
 			// 储存返回参数 函数
@@ -548,7 +671,8 @@
 					'checkNum': this.checkNum,
 					'ggcheckNum': this.ggcheckNum,
 					'Signboard': this.Signboard,
-					'Signguid': this.Signguid
+					'Signguid': this.Signguid,
+					'buyOrShopcart':this.buyOrShopcart
 				}
 			},
 			//关闭规格弹窗
@@ -561,6 +685,7 @@
 					this.specClass = 'none';
 				}, 200);
 				this.isActive = false;
+				this.allLevel = [];
 				// this.Price = this.defPrice; //将价格恢复至原来的价格
 				// this.checkNum = -1; //将材料选中的下标 变为默认的 不选中
 				// this.caiLiaoId = ''; //将材料选中的下标 变为不选中
@@ -594,18 +719,106 @@
 				//丢弃
 				// return;
 			},
+		},
+		onShow() {
 		}
 	}
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
+	@import "../../common/iconfont.css";
 	@import "../../static/font.scss";
 	@import "../../common/uni.css";
 
 	page {
 		background-color: #f8f8f8;
 	}
-
+	// 主页面底部样式
+	// 数字角标
+	.jiaobiao {
+		width: 0.9rem;
+		height: 0.9rem;
+		font-size: 0.6rem;
+		line-height: 0.9rem;
+		border: 1ps solid red;
+		border-radius: 50%;
+		position: absolute;
+		top: 0.1rem;
+		color: #fff;
+		background-color: #dd524d;
+		text-align: center;
+	}
+	.JBnum {
+		display: none;
+	}
+	.footer {
+		position: fixed;
+		bottom: 0upx;
+		width: 92%;
+		padding: 0 2%;
+		height: 99upx;
+		border-top: solid 1upx #eee;
+		background-color: #fff;
+		z-index: 2;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		.icons {
+			display: flex;
+			height: 80upx;
+			margin-left: -4%;
+			.box {
+				width: 90upx;
+				height: 80upx;
+				display: flex;
+				justify-content: center;
+				flex-wrap: wrap;
+				.unibadge {
+					z-index: 999;
+					position: absolute;
+					top: 3px;
+					background-color: #FF0000;
+					color: #FFF;
+				}
+				.icon {
+					font-size: 40upx;
+					color: #828282;
+					margin-top: -3px;
+				}
+				.text {
+					margin-top: -8px;
+					display: flex;
+					justify-content: center;
+					width: 100%;
+					font-size: 22upx;
+					color: #666;
+				}
+			}
+		}
+	
+		.btns {
+			height: 80upx;
+			border-radius: 40upx;
+			overflow: hidden;
+			display: flex;
+			margin-right: -2%;
+			.joinCart,
+			.buy {
+				height: 80upx;
+				padding: 0 40upx;
+				color: #fff;
+				display: flex;
+				align-items: center;
+				font-size: 28upx;
+			}
+			.joinCart {
+				background-color: #f0b46c;
+			}
+		}
+	}
+	.headerList{
+		padding: 0 2%;
+	}
 	.fix {
 		position: fixed;
 	}
@@ -624,6 +837,9 @@
 	}
 
 	.cur {
+		/* #ifdef APP-PLUS||H5 */
+		background-color: #FF0000 !important;
+		/* #endif */
 		background-color: #FF0000 !important;
 		color: #FFF;
 	}
@@ -635,8 +851,14 @@
 
 	.scroll-Y {
 		box-sizing: border-box;
-		max-height: 379px;
 		padding-bottom: 100px;
+		/* #ifndef APP-PLUS */
+		max-height: 450px;
+		/* #endif */
+		/* #ifdef APP-PLUS */
+		max-height: 470px;
+		/* #endif */
+		
 	}
 
 	.scroll-view-item {
@@ -656,7 +878,14 @@
 		border-radius: 4px;
 		border: #e5e5e5 solid 1px;
 	}
-
+	.iconClose{
+		position: fixed;
+		right: 24px;
+	}
+	.icon-fork{
+		color: #666;
+		font-size: 20px;
+	}
 	.specsName {
 		width: 100%;
 		color: #666;
@@ -678,15 +907,19 @@
 	}
 
 	/* // 弹出框-宽高输入框样式 */
+	.specs{
+		border-top: 1px solid #aaa;
+		border-bottom: 1px solid #aaa;
+		margin-top: 15px;
+	}
 	.enter {
 		width: 18.4rem;
-		margin: 0px !important;
-		padding: 0px !important;
 		display: flex !important;
 		background: transparent !important;
 		height: 40px;
 		line-height: 40px;
 		padding-bottom: 1px !important;
+		padding: 0 2%;
 	}
 
 	.enter>input {
@@ -786,12 +1019,15 @@
 		}
 
 		.layer {
+			/* #ifdef MP-WEIXIN */
+			height: 558.6px;
+			bottom: -558px !important;
+			/* #endif */
 			position: absolute;
 			display: block;
 			z-index: 99;
 			width: 100%;
 			background-color: #fff;
-			padding: 0 4%;
 
 			.content {
 				width: 100%;
@@ -815,6 +1051,41 @@
 					justify-content: center;
 					font-size: 28upx;
 					z-index: 9999;
+					margin-left: 7%;
+				}
+			}
+			.btn2 {
+				position: fixed;
+				bottom: 0;
+				width: 96vw;
+				height: 34px;
+				// border-radius: 40upx;
+				// overflow: hidden;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				/* #ifdef MP-WEIXIN */
+				width: 100%;
+				background-color: #FFF;
+				/* #endif */
+				/* #ifdef APP-PLUS */
+				height: 40px;
+				/* #endif */
+				.joinCart,
+				.buy {
+					width: 20vw;
+					height: 80upx;
+					padding: 0 80upx;
+					margin: 0 20upx;
+					color: #fff;
+					display: flex;
+					border-radius: 25px;
+					align-items: center;
+					justify-content: center;
+					font-size: 28upx;
+				}
+				.joinCart {
+					background-color: #f0b46c;
 				}
 			}
 		}
@@ -855,7 +1126,6 @@
 					font-size: 30upx;
 					margin: 10upx 0;
 				}
-
 				.description {
 					font-size: 28upx;
 					color: #999;
@@ -867,12 +1137,12 @@
 			.title {
 				font-size: 30upx;
 				margin: 30upx 0;
+				padding: 0 2%;
 			}
-
 			.sp {
 				width: 100%;
 				display: -webkit-box;
-
+				padding: 0 2%;
 				view {
 					font-size: 28upx;
 					padding: 5upx 20upx;
@@ -880,6 +1150,7 @@
 					margin: 0 30upx 20upx 0;
 					background-color: #f6f6f6;
 					display: inline-block;
+					
 
 					&.on {
 						padding: 3upx 18upx;
@@ -896,6 +1167,7 @@
 				justify-content: space-between;
 				align-items: center;
 				padding-top: 20upx;
+				padding: 2%;
 
 				.text {
 					font-size: 30upx;
@@ -950,4 +1222,12 @@
 
 		}
 	}
+	/* #ifdef MP-WEIXIN */
+	.titleList{
+		// position: relative;
+	}
+	.enter{
+		margin-left: 10px !important;
+	}
+	/* #endif */
 </style>

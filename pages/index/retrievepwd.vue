@@ -21,7 +21,6 @@
 		<copyright></copyright>
 	</view>
 </template>
-
 <script>
 	import route from "@/common/public.js"
 	import copyright from "@/components/customize/copyright.vue"
@@ -50,7 +49,13 @@
 		},
 		onLoad() {
 			try {
-				this.height = this.winHeight
+				// #ifndef APP-PLUS
+				this.height = this.winHeight - statusBarHeight
+				// #endif
+				// #ifdef APP-PLUS
+				let statusBarHeight = uni.getSystemInfoSync().statusBarHeight
+				this.height = this.winHeight - statusBarHeight
+				// #endif
 			} catch (e) {
 			    // error
 			}
@@ -60,7 +65,7 @@
 				this.Signboard = data.Ident_Signboard;
 				this.Signguid = data.Ident_Signguid;
 				uni.request({
-					url:route.variable+'/mobile/Subaccount/getMain', //获取验证时调用的接口
+					url:getApp().globalData.webUrl+'/mobile/Subaccount/getMain', //获取验证时调用的接口
 					method:'POST',
 					data:{
 						Ident_Signboard: this.Signboard,
@@ -84,7 +89,6 @@
 			}else{
 				this.isLogin = false;
 			}
-			
 		},
 		methods: {
 			Timer(){},
@@ -124,13 +128,10 @@
 					}
 				}
 				this.changeStatus(1);
-				// this.getCodeText = "发送中..."
-				// this.getCodeisWaiting = true;
-				// this.getCodeBtnColor = "rgba(255,0,0,0.5)"
 				//示例用定时器模拟请求效果
 				setTimeout(()=>{
 					uni.request({
-						url:route.variable+'/mobile/security/verCode', //获取验证时调用的接口
+						url:getApp().globalData.webUrl+'/mobile/security/verCode', //获取验证时调用的接口
 						method:'POST',
 						data:{
 							telephone:this.phoneNumber
@@ -154,7 +155,6 @@
 					})
 					
 				},1000)
-				
 			},
 			changePassword: function() {
 				this.showPassword = !this.showPassword;
@@ -183,17 +183,14 @@
 					uni.showToast({title: '请输入手机号',icon:"none"});
 					return false; 
 				}
-				
 				if(!(/^1(3|4|5|6|7|8|9)\d{9}$/.test(this.phoneNumber))){ 
 					uni.showToast({title: '请填写正确手机号码',icon:"none"});
 					return false; 
 				} 
-
 				if(this.code==''){ 
 					uni.showToast({title: '请输入验证码',icon:"none"});
 					return false; 
 				}
-				
 				if(this.passwd==''){ 
 					uni.showToast({title: '请输入新密码',icon:"none"});
 					return false; 
@@ -206,7 +203,7 @@
 					title: '提交中...'
 				})
 				uni.request({
-					url:route.variable+'/mobile/security/UpPassword',
+					url:getApp().globalData.webUrl+'/mobile/security/UpPassword',
 					method:'POST',
 					data:{
 						password:this.passwd,
@@ -214,14 +211,14 @@
 						vercode:this.code
 					},
 					success: (res) =>{
-						console.log(res);
 						if(res.data.status==0){
 							uni.showToast({
 								title:res.data.message,
 								icon:'none',
 								complete() {
+									uni.removeStorageSync('jsonList')
 									setTimeout(function() {
-										uni.navigateTo({
+										uni.redirectTo({
 											url:'../index/login'
 										})
 									}, 1000);
@@ -237,7 +234,7 @@
 					},
 					fail:(e)=>{
 						uni.hideLoading()
-						uni.showToast({title: '修改登陆密码失败'+'错误码201',icon:"none"});
+						uni.showToast({title: '修改登录密码失败'+'错误码201',icon:"none"});
 						console.log("fail: "+'错误码201');
 					}
 				})
@@ -245,8 +242,11 @@
 		}
 	}
 </script>
-
 <style lang="scss">
 	@import "../../common/uni.css";
 	@import "../../static/css/login.scss";
+	.uni-bottom {
+		position: absolute;
+		bottom: 10px;
+	}
 </style>

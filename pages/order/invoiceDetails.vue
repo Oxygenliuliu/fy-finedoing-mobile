@@ -49,11 +49,11 @@
 			<view class="block_body">
 				<uni-view class="uni-flex uni-row">
 					<uni-view class="block_left ">发票抬头</uni-view>
-					<uni-view class="block_right">{{orderData.invoice_title}}</uni-view>
+					<uni-view class="block_right">{{orderData.invoice_title || ''}}</uni-view>
 				</uni-view>
 				<uni-view class="uni-flex uni-row">
 					<uni-view class="block_left ">公司税号</uni-view>
-					<uni-view class="block_right">{{orderData.tax_code}}</uni-view>
+					<uni-view class="block_right">{{orderData.tax_code || ''}}</uni-view>
 				</uni-view>
 			</view>
 		</view>
@@ -62,12 +62,6 @@
 				<view class="uni-list">
 					<view class="uni-list-cell" hover-class="uni-list-cell-hover" v-for="(item, index) in imgList" :key="index">
 						<view class="uni-media-list">
-							<!-- <view class="uni-media-list-logo">
-								<image  :src="item.fileUrl"></image>
-							</view> -->
-							<!-- <view class="invoiceNum">
-								<text>({{index+1}})</text>
-							</view> -->
 							<view class="uni-media-list-body">
 								<text>{{item.fileName}}</text>
 							</view>
@@ -81,8 +75,8 @@
 		</view>
     </view>
 </template>
-
 <script>
+	import downImg from '../../common/js/downImg.js' // 下载发票js
 	export default{
 		data(){
 			return{
@@ -93,29 +87,53 @@
 			}
 		},
 		methods:{
-			downloadInvoice:function(url){
-				window.location.href = url
-			}
+			downloadInvoice(url){
+				let imgUrl = url;
+				// #ifdef H5
+				window.open(imgUrl)
+				// #endif
+				// #ifdef APP-PLUS
+				if (url.substring(url.length - 3,url.length).toLowerCase() == 'pdf') {
+					downImg.appDownPdf(imgUrl)
+				}else {
+					downImg.appDownImg(imgUrl)
+				}
+				// #endif
+				// #ifdef MP-WEIXIN
+				imgUrl = 'https://cloud.fydlsoft.com/download_pic?' + imgUrl;
+				// 微信下载图片需要授权
+				if (url.substring(url.length - 3,url.length).toLowerCase() == 'pdf') {
+					downImg.appDownPdf(imgUrl)
+				}else {
+					downImg.wxDownImg(imgUrl)
+				}
+				// #endif
+					console.log(imgUrl,1111)
+				}
+				
 		},
-		onLoad: function(options) {
-			console.log(options)
+		onLoad(options) {
 			let pages = getCurrentPages();
-			let prevPage = pages[pages.length - 2];  
-			console.log(prevPage)
-			console.log(prevPage.orderData[0])
+			let prevPage1 = '', prevPage2 = '';
+			// #ifdef H5
+			prevPage1 = pages[pages.length - 2]; 
+			// #endif
+			// #ifndef H5
+			prevPage2 = pages[pages.length - 2].$vm; 
+			// #endif
+			let prevPage = prevPage1 || prevPage2
 			if(options.from_cs==0){
-				this.orderData = prevPage.orderData[0]
+				this.orderData = prevPage.orderData[0];
 			}else if(options.from_cs==1){
-				let arr = [];
+				let arr = {};
 				arr.saname = prevPage.orderData.BILL_LEFTMONEY=0?'已结清':'未结清';
-				arr.NO = prevPage.orderData.BILL_CODE
-				arr.date = prevPage.orderData.BILL_DATE_STR
-				arr.invoice_type = ''
-				arr.invoice_title = ''
-				arr.tax_code = ''
+				arr.NO = prevPage.orderData.BILL_CODE;
+				arr.date = prevPage.orderData.BILL_DATE_STR;
+				arr.invoice_type = '';
+				arr.invoice_title = '';
+				arr.tax_code = '';
 				this.orderData = arr;
 			}else{
-				console.log(prevPage)
 				uni.showToast({title:'未查询到订单信息！',icon:'none',duration:3000})
 			}
 			this.iveDtls = prevPage.invoiceList;
@@ -123,7 +141,6 @@
 			this.taxCode = options.tax_code;
 			for (var i = 0; i < this.iveDtls.length; i++) {
 				var arr=new Object;
-				console.log(this.iveDtls[i].length)
 				if(this.iveDtls[i].length<30){
 					arr['fileName']=(this.iveDtls[i]).substring(9,30)
 				}else{
@@ -132,7 +149,6 @@
 				arr['fileUrl']='http://'+this.org+'/'+this.iveDtls[i].replace('\\','/')
 				this.imgList.push(arr)
 			}
-			console.log(this.imgList)
 		}
 	}
 </script>
@@ -178,8 +194,6 @@
 			}
 		}
 	}
-	
-	
 	uni-button[size=mini] {
 		display: inline-block;
 		width: 70px;
@@ -190,7 +204,6 @@
 		border: 1px solid #999999;
 		border-radius: 5vw;
 	}
-	
 	/* 发票下载 */
 	.uni-list::before,.uni-list::after{
 		display: none;
@@ -210,5 +223,4 @@
 	.uni-list-cell-hover{
 		background: #FFFFFF;
 	}
-
 </style>

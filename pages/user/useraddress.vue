@@ -1,6 +1,6 @@
 <template>
 	<view>
-		<view>
+		<view class="container">
 			<scroll-view  :scroll-top="scrollTop" scroll-y="true" class="scroll-Y" @scroll="scroll" >
 				 <!-- 地址列表 -->
 				<view class="flex-row uni-bgc" style="display: flex;flex-direction: row;" v-for="(items, indexs) in addressList" :key="indexs" :data-addid='(items.addid)'>
@@ -20,7 +20,6 @@
 				<view class="uni-addBtn">新 建 地 址</view>
 			</view>
 		</view>
-		<!-- <uni-address ref="uniaddress" @change="checkPj" :editType="(editType)"></uni-address> -->
 		<mask v-if="showMask"></mask>
 	</view>
 </template>
@@ -28,14 +27,9 @@
 <script>
 	import route from "@/common/public.js"
 	import uniPopup from '@/components/uni-popup/uni-popup.vue'
-	import uniIcon from "@/components/uni-icon/uni-icon.vue"
-	import uniAddress from "@/components/uni-address/uni-address.vue"
+	import uniIcon from "@/components/uni-icon/uni-icons.vue"
 	export default {
-		components: {
-			uniAddress,
-			uniPopup,
-			uniIcon,
-		},
+		components: {uniPopup,uniIcon},
 		data() {
 			return {
 				scrollTop: 0,
@@ -53,22 +47,71 @@
 			}
 		},
 		methods: {
-			myCallBack(val){},
+			myCallBack(val){
+				console.log('1')
+			},
 			selectAddress(item,indexNum){
 				if(!this.isSelect){
 					this.xiuGai(item,indexNum);
 					return false;
 				}
-				let arr=[];
+				let arr={};
 				arr.addid = item.addid;  //地址编号
 				arr.address = item.address;  //收件人地址
 				arr.name = item.name;  //收件人姓名
 				arr.patientia = item.patientia;  //是否默认地址
 				arr.telephone = item.telephone;  //收件人电话
+				// #ifdef H5
 				this.prevPage.myAddressBack(arr);
+				// #endif
+				// #ifndef H5
+				let pages = getCurrentPages();
+				let prevPage = pages[pages.length - 2];
+				prevPage.$vm.myAddressBack(arr);
+				// #endif
 				uni.navigateBack()
 				this.addressMsg = false;
 				return;
+			},
+			/* 点击编辑图标触发的事件 (修改事件)*/
+			xiuGai(row,indexNum){
+				let _that = this;
+				_that.indexNum=indexNum; //当前选中数据的下标
+				uni.navigateTo({
+					url:"../user/edit?type=edit"
+				})
+				_that.myCallBack=function(val){
+					if(val.operationNum==0){ //operationNum是判断操作的参数，等于0是执行修改操作
+						var det = _that.addressList[indexNum].patientia; //当前这条数据的原默认值
+						//_that.$set(_that.addressList,indexNum,val); //给addressList重新赋值
+						_that.addressList.forEach((item,index)=>{
+							if(index == indexNum){
+								item.addid = val.addid;
+								item.address = val.address;
+								item.name = val.name;
+								item.patientia = val.patientia;
+								item.telephone = val.telephone;
+							}
+						})
+						console.log(_that.addressList)
+						if (indexNum != 0){
+							if(val.patientia==1 && det == 0){ //判断传过来的参数是否是设为1（默认）且当前数据不是默认
+								// if(_that.addressList.length!=1){ //当前数据不为空时进来，进行数据对换  _that.indexNumber!=null
+									// this.$set(this.addressList,this.indexNumber,temp);
+									_that.addressList[0].patientia=0;
+									var temp = _that.addressList[0];
+									_that.addressList[0] = _that.addressList[indexNum];
+									_that.addressList[indexNum] = temp;
+									_that.indexNumber=0;
+								// }
+							}
+						}
+					}
+					//操作判断 等于1就说明执行删除操作
+					if(val.operationNum==1){
+						this.addressList.splice(indexNum,1);
+					}
+				}
 			},
 			// 页面滑动
 			scroll: function(e) {
@@ -87,52 +130,21 @@
 				uni.navigateTo({
 					url:"../user/edit?type=add"
 				})
-				
 				this.myCallBack=function(val){ //获取传回来的数据并添加到addressList里面
 					if(val.operationNum==2){
+						console.log(val)
 						this.addressList.push(val);
+						console.log(this.addressList)
 					}
-					console.log("新增后的地址列表");
-					console.log(this.addressList);
 				}
 			},
-			/* 点击编辑图标触发的事件 (修改事件)*/
-			xiuGai(row,indexNum){
-				let _that = this;
-				_that.indexNum=indexNum; //当前选中数据的下标
-				uni.navigateTo({
-					url:"../user/edit?type=edit"
-				})
-				_that.myCallBack=function(val){
-					console.log("查看返回的数据");
-					console.log(val);
-					if(val.operationNum==0){ //operationNum是判断操作的参数，等于0是执行修改操作
-						var det = _that.addressList[indexNum].patientia; //当前这条数据的原默认值
-						_that.$set(_that.addressList,indexNum,val); //给addressList重新赋值
-						if (indexNum != 0){
-							if(val.patientia==1 && det == 0){ //判断传过来的参数是否是设为1（默认）且当前数据不是默认
-								// if(_that.addressList.length!=1){ //当前数据不为空时进来，进行数据对换  _that.indexNumber!=null
-									// this.$set(this.addressList,this.indexNumber,temp);
-									_that.addressList[0].patientia=0;
-									var temp = _that.addressList[0];
-									_that.addressList[0] = _that.addressList[indexNum];
-									_that.addressList[indexNum] = temp;
-									_that.indexNumber=0;
-								// }
-							}
-						}
-						
-					}
-					//操作判断 等于1就说明执行删除操作
-					if(val.operationNum==1){
-						this.addressList.splice(indexNum,1);
-					}
-				}
+			goBack(){
+				console.log('goBack')
 			},
 			// 获取地址信息接口
 			onAddress(){
 				uni.request({
-					url: route.variable+'/mobile/personal/getAddress',
+					url: getApp().globalData.webUrl+'/mobile/personal/getAddress',
 					method: 'GET',
 					data:{ 
 						Ident_Signboard: this.Signboard,
@@ -155,9 +167,10 @@
 		},
 		onLoad:function(options){
 			let pages = getCurrentPages();
+			// #ifdef H5
 			let prevPage = pages[pages.length - 2];  
 			this.prevPage = prevPage
-			
+			// #endif
 			let select=uni.getStorageSync('select');
 			if(select=='select'){
 				this.isSelect = true;
@@ -171,10 +184,10 @@
 			this.addressList='';
 			/* 调用获取信息地址接口 */
 			this.onAddress();
-		}
+		},
 	}
 </script>
 
-<style>
+<style scoped lang="scss">
 	@import "../../common/css/useraddress.css";
 </style>
